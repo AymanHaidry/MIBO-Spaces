@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Process — MIBO Home Interiors</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--accent:#c9a96e;--text:#f0ece4;--text-dim:rgba(240,236,228,0.55);}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:#0a0a0f;color:var(--text);font-family:'Jost',sans-serif;font-weight:300;overflow-x:hidden;cursor:none;}
+  .cursor{width:12px;height:12px;background:var(--accent);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;mix-blend-mode:difference;}
+  .cursor-ring{width:40px;height:40px;border:1px solid rgba(201,169,110,0.5);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9998;}
+
+  .bg-orbs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+  .orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:0.25;animation:orbFloat 18s ease-in-out infinite;}
+  .orb1{width:700px;height:700px;background:radial-gradient(circle,#1a0d00,transparent);top:-200px;left:-200px;}
+  .orb2{width:500px;height:500px;background:radial-gradient(circle,#001020,transparent);bottom:-100px;right:-100px;animation-delay:-9s;}
+  @keyframes orbFloat{0%,100%{transform:translate(0,0);}50%{transform:translate(30px,-30px);}}
+
+  nav{position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:1000;display:flex;align-items:center;padding:0 8px;background:rgba(15,15,20,0.7);backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,0.12);border-radius:100px;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
+  .nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;color:var(--accent);padding:14px 24px;border-right:1px solid rgba(255,255,255,0.08);text-decoration:none;}
+  .nav-links{display:flex;align-items:center;}
+  .nav-links a{color:var(--text-dim);text-decoration:none;font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;padding:14px 18px;transition:color 0.3s;}
+  .nav-links a:hover,.nav-links a.active{color:var(--text);}
+  .nav-cta{margin:6px;padding:8px 20px;background:var(--accent);color:#0a0a0f!important;border-radius:100px;font-weight:500!important;}
+
+  /* PAGE HEADER */
+  .page-header{position:relative;z-index:1;padding:160px 60px 100px;text-align:center;}
+  .page-eyebrow{font-size:0.68rem;letter-spacing:0.35em;text-transform:uppercase;color:var(--accent);margin-bottom:20px;}
+  .page-title{font-family:'Cormorant Garamond',serif;font-size:clamp(3rem,7vw,5.5rem);font-weight:300;line-height:1.05;}
+  .page-title em{font-style:italic;color:var(--accent);}
+  .page-sub{color:var(--text-dim);font-size:1rem;max-width:520px;margin:24px auto 0;line-height:1.75;}
+
+  /* TIMELINE */
+  .timeline{
+    position:relative;z-index:1;
+    max-width:900px;margin:0 auto;
+    padding:0 60px 120px;
+  }
+  .timeline-spine{
+    position:absolute;left:50%;top:0;bottom:0;
+    width:1px;
+    background:linear-gradient(to bottom,transparent,rgba(201,169,110,0.3) 10%,rgba(201,169,110,0.3) 90%,transparent);
+    transform:translateX(-50%);
+  }
+  .timeline-step{
+    display:grid;grid-template-columns:1fr 80px 1fr;
+    gap:0;margin-bottom:80px;align-items:start;
+    opacity:0;transform:translateY(30px);
+    transition:opacity 0.8s cubic-bezier(0.23,1,0.32,1),transform 0.8s cubic-bezier(0.23,1,0.32,1);
+  }
+  .timeline-step.visible{opacity:1;transform:translateY(0);}
+  .timeline-step:nth-child(odd) .step-left{text-align:right;padding-right:48px;}
+  .timeline-step:nth-child(odd) .step-right{padding-left:48px;}
+  .timeline-step:nth-child(even) .step-left{order:3;padding-left:48px;}
+  .timeline-step:nth-child(even) .step-center{order:2;}
+  .timeline-step:nth-child(even) .step-right{order:1;text-align:right;padding-right:48px;}
+
+  .step-center{
+    display:flex;flex-direction:column;align-items:center;position:relative;
+    padding-top:4px;
+  }
+  .step-dot{
+    width:56px;height:56px;
+    background:#0a0a0f;
+    border:1px solid rgba(201,169,110,0.4);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Cormorant Garamond',serif;
+    font-size:1.1rem;color:var(--accent);
+    flex-shrink:0;
+    transition:all 0.4s;
+    position:relative;z-index:1;
+  }
+  .timeline-step:hover .step-dot{
+    background:rgba(201,169,110,0.1);
+    box-shadow:0 0 40px rgba(201,169,110,0.3);
+    border-color:var(--accent);
+  }
+
+  .step-num-label{font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
+  .step-heading{
+    font-family:'Cormorant Garamond',serif;
+    font-size:1.7rem;font-weight:400;margin-bottom:12px;
+    line-height:1.2;
+  }
+  .step-heading em{font-style:italic;color:var(--accent);}
+  .step-body{color:var(--text-dim);font-size:0.9rem;line-height:1.8;}
+  .step-details{
+    margin-top:16px;
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .step-detail-item{
+    font-size:0.78rem;color:var(--text-dim);
+    display:flex;align-items:center;gap:8px;
+  }
+  .step-detail-item::before{
+    content:'';width:14px;height:1px;background:var(--accent);opacity:0.5;flex-shrink:0;
+  }
+  /* For right-aligned items */
+  .step-right .step-detail-item,.step-left.right-align .step-detail-item{
+    flex-direction:row-reverse;
+  }
+  .step-right .step-detail-item::before,.step-left.right-align .step-detail-item::before{
+    order:-1;
+  }
+
+  /* PROMISE SECTION */
+  .promise-section{
+    position:relative;z-index:1;
+    max-width:1200px;margin:0 auto;
+    padding:0 60px 120px;
+  }
+  .promise-header{text-align:center;margin-bottom:60px;}
+  .promise-header .section-label{font-size:0.68rem;letter-spacing:0.35em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;}
+  .promise-header h2{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,5vw,3.5rem);font-weight:300;}
+  .promise-header h2 em{font-style:italic;color:var(--accent);}
+
+  .promises-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
+  }
+  .promise-card{
+    padding:40px 32px;
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:20px;
+    transition:all 0.4s;
+    opacity:0;transform:translateY(20px);
+    transition:opacity 0.7s,transform 0.7s,background 0.3s,border-color 0.3s;
+  }
+  .promise-card.visible{opacity:1;transform:translateY(0);}
+  .promise-card:hover{background:rgba(255,255,255,0.07);border-color:rgba(201,169,110,0.2);}
+  .promise-icon{font-size:1.8rem;margin-bottom:20px;}
+  .promise-card h3{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;margin-bottom:12px;}
+  .promise-card p{font-size:0.88rem;color:var(--text-dim);line-height:1.75;}
+
+  /* CTA */
+  .cta-section{position:relative;z-index:1;padding:0 60px 120px;}
+  .cta-inner{max-width:1000px;margin:0 auto;text-align:center;padding:80px 60px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:32px;backdrop-filter:blur(20px);position:relative;overflow:hidden;}
+  .cta-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(201,169,110,0.1),transparent 70%);pointer-events:none;}
+  .cta-inner h2{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3rem);font-weight:300;margin-bottom:16px;position:relative;}
+  .cta-inner p{color:var(--text-dim);max-width:480px;margin:0 auto 36px;line-height:1.7;position:relative;}
+  .btn-primary{display:inline-flex;align-items:center;gap:10px;padding:16px 36px;background:var(--accent);color:#0a0a0f;border-radius:100px;text-decoration:none;font-size:0.85rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.4s;box-shadow:0 0 30px rgba(201,169,110,0.25);}
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(201,169,110,0.4);}
+
+  footer{padding:60px;border-top:1px solid rgba(255,255,255,0.06);position:relative;z-index:1;}
+  .footer-inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:24px;}
+  .footer-brand{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--accent);}
+  .footer-links{display:flex;gap:32px;flex-wrap:wrap;}
+  .footer-links a{color:var(--text-dim);text-decoration:none;font-size:0.82rem;letter-spacing:0.1em;text-transform:uppercase;transition:color 0.3s;}
+  .footer-links a:hover{color:var(--text);}
+  .footer-copy{font-size:0.72rem;color:var(--text-dim);}
+
+  @media(max-width:768px){
+    .page-header{padding:120px 24px 60px;}
+    .timeline{padding:0 24px 80px;}
+    .timeline-spine{display:none;}
+    .timeline-step{grid-template-columns:1fr;gap:16px;}
+    .timeline-step:nth-child(odd) .step-left,.timeline-step:nth-child(even) .step-right{text-align:left;padding:0;}
+    .timeline-step:nth-child(even) .step-left,.timeline-step:nth-child(odd) .step-right{padding:0;}
+    .timeline-step:nth-child(even)>*{order:unset!important;}
+    .step-center{flex-direction:row;gap:16px;align-items:center;margin-bottom:12px;}
+    .promise-section{padding:0 24px 80px;}
+    .promises-grid{grid-template-columns:1fr;}
+    .cta-section{padding:0 24px 80px;}
+    .cta-inner{padding:40px 24px;}
+    nav{width:calc(100% - 32px);}
+    .nav-links a:not(.nav-cta){display:none;}
+    footer{padding:40px 24px;}
+  }
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="bg-orbs"><div class="orb orb1"></div><div class="orb orb2"></div></div>
+
+<nav>
+  <a href="index.html" class="nav-logo">MIBO</a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="services.html">Services</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="process.html" class="active">Process</a>
+    <a href="contact.html" class="nav-cta">Get Started →</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="page-eyebrow">How We Work</div>
+  <h1 class="page-title">The MIBO<br><em>Process</em></h1>
+  <p class="page-sub">From the first conversation to the final handover — every step is orchestrated with intention, transparency, and craft.</p>
+</div>
+
+<div class="timeline">
+  <div class="timeline-spine"></div>
+
+  <div class="timeline-step">
+    <div class="step-left">
+      <div class="step-num-label">Step 01</div>
+      <h3 class="step-heading">The <em>Conversation</em></h3>
+      <p class="step-body">Everything begins with listening. We visit your home, understand how you live in it, and explore what you dream it could be. No judgements. No templates. Just a genuine conversation about possibility.</p>
+      <div class="step-details">
+        <div class="step-detail-item">Home visit at your convenience</div>
+        <div class="step-detail-item">Lifestyle & aesthetic brief</div>
+        <div class="step-detail-item">Budget transparency from day one</div>
+      </div>
+    </div>
+    <div class="step-center">
+      <div class="step-dot">01</div>
+    </div>
+    <div class="step-right"></div>
+  </div>
+
+  <div class="timeline-step">
+    <div class="step-left"></div>
+    <div class="step-center">
+      <div class="step-dot">02</div>
+    </div>
+    <div class="step-right">
+      <div class="step-num-label">Step 02</div>
+      <h3 class="step-heading">Design <em>Concept</em></h3>
+      <p class="step-body">Our designers translate your brief into a full concept: mood boards, material selections, 3D renders, and colour palettes — all tailored to your specific rooms and light conditions.</p>
+      <div class="step-details">
+        <div class="step-detail-item">Photorealistic 3D renders</div>
+        <div class="step-detail-item">Material & finish samples</div>
+        <div class="step-detail-item">Revision rounds until you say yes</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="timeline-step">
+    <div class="step-left">
+      <div class="step-num-label">Step 03</div>
+      <h3 class="step-heading"><em>Planning</em> & Procurement</h3>
+      <p class="step-body">Once you approve the design, we handle everything: sourcing materials, scheduling tradespeople, coordinating deliveries. You don't need to chase a single person — that's our job.</p>
+      <div class="step-details">
+        <div class="step-detail-item">Detailed project timeline</div>
+        <div class="step-detail-item">Material sourcing & procurement</div>
+        <div class="step-detail-item">Single point of contact throughout</div>
+      </div>
+    </div>
+    <div class="step-center">
+      <div class="step-dot">03</div>
+    </div>
+    <div class="step-right"></div>
+  </div>
+
+  <div class="timeline-step">
+    <div class="step-left"></div>
+    <div class="step-center">
+      <div class="step-dot">04</div>
+    </div>
+    <div class="step-right">
+      <div class="step-num-label">Step 04</div>
+      <h3 class="step-heading">Expert <em>Execution</em></h3>
+      <p class="step-body">Our skilled installation teams work with precision and respect for your home. We maintain a clean site, stick to timelines, and keep you updated at every milestone — no surprises.</p>
+      <div class="step-details">
+        <div class="step-detail-item">Professional, vetted tradespeople</div>
+        <div class="step-detail-item">Daily progress updates</div>
+        <div class="step-detail-item">Zero-compromise quality control</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="timeline-step">
+    <div class="step-left">
+      <div class="step-num-label">Step 05</div>
+      <h3 class="step-heading">The <em>Reveal</em></h3>
+      <p class="step-body">The moment we live for. We walk you through your completed home — and we don't leave until every single detail is exactly right. This is the moment your dream becomes your address.</p>
+      <div class="step-details">
+        <div class="step-detail-item">Full walkthrough inspection</div>
+        <div class="step-detail-item">Snag list resolved before sign-off</div>
+        <div class="step-detail-item">Aftercare support included</div>
+      </div>
+    </div>
+    <div class="step-center">
+      <div class="step-dot">05</div>
+    </div>
+    <div class="step-right"></div>
+  </div>
+
+</div>
+
+<!-- PROMISE SECTION -->
+<div class="promise-section">
+  <div class="promise-header">
+    <div class="section-label">The MIBO Commitment</div>
+    <h2>What we <em>promise</em> every client</h2>
+  </div>
+  <div class="promises-grid">
+    <div class="promise-card">
+      <div class="promise-icon">🏠</div>
+      <h3>Homes Only</h3>
+      <p>We work exclusively on residential projects. Your home isn't a side project for us — it's our entire focus. Every tool, every material, every design decision is calibrated for how people actually live.</p>
+    </div>
+    <div class="promise-card" style="transition-delay:0.1s">
+      <div class="promise-icon">⏱</div>
+      <h3>On Time, Every Time</h3>
+      <p>We plan thoroughly so we can execute reliably. Our detailed project timelines are built with buffers and honest estimates — because your time is as valuable as your home.</p>
+    </div>
+    <div class="promise-card" style="transition-delay:0.2s">
+      <div class="promise-icon">✦</div>
+      <h3>No Compromise on Quality</h3>
+      <p>We use materials and techniques we'd use in our own homes. Our quality control doesn't end until you sign off — and our aftercare means we're still accountable long after the project completes.</p>
+    </div>
+    <div class="promise-card" style="transition-delay:0.05s">
+      <div class="promise-icon">🤝</div>
+      <h3>Transparent Partnership</h3>
+      <p>No hidden costs, no surprises. Our budget conversations are honest from day one, and we'll always tell you what's possible at your investment level — and what isn't.</p>
+    </div>
+    <div class="promise-card" style="transition-delay:0.15s">
+      <div class="promise-icon">🎨</div>
+      <h3>Design That's Yours</h3>
+      <p>We don't have a signature style we impose on every client. We find your aesthetic and amplify it — which is why no two MIBO homes ever look the same.</p>
+    </div>
+    <div class="promise-card" style="transition-delay:0.25s">
+      <div class="promise-icon">♻</div>
+      <h3>Sustainable Choices</h3>
+      <p>Where possible, we recommend eco-friendly materials, low-VOC paints, and sustainable sourcing. Beautiful homes and responsible choices are not in conflict — we prove it with every project.</p>
+    </div>
+  </div>
+</div>
+
+<div class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-glow"></div>
+    <div style="font-size:0.68rem;letter-spacing:0.35em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;position:relative;">Begin Step One</div>
+    <h2>The first step is just<br>a <em>conversation.</em></h2>
+    <p>Book a free home consultation and let's talk about what your home could become.</p>
+    <a href="contact.html" class="btn-primary">Book Free Consultation →</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">MIBO</div>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="process.html">Process</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="footer-copy">© 2025 MIBO. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+  const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.transform=`translate(${mx-6}px,${my-6}px)`;});
+  (function animRing(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.transform=`translate(${rx-20}px,${ry-20}px)`;requestAnimationFrame(animRing);})();
+  const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.1});
+  document.querySelectorAll('.timeline-step,.promise-card').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

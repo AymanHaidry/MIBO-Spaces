@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIBO Admin — Dashboard</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+:root{
+  --gold:#c9a96e;--dark:#0d0c0a;--dark2:#141210;--dark3:#1e1b16;
+  --text:#e8e0d0;--dim:#a09080;--dimmer:#6a5f50;
+  --glass:rgba(255,255,255,.05);--gb:rgba(201,169,110,.15);
+  --green:#4caf7a;--red:#e05050;--blue:#5b9bd5;--orange:#e8923a;
+  --f:'Outfit',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--dark);color:var(--text);font-family:var(--f);font-size:14px}
+a{color:inherit;text-decoration:none}
+/* login */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse 70% 70% at 50% 0%,#1a1408,var(--dark) 70%)}
+.login-box{width:380px;background:var(--glass);backdrop-filter:blur(24px);border:1px solid var(--gb);border-radius:20px;padding:44px 36px;text-align:center}
+.login-logo{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:300;margin-bottom:6px}
+.login-logo span:first-child{color:var(--gold)}
+.login-sub{font-size:.82rem;color:var(--dim);margin-bottom:32px;letter-spacing:.1em;text-transform:uppercase}
+.l-inp{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:12px 16px;color:var(--text);font-family:var(--f);font-size:.92rem;outline:none;margin-bottom:14px;transition:border-color .3s}
+.l-inp:focus{border-color:rgba(201,169,110,.5)}
+.l-btn{width:100%;padding:13px;background:var(--gold);color:var(--dark);border:none;border-radius:10px;font-family:var(--f);font-weight:500;font-size:.9rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .3s;margin-top:4px}
+.l-btn:hover{background:#e8c98a;transform:translateY(-1px)}
+.l-err{color:var(--red);font-size:.8rem;margin-top:10px;display:none}
+/* layout */
+.admin{display:none;height:100vh;overflow:hidden}
+.admin.show{display:flex}
+.sidebar{width:220px;flex-shrink:0;background:var(--dark2);border-right:1px solid rgba(201,169,110,.1);display:flex;flex-direction:column;padding:0}
+.sb-logo{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,.05)}
+.sb-logo-txt{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300}
+.sb-logo-txt span:first-child{color:var(--gold)}
+.sb-badge{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-top:2px}
+.sb-nav{padding:16px 0;flex:1;overflow-y:auto}
+.sb-section{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dimmer);padding:12px 20px 6px}
+.sb-link{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--dim);font-size:.86rem;cursor:pointer;transition:all .25s;border-left:2px solid transparent}
+.sb-link:hover{color:var(--text);background:rgba(255,255,255,.03)}
+.sb-link.active{color:var(--gold);border-left-color:var(--gold);background:rgba(201,169,110,.06)}
+.sb-link svg{width:16px;height:16px;flex-shrink:0}
+.sb-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.05)}
+.sb-user{font-size:.8rem;color:var(--dim)}
+.sb-logout{font-size:.75rem;color:var(--red);cursor:pointer;margin-top:4px}
+/* main */
+.main{flex:1;overflow-y:auto;background:var(--dark)}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;border-bottom:1px solid rgba(255,255,255,.05);background:var(--dark);position:sticky;top:0;z-index:10}
+.topbar h1{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--text)}
+.topbar-actions{display:flex;gap:10px;align-items:center}
+.tb-btn{padding:8px 18px;border-radius:8px;font-family:var(--f);font-size:.8rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;border:none;cursor:pointer;transition:all .3s}
+.tb-gold{background:var(--gold);color:var(--dark)}
+.tb-ghost{background:rgba(255,255,255,.05);color:var(--text);border:1px solid rgba(255,255,255,.1)}
+.page{display:none;padding:24px 28px}
+.page.active{display:block}
+/* metric cards */
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.metric-card{background:var(--glass);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:22px 20px}
+.metric-card.gold{border-color:rgba(201,169,110,.3);background:rgba(201,169,110,.06)}
+.metric-val{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:300;line-height:1;margin-bottom:4px}
+.metric-lbl{font-size:.76rem;color:var(--dim);letter-spacing:.08em;text-transform:uppercase}
+.metric-delta{font-size:.74rem;margin-top:8px}
+.delta-up{color:var(--green)}.delta-down{color:var(--red)}
+/* table */
+.table-wrap{background:var(--glass);border:1px solid rgba(255,255,255,.07);border-radius:14px;overflow:hidden;margin-bottom:24px}
+.table-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.05)}
+.table-head h3{font-size:.9rem;font-weight:400;color:var(--text)}
+.search-inp{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 12px;color:var(--text);font-family:var(--f);font-size:.82rem;outline:none;width:200px}
+table{width:100%;border-collapse:collapse}
+th{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);font-weight:400;padding:10px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.05)}
+td{padding:12px 16px;font-size:.86rem;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:middle}
+tr:last-child td{border:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:.7rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase}
+.badge.hot{background:rgba(224,80,80,.15);color:var(--red);border:1px solid rgba(224,80,80,.25)}
+.badge.warm{background:rgba(232,146,58,.15);color:var(--orange);border:1px solid rgba(232,146,58,.25)}
+.badge.basic{background:rgba(91,155,213,.12);color:var(--blue);border:1px solid rgba(91,155,213,.2)}
+.badge.confirmed{background:rgba(76,175,122,.12);color:var(--green);border:1px solid rgba(76,175,122,.2)}
+.badge.pending{background:rgba(232,146,58,.12);color:var(--orange)}
+.badge.refunded{background:rgba(160,144,128,.12);color:var(--dim)}
+.badge.local{background:rgba(201,169,110,.12);color:var(--gold)}
+.badge.remote{background:rgba(91,155,213,.12);color:var(--blue)}
+.act-btn{padding:5px 12px;border-radius:6px;font-size:.74rem;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:var(--text);cursor:pointer;transition:all .25s}
+.act-btn:hover{background:rgba(255,255,255,.09)}
+.act-btn.danger{border-color:rgba(224,80,80,.3);color:var(--red)}
+.act-btn.danger:hover{background:rgba(224,80,80,.1)}
+/* chart placeholder */
+.chart-wrap{background:var(--glass);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:24px;margin-bottom:24px;height:220px;display:flex;flex-direction:column}
+.chart-title{font-size:.82rem;color:var(--dim);margin-bottom:16px;letter-spacing:.08em;text-transform:uppercase}
+.chart-bars{display:flex;align-items:flex-end;gap:6px;flex:1}
+.bar-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.bar{background:linear-gradient(to top,rgba(201,169,110,.8),rgba(201,169,110,.3));border-radius:4px 4px 0 0;width:100%;min-height:4px;transition:height .6s}
+.bar-lbl{font-size:.62rem;color:var(--dimmer)}
+/* analytics grid */
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+/* notification */
+.notif{position:fixed;bottom:24px;right:24px;padding:14px 20px;background:var(--dark3);border:1px solid var(--gb);border-radius:12px;font-size:.86rem;color:var(--text);z-index:9999;transform:translateY(80px);opacity:0;transition:all .4s;max-width:300px}
+.notif.show{transform:none;opacity:1}
+.notif.success{border-color:rgba(76,175,122,.4);background:rgba(76,175,122,.08)}
+.notif.error{border-color:rgba(224,80,80,.4);background:rgba(224,80,80,.08)}
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:5000;display:none;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--dark2);border:1px solid var(--gb);border-radius:16px;padding:32px;width:500px;max-width:90vw}
+.modal h3{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;color:var(--text);margin-bottom:16px}
+.modal-row{display:flex;justify-content:space-between;font-size:.86rem;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.modal-row:last-of-type{border:none}
+.modal-row span:first-child{color:var(--dim)}
+.modal-row span:last-child{color:var(--text);text-align:right;max-width:60%}
+.modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+@media(max-width:900px){
+  .sidebar{width:180px}
+  .metric-grid{grid-template-columns:repeat(2,1fr)}
+  .analytics-grid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .sidebar{display:none}
+  .metric-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="login-wrap" id="loginPage">
+  <div class="login-box">
+    <div class="login-logo"><span>M</span><span>IBO</span></div>
+    <div class="login-sub">Admin Panel</div>
+    <input class="l-inp" type="email" id="adminEmail" placeholder="Admin email" autocomplete="username">
+    <input class="l-inp" type="password" id="adminPass" placeholder="Password" autocomplete="current-password">
+    <button class="l-btn" onclick="doLogin()">Sign In</button>
+    <div class="l-err" id="loginErr">Incorrect credentials. Try again.</div>
+  </div>
+</div>
+
+<div class="admin" id="adminPanel">
+  <div class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-txt"><span>M</span><span>IBO</span></div>
+      <div class="sb-badge">Admin · v3.0</div>
+    </div>
+    <div class="sb-nav">
+      <div class="sb-section">Main</div>
+      <div class="sb-link active" onclick="showPage('dashboard',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard
+      </div>
+      <div class="sb-section">Leads & Bookings</div>
+      <div class="sb-link" onclick="showPage('leads',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>All Leads
+        <span id="sbLeadsCount" style="margin-left:auto;background:rgba(201,169,110,.15);color:var(--gold);padding:1px 7px;border-radius:100px;font-size:.7rem">0</span>
+      </div>
+      <div class="sb-link" onclick="showPage('bookings',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Bookings
+        <span id="sbBookingsCount" style="margin-left:auto;background:rgba(76,175,122,.15);color:var(--green);padding:1px 7px;border-radius:100px;font-size:.7rem">0</span>
+      </div>
+      <div class="sb-link" onclick="showPage('payments',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Payments
+      </div>
+      <div class="sb-link" onclick="showPage('refunds',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>Refunds
+        <span id="sbRefundsCount" style="margin-left:auto;background:rgba(224,80,80,.15);color:var(--red);padding:1px 7px;border-radius:100px;font-size:.7rem">0</span>
+      </div>
+      <div class="sb-section">Tools</div>
+      <div class="sb-link" onclick="showPage('slots',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Manage Slots
+      </div>
+      <div class="sb-link" onclick="showPage('analytics',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Analytics
+      </div>
+    </div>
+    <div class="sb-footer">
+      <div class="sb-user" id="sbUser">Not Signed In</div>
+      <div class="sb-logout" onclick="doLogout()">Sign out</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1 id="pageTitle">Dashboard</h1>
+      <div class="topbar-actions">
+        <span style="font-size:.8rem;color:var(--dim)" id="topbarDate"></span>
+        <button class="tb-btn tb-gold" onclick="exportCSV()">Export CSV</button>
+      </div>
+    </div>
+
+    <div class="page active" id="page-dashboard">
+      <div class="metric-grid">
+        <div class="metric-card gold"><div class="metric-val" id="dashRev" style="color:var(--gold)">₹0</div><div class="metric-lbl">Revenue (Lifetime)</div></div>
+        <div class="metric-card"><div class="metric-val" id="dashLeads">0</div><div class="metric-lbl">Total Leads</div></div>
+        <div class="metric-card"><div class="metric-val" id="dashBookings">0</div><div class="metric-lbl">Confirmed Bookings</div></div>
+        <div class="metric-card"><div class="metric-val" id="dashRefunds">0</div><div class="metric-lbl">Refund Requests</div></div>
+      </div>
+
+      <div class="chart-wrap">
+        <div class="chart-title">Lead Velocity (8 Weeks)</div>
+        <div class="chart-bars" id="chartBars"></div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-head">
+          <h3>Recent Leads</h3>
+          <a href="#" onclick="showPage('leads',document.querySelector('[onclick*=leads]'))">View all →</a>
+        </div>
+        <table>
+          <thead><tr><th>Name</th><th>City</th><th>Service</th><th>Score</th><th>Date</th><th>Action</th></tr></thead>
+          <tbody id="recentLeadsTbl"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="page" id="page-leads">
+      <div class="metric-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+        <div class="metric-card"><div class="metric-val" id="countHot" style="font-size:1.8rem;color:var(--red)">0</div><div class="metric-lbl">Hot Leads</div></div>
+        <div class="metric-card"><div class="metric-val" id="countWarm" style="font-size:1.8rem;color:var(--orange)">0</div><div class="metric-lbl">Warm Leads</div></div>
+        <div class="metric-card"><div class="metric-val" id="countBasic" style="font-size:1.8rem;color:var(--blue)">0</div><div class="metric-lbl">Basic Leads</div></div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-head">
+          <h3>All Leads</h3>
+          <input class="search-inp" placeholder="Search name, email, city…" oninput="filterTable(this.value,'leadsTbl')">
+        </div>
+        <table>
+          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>City/State</th><th>Service</th><th>Budget</th><th>Score</th><th>Source</th><th>Date</th><th>Action</th></tr></thead>
+          <tbody id="leadsTbl"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="page" id="page-bookings">
+      <div class="table-wrap">
+        <div class="table-head"><h3>All Bookings</h3><input class="search-inp" placeholder="Search…" oninput="filterTable(this.value,'bookingsTbl')"></div>
+        <table>
+          <thead><tr><th>Ref</th><th>Name</th><th>Phone</th><th>Slot Date</th><th>Type</th><th>Charge</th><th>Payment ID</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="bookingsTbl"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="page" id="page-payments">
+      <div class="table-wrap">
+        <div class="table-head"><h3>Payment Transactions</h3></div>
+        <table>
+          <thead><tr><th>Payment ID</th><th>Name</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody id="paymentsTbl"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="page" id="page-refunds">
+      <div class="table-wrap">
+        <div class="table-head"><h3>Refund Requests</h3></div>
+        <table>
+          <thead><tr><th>ID</th><th>Name</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="refundsTbl"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="page" id="page-slots">
+      <div style="margin-bottom:20px;display:flex;gap:12px;flex-wrap:wrap">
+        <button class="tb-btn tb-gold" onclick="generateFutureSlots()">Generate Next 14 Days</button>
+      </div>
+      <div class="table-wrap">
+        <div class="table-head"><h3>Available Slots</h3></div>
+        <table>
+          <thead><tr><th>Date</th><th>Day</th><th>Type</th><th>Capacity</th><th>Booked</th><th>Actions</th></tr></thead>
+          <tbody id="slotsTbl"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="page" id="page-analytics">
+      <div class="analytics-grid">
+        <div class="chart-wrap"><div class="chart-title">Revenue by Month</div><div class="chart-bars" id="revChart"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="leadModal">
+  <div class="modal">
+    <h3>Lead Details</h3>
+    <div id="leadModalBody"></div>
+    <div class="modal-actions">
+      <button class="tb-btn tb-ghost" onclick="document.getElementById('leadModal').classList.remove('open')">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ── SUPABASE CONFIG ── FIXED
+const SUPABASE_URL = "https://lfygfnsiignolmdnewhb.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmeWdmbnNpaWdub2xtZG5ld2hiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjE0MDYsImV4cCI6MjA5MDc5NzQwNn0.sw7n3JezeS5FcyN-IAhcbFycScKQxQyoyZTsaNbitS8";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true
+  }
+});
+
+let allLeads = [];
+let allSlots = [];
+
+// ── AUTH ── FIXED WITH ERROR HANDLING
+async function doLogin() {
+  const email = document.getElementById('adminEmail').value;
+  const password = document.getElementById('adminPass').value;
+  
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ 
+      email: email.trim(), 
+      password 
+    });
+    
+    if (error) {
+      document.getElementById('loginErr').textContent = error.message;
+      document.getElementById('loginErr').style.display = 'block';
+      return;
+    }
+    
+    await checkSession();
+  } catch (err) {
+    showNotif('Login failed: ' + err.message, 'error');
+  }
+}
+
+async function checkSession() {
+  try {
+    const { data: { session }, error } = await supabaseClient.auth.getSession();
+    
+    if (error || !session) {
+      return;
+    }
+    
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('adminPanel').classList.add('show');
+    document.getElementById('sbUser').textContent = session.user.email;
+    
+    // Listen for auth changes
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        location.reload();
+      }
+    });
+    
+    await initDashboard();
+  } catch (err) {
+    console.error('Session check failed:', err);
+  }
+}
+
+async function doLogout() {
+  try {
+    await supabaseClient.auth.signOut();
+    location.reload();
+  } catch (err) {
+    location.reload();
+  }
+}
+
+// Check session on load
+checkSession();
+
+// ── NAV ──
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('page-'+id)?.classList.add('active');
+  if (el) el.classList.add('active');
+  const titles = {
+    dashboard:'Dashboard', leads:'All Leads', bookings:'Bookings', 
+    payments:'Payments', refunds:'Refund Requests', slots:'Manage Slots', 
+    analytics:'Analytics'
+  };
+  document.getElementById('pageTitle').textContent = titles[id] || id;
+}
+
+// ── DATA FETCHING ── FIXED WITH ERROR HANDLING
+async function initDashboard() {
+  try {
+    document.getElementById('topbarDate').textContent = new Date().toLocaleDateString('en-IN', {
+      weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
+    });
+
+    // Fetch leads with error handling
+    const { data: leadsData, error: leadsError } = await supabaseClient
+      .from('leads')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (leadsError) throw new Error(`Leads fetch failed: ${leadsError.message}`);
+
+    // Fetch slots
+    const { data: slotsData, error: slotsError } = await supabaseClient
+      .from('slots')
+      .select('*')
+      .order('date', { ascending: true });
+    
+    if (slotsError) throw new Error(`Slots fetch failed: ${slotsError.message}`);
+
+    allLeads = leadsData || [];
+    allSlots = slotsData || [];
+
+    renderAll();
+    showNotif('Dashboard loaded successfully', 'success');
+  } catch (error) {
+    console.error('Dashboard init error:', error);
+    showNotif('Error loading data: ' + error.message, 'error');
+    
+    // Show demo data if database access fails (likely RLS issue)
+    allLeads = generateDemoLeads();
+    allSlots = generateDemoSlots();
+    renderAll();
+  }
+}
+
+function renderAll() {
+  renderMetrics();
+  renderLeadsTables();
+  renderBookingsTables();
+  renderPaymentsTables();
+  renderRefundsTables();
+  renderSlotsTable();
+  renderCharts();
+}
+
+// ── RENDER HELPERS ──
+const formatCurrency = (amt) => new Intl.NumberFormat('en-IN', { 
+  style: 'currency', currency: 'INR', maximumFractionDigits: 0 
+}).format(amt || 0);
+
+const formatDate = (dateStr) => dateStr ? 
+  new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—';
+
+// ── METRICS ──
+function renderMetrics() {
+  const revenue = allLeads.filter(l => l.is_paid).reduce((acc, l) => acc + Number(l.amount_paid || 0), 0);
+  const bookings = allLeads.filter(l => l.is_paid);
+  const refunds = allLeads.filter(l => l.status === 'Refund Requested');
+
+  document.getElementById('dashRev').textContent = formatCurrency(revenue);
+  document.getElementById('dashLeads').textContent = allLeads.length;
+  document.getElementById('dashBookings').textContent = bookings.length;
+  document.getElementById('dashRefunds').textContent = refunds.length;
+
+  document.getElementById('sbLeadsCount').textContent = allLeads.length;
+  document.getElementById('sbBookingsCount').textContent = bookings.length;
+  document.getElementById('sbRefundsCount').textContent = refunds.length;
+
+  document.getElementById('countHot').textContent = allLeads.filter(l => l.lead_score === 'Hot').length;
+  document.getElementById('countWarm').textContent = allLeads.filter(l => l.lead_score === 'Warm').length;
+  document.getElementById('countBasic').textContent = allLeads.filter(l => l.lead_score === 'Basic').length;
+}
+
+// ── TABLES ──
+function renderLeadsTables() {
+  const html = allLeads.map(l => `
+    <tr>
+      <td>${l.full_name || '—'}</td>
+      <td>${l.email || '—'}</td>
+      <td>${l.phone || '—'}</td>
+      <td>${l.city || ''} ${l.state || ''}</td>
+      <td>${l.service_type || '—'}</td>
+      <td>${l.budget_range || '—'}</td>
+      <td><span class="badge ${l.lead_score?.toLowerCase()}">${l.lead_score || 'Basic'}</span></td>
+      <td>${l.source || '—'}</td>
+      <td>${formatDate(l.created_at)}</td>
+      <td><button class="act-btn" onclick="viewLead('${l.id}')">View</button></td>
+    </tr>
+  `).join('');
+  
+  document.getElementById('leadsTbl').innerHTML = html;
+
+  const recentHtml = allLeads.slice(0, 5).map(l => `
+    <tr>
+      <td>${l.full_name || '—'}</td>
+      <td>${l.city || '—'}</td>
+      <td>${l.service_type || '—'}</td>
+      <td><span class="badge ${l.lead_score?.toLowerCase()}">${l.lead_score || 'Basic'}</span></td>
+      <td>${formatDate(l.created_at)}</td>
+      <td><button class="act-btn" onclick="viewLead('${l.id}')">View</button></td>
+    </tr>
+  `).join('');
+  
+  document.getElementById('recentLeadsTbl').innerHTML = recentHtml;
+}
+
+function renderBookingsTables() {
+  const bookings = allLeads.filter(l => l.is_paid);
+  document.getElementById('bookingsTbl').innerHTML = bookings.map(l => `
+    <tr>
+      <td style="color:var(--gold)">...${l.id.slice(-4)}</td>
+      <td>${l.full_name}</td>
+      <td>${l.phone}</td>
+      <td>${formatDate(l.slot_date)}</td>
+      <td><span class="badge local">${l.service_type || 'Local'}</span></td>
+      <td>${formatCurrency(l.amount_paid)}</td>
+      <td style="font-size:.7rem">${l.payment_id || '—'}</td>
+      <td><span class="badge confirmed">${l.status || 'Confirmed'}</span></td>
+      <td><button class="act-btn" onclick="viewLead('${l.id}')">Details</button></td>
+    </tr>
+  `).join('');
+}
+
+function renderPaymentsTables() {
+  const payments = allLeads.filter(l => l.is_paid);
+  document.getElementById('paymentsTbl').innerHTML = payments.map(l => `
+    <tr>
+      <td style="font-family:monospace">${l.payment_id || 'N/A'}</td>
+      <td>${l.full_name}</td>
+      <td style="color:var(--green)">${formatCurrency(l.amount_paid)}</td>
+      <td>${formatDate(l.created_at)}</td>
+      <td><span class="badge confirmed">Captured</span></td>
+    </tr>
+  `).join('');
+}
+
+function renderRefundsTables() {
+  const refunds = allLeads.filter(l => l.status?.includes('Refund'));
+  document.getElementById('refundsTbl').innerHTML = refunds.map(l => `
+    <tr>
+      <td>...${l.id.slice(-4)}</td>
+      <td>${l.full_name}</td>
+      <td>${formatCurrency(l.amount_paid)}</td>
+      <td><span class="badge warm">${l.status}</span></td>
+      <td><button class="act-btn danger" onclick="processRefund('${l.id}', true)">Approve</button></td>
+    </tr>
+  `).join('');
+}
+
+function renderSlotsTable() {
+  document.getElementById('slotsTbl').innerHTML = allSlots.map(s => `
+    <tr>
+      <td>${formatDate(s.date)}</td>
+      <td>${new Date(s.date).toLocaleDateString('en-IN',{weekday:'long'})}</td>
+      <td><span class="badge ${s.slot_type === 'Remote' ? 'remote' : 'local'}">${s.slot_type}</span></td>
+      <td>${s.total_capacity}</td>
+      <td>${s.booked_count}</td>
+      <td><button class="act-btn ${s.is_blocked ? '' : 'danger'}" onclick="toggleSlot('${s.id}', ${s.is_blocked})">${s.is_blocked ? 'Unblock' : 'Block'}</button></td>
+    </tr>
+  `).join('');
+}
+
+// ── CHARTS ──
+function renderCharts() {
+  // Lead velocity bars (8 weeks)
+  const weeks = new Array(8).fill(0);
+  const now = new Date();
+  allLeads.forEach(l => {
+    const leadDate = new Date(l.created_at);
+    const diffWeeks = Math.floor((now - leadDate) / (1000 * 60 * 60 * 24 * 7));
+    if (diffWeeks < 8 && diffWeeks >= 0) {
+      weeks[7 - diffWeeks]++;
+    }
+  });
+  
+  const max = Math.max(...weeks, 1);
+  document.getElementById('chartBars').innerHTML = weeks.map((w, i) =>
+    `<div class="bar-wrap">
+      <div class="bar" style="height:${Math.round((w / max) * 100)}%"></div>
+      <div class="bar-lbl">W${i + 1}</div>
+    </div>`
+  ).join('');
+
+  // Revenue chart (6 months) - dynamic labels
+  const months = [];
+  const nowMonth = new Date().getMonth();
+  for (let i = 5; i >= 0; i--) {
+    const monthDate = new Date();
+    monthDate.setMonth(nowMonth - i);
+    months.push(monthDate.toLocaleDateString('en-IN', { month: 'short' }));
+  }
+
+  const revs = new Array(6).fill(0);
+  allLeads.filter(l => l.is_paid).forEach(l => {
+    const month = new Date(l.created_at).getMonth();
+    const currentMonth = new Date().getMonth();
+    const monthIndex = (currentMonth - month + 12) % 12;
+    if (monthIndex < 6) {
+      revs[5 - monthIndex] += Number(l.amount_paid || 0);
+    }
+  });
+
+  const rMax = Math.max(...revs, 1);
+  document.getElementById('revChart').innerHTML = revs.map((r, i) =>
+    `<div class="bar-wrap">
+      <div class="bar" style="height:${Math.round((r / rMax) * 100)}%;background:linear-gradient(to top,var(--gold),rgba(201,169,110,.3))"></div>
+      <div class="bar-lbl">${months[i]}</div>
+    </div>`
+  ).join('');
+}
+
+// ── ACTIONS ──
+function viewLead(id) {
+  const l = allLeads.find(x => x.id === id);
+  if (!l) return;
+  
+  document.getElementById('leadModalBody').innerHTML = Object.entries({
+    'Name': l.full_name || '—',
+    'Email': l.email || '—',
+    'Phone': l.phone || '—',
+    'City': l.city || '—',
+    'State': l.state || '—',
+    'Service': l.service_type || '—',
+    'Budget': l.budget_range || '—',
+    'Score': l.lead_score || 'Basic',
+    'Status': l.status || 'New',
+    'Source': l.source || 'Booking Form',
+    'Paid': l.is_paid ? 'Yes' : 'No',
+    'Amount': formatCurrency(l.amount_paid),
+    'Slot Date': formatDate(l.slot_date),
+    'Message': (l.message || 'No message').substring(0, 100) + '...'
+  }).map(([k, v]) => 
+    `<div class="modal-row"><span>${k}</span><span>${v}</span></div>`
+  ).join('');
+  
+  document.getElementById('leadModal').classList.add('open');
+}
+
+async function toggleSlot(id, current) {
+  try {
+    const { error } = await supabaseClient
+      .from('slots')
+      .update({ is_blocked: !current })
+      .eq('id', id);
+    
+    if (error) throw error;
+    showNotif('Slot updated successfully', 'success');
+    await initDashboard();
+  } catch (error) {
+    showNotif('Error updating slot: ' + error.message, 'error');
+  }
+}
+
+async function generateFutureSlots() {
+  try {
+    const newSlots = [];
+    const now = new Date();
+    
+    for (let i = 1; i <= 14; i++) {
+      const date = new Date(now);
+      date.setDate(now.getDate() + i);
+      const dateStr = date.toISOString().split('T')[0];
+      
+      newSlots.push({
+        date: dateStr,
+        slot_type: 'Local',
+        total_capacity: 3,
+        booked_count: 0,
+        is_blocked: false
+      });
+      newSlots.push({
+        date: dateStr,
+        slot_type: 'Remote',
+        total_capacity: 5,
+        booked_count: 0,
+        is_blocked: false
+      });
+    }
+    
+    const { error } = await supabaseClient
+      .from('slots')
+      .upsert(newSlots, { 
+        onConflict: 'date,slot_type',
+        ignoreDuplicates: true 
+      });
+    
+    if (error) throw error;
+    showNotif('14 days of slots generated', 'success');
+    await initDashboard();
+  } catch (error) {
+    showNotif('Error generating slots: ' + error.message, 'error');
+    console.error('Slots generation error:', error);
+  }
+}
+
+async function processRefund(id, approved) {
+  try {
+    const { error } = await supabaseClient
+      .from('leads')
+      .update({ status: approved ? 'Refunded' : 'Confirmed' })
+      .eq('id', id);
+    
+    if (error) throw error;
+    showNotif(approved ? 'Refund approved' : 'Refund denied', 'success');
+    await initDashboard();
+  } catch (error) {
+    showNotif('Error processing refund: ' + error.message, 'error');
+  }
+}
+
+// ── UTILITIES ──
+function filterTable(query, tableId) {
+  const q = query.toLowerCase();
+  document.querySelectorAll(`#${tableId} tr`).forEach((row, index) => {
+    if (index === 0) return; // Skip header
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+function exportCSV() {
+  const headers = 'ID,Name,Email,Phone,City,State,Service,Budget,Score,Status,Amount,Slot Date,Created\n';
+  const rows = allLeads.map(l => [
+    l.id,
+    `"${l.full_name || ''}"`,
+    l.email || '',
+    l.phone || '',
+    l.city || '',
+    l.state || '',
+    l.service_type || '',
+    l.budget_range || '',
+    l.lead_score || '',
+    l.status || '',
+    l.amount_paid || '',
+    l.slot_date || '',
+    l.created_at || ''
+  ].join(',')).join('\n');
+  
+  const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `mibo-leads-${new Date().toISOString().slice(0,10)}.csv`;
+  link.click();
+  showNotif('CSV exported successfully', 'success');
+}
+
+function showNotif(msg, type = '') {
+  const notif = document.getElementById('notif');
+  notif.textContent = msg;
+  notif.className = `notif show ${type}`;
+  setTimeout(() => notif.classList.remove('show'), 3500);
+}
+
+// ── DEMO DATA (for RLS testing) ──
+function generateDemoLeads() {
+  return Array.from({ length: 25 }, (_, i) => ({
+    id: `demo-${i}`,
+    full_name: `John Doe ${i + 1}`,
+    email: `john${i + 1}@example.com`,
+    phone: `+91${Math.floor(9000000000 + Math.random() * 1000000000)}`,
+    city: ['Patna', 'Delhi', 'Mumbai', 'Bangalore'][i % 4],
+    state: ['Bihar', 'Delhi', 'Maharashtra', 'Karnataka'][i % 4],
+    service_type: ['Consultation', 'Workshop', 'Training'][i % 3],
+    budget_range: ['5k-10k', '10k-25k', '25k+'][i % 3],
+    lead_score: ['Hot', 'Warm', 'Basic'][i % 3],
+    source: ['Booking Form', 'Website', 'Referral'][i % 3],
+    status: ['New', 'Contacted', 'Confirmed', 'Refund Requested'][i % 4],
+    is_paid: i % 4 === 2,
+    amount_paid: i % 4 === 2 ? 15000 + i * 500 : null,
+    slot_date: i % 5 === 0 ? '2026-04-10' : null,
+    created_at: new Date(Date.now() - i * 86400000).toISOString()
+  }));
+}
+
+function generateDemoSlots() {
+  return Array.from({ length: 28 }, (_, i) => ({
+    id: `slot-${i}`,
+    date: new Date(Date.now() + (i + 1) * 86400000).toISOString().split('T')[0],
+    slot_type: i % 2 === 0 ? 'Local' : 'Remote',
+    total_capacity: i % 2 === 0 ? 3 : 5,
+    booked_count: Math.floor(Math.random() * 3),
+    is_blocked: Math.random() > 0.8
+  }));
+}
+
+// Close modal on outside click
+document.getElementById('leadModal').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) {
+    e.currentTarget.classList.remove('open');
+  }
+});
+
+// Enter key login
+document.getElementById('adminPass').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') doLogin();
+});
+</script>
+</body>
+</html>

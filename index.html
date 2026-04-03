@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>MIBO — Mesmerizing Interiors, Bold Outcomes | Home Interiors India</title>
+<meta name="description" content="MIBO transforms homes into living masterpieces. Turnkey interiors, false ceilings, furniture, tiles, paints, drywall. Bihar, Delhi NCR & all India.">
+<link rel="stylesheet" href="styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+/* Mobile optimizations */
+@media(max-width:600px){
+  .hero{min-height:100svh;}
+  .hero-title{font-size:clamp(2.2rem,11vw,3.5rem)!important;}
+  .hero-actions{flex-direction:column;gap:10px;align-items:center;}
+  .hero-actions .btn{width:min(280px,90vw);justify-content:center;}
+  .hero-float{display:none;}
+  .svc-photo-grid{padding:0 16px 16px!important;}
+  .book-grid{grid-template-columns:1fr!important;}
+  .pricing-grid{grid-template-columns:1fr!important;}
+  .stats-inner{grid-template-columns:repeat(2,1fr)!important;}
+  .funnel-grid{grid-template-columns:1fr!important;}
+  .process-steps{flex-direction:column!important;}
+  .proc-conn{display:none!important;}
+  .testi-track{padding:0 16px!important;}
+  .quick-widget{padding:0 16px!important;}
+  .qw-inner > .glass > div{padding:24px 20px!important;}
+  .form-row{grid-template-columns:1fr!important;}
+  section{padding-left:0!important;padding-right:0!important;}
+  .manifesto-inner{padding:0 20px!important;}
+  .funnel-inner{padding:0 20px!important;}
+  .process-section .section-head{padding:0 20px!important;}
+  .process-steps{padding:0 20px!important;}
+}
+@media(max-width:400px){
+  .hero-title{font-size:2rem!important;}
+}
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-trail" id="cursorTrail"></div>
+
+<!-- NAV -->
+<nav class="nav" id="mainNav">
+  <a href="index.html" class="nav-logo"><span class="logo-m">M</span><span class="logo-i">IBO</span></a>
+  <div class="nav-links">
+    <a href="about.html">About</a>
+    <a href="services.html">Services</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="book.html">Book Visit</a>
+    <a href="contact.html">Contact</a>
+  </div>
+  <div class="nav-right">
+    <a href="book.html" class="nav-cta">Book Free Consultation</a>
+    <button class="nav-burger" id="burger" aria-label="Menu"><span></span><span></span></button>
+  </div>
+</nav>
+<div class="mobile-nav" id="mobileNav">
+  <a href="about.html">About</a><a href="services.html">Services</a>
+  <a href="gallery.html">Gallery</a><a href="book.html">Book Visit</a><a href="contact.html">Contact</a>
+  <a href="book.html" class="mobile-cta-btn">Book Consultation</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="hero-bg-img" style="position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1600210492493-0946911123ea?w=1600&q=85') center/cover no-repeat;transform:scale(1.06);animation:heroZoom 22s ease-in-out infinite alternate;"></div>
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(13,12,10,.55) 0%,rgba(13,12,10,.3) 40%,rgba(13,12,10,.75) 100%);"></div>
+    <div class="grain"></div>
+  </div>
+  <div class="hero-content" style="text-align:center;max-width:860px;margin:0 auto;">
+    <div class="eyebrow rev d1" style="justify-content:center;">Exclusively for Homes</div>
+    <h1 class="hero-title rev d2" style="font-size:clamp(2.8rem,7vw,6rem);line-height:1.05;text-align:center;">
+      Mesmerizing<br><em class="ital" style="color:var(--gold-l)">Interiors,</em><br>Bold Outcomes.
+    </h1>
+    <p class="hero-sub rev d3" style="text-align:center;max-width:560px;margin:0 auto;">We transform homes into living masterpieces — where every surface, every corner, every detail sings with intentional beauty.</p>
+    <div class="hero-actions rev d4" style="justify-content:center;">
+      <a href="book.html" class="btn btn-gold lg">Book Site Visit</a>
+      <a href="gallery.html" class="btn btn-ghost">View Our Work</a>
+    </div>
+  </div>
+  <div class="hero-scroll"><div class="scroll-line"></div><span class="scroll-txt">Scroll</span></div>
+  <div class="hero-float" id="heroFloat">
+    <div class="hero-float-inner">
+      <div class="float-stat"><span class="float-num">250+</span><span class="float-lbl">Homes Transformed</span></div>
+      <div class="float-div"></div>
+      <div class="float-stat"><span class="float-num">12+</span><span class="float-lbl">Years of Excellence</span></div>
+    </div>
+  </div>
+</section>
+<style>@keyframes heroZoom{from{transform:scale(1.04);}to{transform:scale(1.1);}}</style>
+
+<!-- MANIFESTO -->
+<section class="manifesto">
+  <div class="manifesto-inner">
+    <span class="man-tag rev">Our Philosophy</span>
+    <blockquote class="man-quote rev d1">"A home is not just a structure.<br><em>It is the architecture of your soul."</em></blockquote>
+    <p class="man-body rev d2">At MIBO, we believe great design is invisible — it simply makes you feel at home. Our residential specialists weave together material mastery, spatial intelligence, and deep listening to craft environments that are unmistakably yours.</p>
+  </div>
+</section>
+
+<!-- SERVICES PREVIEW -->
+<section class="services-preview">
+  <div class="section-head">
+    <span class="section-eye rev">What We Offer</span>
+    <h2 class="section-title rev d1">Everything your home deserves</h2>
+    <a href="services.html" class="btn btn-ghost rev d2" style="margin-top:8px">All Services →</a>
+  </div>
+  <style>
+  .svc-photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:0 max(24px,4vw) 20px;}
+  @media(max-width:900px){.svc-photo-grid{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:560px){.svc-photo-grid{grid-template-columns:1fr;gap:14px;}}
+  .svc-photo-card{position:relative;border-radius:16px;overflow:hidden;cursor:pointer;aspect-ratio:4/3;background:#1a1710;}
+  .svc-photo-card img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;display:block;}
+  .svc-photo-card:hover img{transform:scale(1.07);}
+  .svc-photo-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,12,10,.88) 0%,rgba(13,12,10,.15) 60%,transparent 100%);transition:background .4s;}
+  .svc-photo-card:hover .svc-photo-overlay{background:linear-gradient(to top,rgba(13,12,10,.95) 0%,rgba(13,12,10,.3) 70%,transparent 100%);}
+  .svc-photo-content{position:absolute;bottom:0;left:0;right:0;padding:20px 22px;}
+  .svc-photo-icon{font-size:1.4rem;margin-bottom:6px;}
+  .svc-photo-content h3{font-family:var(--display);font-size:1.2rem;font-weight:400;color:var(--cream);margin-bottom:4px;}
+  .svc-photo-content p{font-size:.8rem;color:rgba(232,224,208,.7);line-height:1.5;margin:0;max-height:0;overflow:hidden;transition:max-height .4s ease,opacity .4s;}
+  .svc-photo-card:hover .svc-photo-content p{max-height:60px;}
+  .svc-photo-arr{position:absolute;top:18px;right:18px;width:32px;height:32px;border-radius:50%;background:rgba(201,169,110,.2);border:1px solid rgba(201,169,110,.4);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--gold);opacity:0;transition:opacity .3s;}
+  .svc-photo-card:hover .svc-photo-arr{opacity:1;}
+  </style>
+  <div class="svc-photo-grid">
+    <div class="svc-photo-card rev d1" onclick="location='services.html'">
+      <img src="https://images.unsplash.com/photo-1600210492493-0946911123ea?w=800&q=80" alt="Turnkey Interiors" loading="lazy">
+      <div class="svc-photo-overlay"></div>
+      <div class="svc-photo-content">
+        <div class="svc-photo-icon">🏠</div>
+        <h3>Turnkey Interiors</h3>
+        <p>Complete home transformation from concept to handover — every detail handled.</p>
+      </div>
+      <div class="svc-photo-arr">→</div>
+    </div>
+    <div class="svc-photo-card rev d2" onclick="location='services.html#ceilings'">
+      <img src="https://images.unsplash.com/photo-1615873968403-89e068629265?w=800&q=80" alt="False Ceilings" loading="lazy">
+      <div class="svc-photo-overlay"></div>
+      <div class="svc-photo-content">
+        <div class="svc-photo-icon">✦</div>
+        <h3>False Ceilings</h3>
+        <p>Architectural ceiling designs that play with light, texture, and depth.</p>
+      </div>
+      <div class="svc-photo-arr">→</div>
+    </div>
+    <div class="svc-photo-card rev d3" onclick="location='services.html#furniture'">
+      <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80" alt="Bespoke Furniture" loading="lazy">
+      <div class="svc-photo-overlay"></div>
+      <div class="svc-photo-content">
+        <div class="svc-photo-icon">🪑</div>
+        <h3>Bespoke Furniture</h3>
+        <p>Handcrafted pieces designed specifically for your home's soul.</p>
+      </div>
+      <div class="svc-photo-arr">→</div>
+    </div>
+    <div class="svc-photo-card rev d4" onclick="location='services.html#paints'">
+      <img src="https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=800&q=80" alt="Paints" loading="lazy">
+      <div class="svc-photo-overlay"></div>
+      <div class="svc-photo-content">
+        <div class="svc-photo-icon">🎨</div>
+        <h3>Paint Collections</h3>
+        <p>Expert colour consultation and flawless application for every room.</p>
+      </div>
+      <div class="svc-photo-arr">→</div>
+    </div>
+    <div class="svc-photo-card rev d5" onclick="location='services.html#tiles'">
+      <img src="https://images.unsplash.com/photo-1620626011761-996317702b0a?w=800&q=80" alt="Tiles" loading="lazy">
+      <div class="svc-photo-overlay"></div>
+      <div class="svc-photo-content">
+        <div class="svc-photo-icon">◈</div>
+        <h3>Premium Tiles</h3>
+        <p>Ceramic, porcelain, natural stone, glass — curated to dress every surface.</p>
+      </div>
+      <div class="svc-photo-arr">→</div>
+    </div>
+    <div class="svc-photo-card rev d6" onclick="location='services.html#drywall'">
+      <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80" alt="Drywall" loading="lazy">
+      <div class="svc-photo-overlay"></div>
+      <div class="svc-photo-content">
+        <div class="svc-photo-icon">⬜</div>
+        <h3>Drywall &amp; Gypsum</h3>
+        <p>MIBOGypsum — precision partition walls and drywall for homes.</p>
+      </div>
+      <div class="svc-photo-arr">→</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS FUNNEL (L1→L5) -->
+<section class="funnel">
+  <div class="funnel-inner">
+    <div class="section-head">
+      <span class="section-eye rev">Your Journey with MIBO</span>
+      <h2 class="section-title rev d1">From first look to<br><em>dream home</em></h2>
+    </div>
+    <div class="funnel-grid">
+      <div class="funnel-step rev d1">
+        <div class="f-num">01</div>
+        <h3>Discover</h3>
+        <p>Browse our services and gallery. Get a feel for who we are and what we create. No commitment needed yet.</p>
+      </div>
+      <div class="funnel-step rev d2">
+        <div class="f-num">02</div>
+        <h3>Express Interest</h3>
+        <p>Drop a quick enquiry or pick up the phone. Tell us a little about your home — we'll respond within 24 hours.</p>
+      </div>
+      <div class="funnel-step rev d3">
+        <div class="f-num">03</div>
+        <h3>Book Site Visit</h3>
+        <p>Schedule your paid site visit consultation. Our designer comes to your home, listens, and maps out possibilities.</p>
+      </div>
+    </div>
+    <div class="funnel-cta rev">
+      <a href="book.html" class="btn btn-gold lg">Book Site Visit — From ₹7,000</a>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING STRIP -->
+<section class="pricing-strip">
+  <div class="pricing-inner">
+    <div class="section-head">
+      <span class="section-eye rev">Site Visit Pricing</span>
+      <h2 class="section-title rev d1">Transparent pricing,<br><em>zero surprises</em></h2>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card glass rev d1">
+        <div class="price-badge">Local</div>
+        <div class="price-zone">Bihar &amp; Delhi NCR</div>
+        <div class="price-cities">Bihar · Delhi · Noida · Gurgaon · Faridabad · Ghaziabad</div>
+        <div class="price-amount"><span class="price-currency">₹</span>7,000</div>
+        <div class="price-note">One-time site visit fee</div>
+        <ul class="price-features">
+          <li>In-home design consultation</li>
+          <li>Any day, flexible slots</li>
+          <li>Design brief &amp; material shortlist</li>
+          <li>Fully refundable on project start</li>
+        </ul>
+      </div>
+      <div class="price-card glass rev d2">
+        <div class="price-badge">Remote</div>
+        <div class="price-zone">Rest of India</div>
+        <div class="price-cities">All other cities and states across India</div>
+        <div class="price-amount"><span class="price-currency">₹</span>12,000</div>
+        <div class="price-note">One-time site visit fee</div>
+        <ul class="price-features">
+          <li>In-home design consultation</li>
+          <li>Friday &amp; Saturday slots only</li>
+          <li>Booked 5–7 days in advance</li>
+          <li>Fully refundable on project start</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="rev d1"><div class="stat-big">250+</div><div class="stat-lbl">Homes Designed</div></div>
+    <div class="rev d2"><div class="stat-big">12+</div><div class="stat-lbl">Years of Craft</div></div>
+    <div class="rev d3"><div class="stat-big">98%</div><div class="stat-lbl">Client Satisfaction</div></div>
+    <div class="rev d4"><div class="stat-big">6</div><div class="stat-lbl">Signature Services</div></div>
+  </div>
+</div>
+
+<!-- PROCESS -->
+<section class="process-section">
+  <div class="process-bg"></div>
+  <div class="section-head">
+    <span class="section-eye rev">How We Work</span>
+    <h2 class="section-title rev d1">Your home. <em>Our obsession.</em></h2>
+  </div>
+  <div class="process-steps">
+    <div class="proc-step rev d1"><div class="proc-num">01</div><div><h3>Consultation</h3><p>We visit your home, listen deeply, and translate how you live into a design language uniquely yours.</p></div></div>
+    <div class="proc-conn rev d2"></div>
+    <div class="proc-step rev d2"><div class="proc-num">02</div><div><h3>Design &amp; Planning</h3><p>3D renders, material boards, and a transparent quote — so you can see your home before work begins.</p></div></div>
+    <div class="proc-conn rev d3"></div>
+    <div class="proc-step rev d3"><div class="proc-num">03</div><div><h3>Execution</h3><p>Expert craftspeople deliver flawlessly — on schedule, on budget, with regular progress updates.</p></div></div>
+    <div class="proc-conn rev d4"></div>
+    <div class="proc-step rev d4"><div class="proc-num">04</div><div><h3>The Reveal</h3><p>Walk into your transformed home for the first time. The moment we exist for.</p></div></div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div class="section-head">
+    <span class="section-eye rev">Real Homes, Real Stories</span>
+    <h2 class="section-title rev d1">What our clients say</h2>
+  </div>
+  <div class="testi-track" id="testiTrack">
+    <div class="testi-card glass rev d1">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"MIBO transformed our home beyond imagination. Every detail — from the false ceiling to the tile selection — was handled with artistry and care."</p>
+      <div class="testi-author"><div class="testi-av">J</div><div><strong>Jayla H.</strong><span>Patna, Bihar</span></div></div>
+    </div>
+    <div class="testi-card glass rev d2">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"The drywall and partitioning work was flawless. They reshaped our ground floor and the finish is immaculate. Truly professional from start to finish."</p>
+      <div class="testi-author"><div class="testi-av">R</div><div><strong>Ryan D.</strong><span>Delhi NCR</span></div></div>
+    </div>
+    <div class="testi-card glass rev d3">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"We handed MIBO our entire home renovation and they delivered a masterpiece. Communication, precision, passion — unmatched."</p>
+      <div class="testi-author"><div class="testi-av">A</div><div><strong>Amara L.</strong><span>Gurgaon</span></div></div>
+    </div>
+  </div>
+  <div class="testi-dots" id="testiDots">
+    <span class="dot active" data-idx="0"></span>
+    <span class="dot" data-idx="1"></span>
+    <span class="dot" data-idx="2"></span>
+  </div>
+</section>
+
+<!-- QUICK ENQUIRY WIDGET (L1/L2 Lead Capture) -->
+<section class="quick-widget" id="enquiry">
+  <div class="qw-inner">
+    <div class="glass rev">
+      <div style="padding:44px">
+        <div class="section-head" style="margin-bottom:28px">
+          <span class="section-eye">Quick Enquiry</span>
+          <h2 style="font-family:var(--display);font-size:2rem;font-weight:300;color:var(--cream);margin-top:6px">Ready to talk about<br><em style="font-style:italic;color:var(--gold-l)">your home?</em></h2>
+          <p style="color:var(--dim);font-size:.92rem;margin-top:10px">We'll reply within 24 hours to arrange your free consultation.</p>
+        </div>
+        <form id="quickEnquiryForm">
+          <input type="hidden" name="Form Source" value="Homepage Quick Enquiry">
+          <div class="form-row" style="margin-bottom:14px">
+            <div><label class="form-label">Name *</label><input class="form-input" name="Name" type="text" placeholder="Your name" required></div>
+            <div><label class="form-label">Phone</label><input class="form-input" name="Phone" type="tel" placeholder="+91 98765 43210"></div>
+          </div>
+          <div style="margin-bottom:14px"><label class="form-label">Email *</label><input class="form-input" name="Email" type="email" placeholder="your@email.com" required></div>
+          <div style="margin-bottom:22px">
+            <label class="form-label">I need help with</label>
+            <select class="form-select" name="Service Interest">
+              <option value="">Select a service...</option>
+              <option>Turnkey Interior Design</option><option>False Ceilings</option>
+              <option>Bespoke Furniture</option><option>Tiles &amp; Stone</option>
+              <option>Paints &amp; Finishes</option><option>Drywall &amp; Partitions</option>
+              <option>Full Home Renovation</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center">Send Enquiry →</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMERCIAL NOTE -->
+<div class="comm-banner">
+  <div class="comm-inner">
+    <div>
+      <div class="comm-tag">Primary focus: Residential Homes</div>
+      <div class="comm-text"><p><strong>MIBO specialises exclusively in homes.</strong> For commercial, office, or hospitality projects, please visit our sister site.</p></div>
+    </div>
+    <a href="#" class="btn btn-ghost btn-sm" style="white-space:nowrap">MIBO Commercial →</a>
+  </div>
+</div>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-bg-el"><div class="cta-o1"></div><div class="cta-o2"></div></div>
+  <div class="cta-glass">
+    <h2 class="rev">Your home is waiting to become extraordinary.</h2>
+    <p class="rev d1">Let's begin. One conversation is all it takes.</p>
+    <div class="rev d2"><a href="book.html" class="btn btn-gold lg">Start Your Transformation</a></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-logo"><span class="logo-m">M</span><span class="logo-i">IBO</span></div>
+      <p>Mesmerizing Interiors,<br>Bold Outcomes.<br><em>Exclusively for homes.</em></p>
+      <div class="footer-soc">
+        <a href="https://www.instagram.com/_mibospaces/" target="_blank" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg></a>
+        <a href="https://www.linkedin.com/in/mibo-mesmerizing-interiors-bold-outcomes-a41750319/" target="_blank" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 10v7M7 7v.01M12 17v-4c0-1.105.895-2 2-2s2 .895 2 2v4M12 10v7"/></svg></a>
+        <a href="https://x.com/MiboSpaces" target="_blank" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+      </div>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <h4>Services</h4>
+        <a href="services.html">Turnkey Interiors</a><a href="services.html#ceilings">False Ceilings</a>
+        <a href="services.html#furniture">Furniture</a><a href="services.html#tiles">Tiles</a>
+        <a href="services.html#paints">Paints</a><a href="services.html#drywall">Drywall</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="about.html">About MIBO</a><a href="gallery.html">Gallery</a>
+        <a href="book.html">Book Consultation</a><a href="contact.html">Contact</a>
+        <a href="http://bit.ly/mibotchat" target="_blank">MIBO AI Chat</a>
+        <div class="footer-commercial-note">
+          Need commercial/office interiors?<br>
+          <a href="#">Visit MIBO Commercial →</a> (separate site, coming soon)
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="#">Privacy Policy</a><a href="#">Terms of Service</a>
+        <a href="#">Refund Policy</a>
+        <a href="admin/index.html" style="opacity:.3;font-size:.72rem;margin-top:20px" title="Admin">· · ·</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 MIBO — Mesmerizing Interiors, Bold Outcomes. All rights reserved. Exclusively residential.</p>
+    <p>Crafted with passion for beautiful homes.</p>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

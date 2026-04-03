@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Services — MIBO Home Interiors</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#c9a96e;--accent2:#e8d5b7;--dark:#0a0a0f;--text:#f0ece4;--text-dim:rgba(240,236,228,0.55);
+    --glass-bg:rgba(255,255,255,0.06);--glass-border:rgba(255,255,255,0.12);
+    --blur:blur(24px);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:#0a0a0f;color:var(--text);font-family:'Jost',sans-serif;font-weight:300;overflow-x:hidden;cursor:none;}
+
+  .cursor{width:12px;height:12px;background:var(--accent);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;mix-blend-mode:difference;}
+  .cursor-ring{width:40px;height:40px;border:1px solid rgba(201,169,110,0.5);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9998;}
+
+  .bg-orbs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+  .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.3;animation:orbFloat 20s ease-in-out infinite;}
+  .orb1{width:500px;height:500px;background:radial-gradient(circle,#3a2010,transparent);top:-100px;right:-100px;animation-delay:0s;}
+  .orb2{width:400px;height:400px;background:radial-gradient(circle,#0a1a2a,transparent);bottom:0;left:-50px;animation-delay:-10s;}
+  @keyframes orbFloat{0%,100%{transform:translate(0,0);}50%{transform:translate(20px,-30px);}}
+
+  nav{position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:1000;display:flex;align-items:center;padding:0 8px;background:rgba(15,15,20,0.7);backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,0.12);border-radius:100px;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
+  .nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;letter-spacing:0.08em;color:var(--accent);padding:14px 24px;border-right:1px solid rgba(255,255,255,0.08);}
+  .nav-links{display:flex;align-items:center;}
+  .nav-links a{color:var(--text-dim);text-decoration:none;font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;padding:14px 18px;transition:color 0.3s;}
+  .nav-links a:hover,.nav-links a.active{color:var(--text);}
+  .nav-cta{margin:6px;padding:8px 20px;background:var(--accent);color:#0a0a0f!important;border-radius:100px;font-weight:500!important;transition:all 0.3s!important;}
+
+  /* PAGE HEADER */
+  .page-header{
+    position:relative;min-height:60vh;
+    display:flex;align-items:flex-end;
+    padding:0 60px 80px;
+    overflow:hidden;
+    z-index:1;
+  }
+  .page-header-bg{
+    position:absolute;inset:0;
+    background:url('https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1800&q=80') center/cover;
+    opacity:0.15;
+  }
+  .page-header-grad{position:absolute;inset:0;background:linear-gradient(to top,#0a0a0f 30%,transparent);}
+  .page-header-content{position:relative;z-index:2;max-width:1200px;margin:0 auto;width:100%;}
+  .page-eyebrow{font-size:0.68rem;letter-spacing:0.35em;text-transform:uppercase;color:var(--accent);margin-bottom:20px;}
+  .page-title{font-family:'Cormorant Garamond',serif;font-size:clamp(3rem,7vw,6rem);font-weight:300;line-height:1.05;letter-spacing:-0.02em;}
+  .page-title em{font-style:italic;color:var(--accent);}
+
+  /* INTRO */
+  .intro-band{
+    position:relative;z-index:1;
+    max-width:1200px;margin:0 auto;
+    padding:60px 60px 80px;
+    display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;
+  }
+  .intro-band p{color:var(--text-dim);font-size:1rem;line-height:1.85;margin-bottom:16px;}
+  .intro-band strong{color:var(--text);}
+
+  /* SERVICE BLOCKS */
+  .services-container{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 60px 120px;}
+
+  .service-block{
+    display:grid;grid-template-columns:1fr 1fr;gap:60px;
+    align-items:center;margin-bottom:120px;
+    opacity:0;transform:translateY(40px);
+    transition:opacity 0.9s cubic-bezier(0.23,1,0.32,1),transform 0.9s cubic-bezier(0.23,1,0.32,1);
+  }
+  .service-block.reverse{direction:rtl;}
+  .service-block.reverse > *{direction:ltr;}
+  .service-block.visible{opacity:1;transform:translateY(0);}
+
+  .service-image{
+    position:relative;border-radius:24px;overflow:hidden;height:480px;
+  }
+  .service-image img{width:100%;height:100%;object-fit:cover;transition:transform 0.8s cubic-bezier(0.23,1,0.32,1);}
+  .service-block:hover .service-image img{transform:scale(1.04);}
+  .service-image-overlay{
+    position:absolute;inset:0;
+    background:linear-gradient(135deg,rgba(201,169,110,0.12),transparent);
+  }
+  .service-num{
+    position:absolute;top:24px;left:24px;
+    font-family:'Cormorant Garamond',serif;
+    font-size:0.9rem;font-weight:600;
+    color:var(--accent);letter-spacing:0.1em;
+    background:rgba(10,10,15,0.7);
+    backdrop-filter:blur(10px);
+    padding:8px 16px;border-radius:100px;
+    border:1px solid rgba(201,169,110,0.2);
+  }
+
+  .service-info{padding:20px 0;}
+  .service-tag{font-size:0.68rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;}
+  .service-info h2{
+    font-family:'Cormorant Garamond',serif;
+    font-size:clamp(2rem,4vw,3rem);font-weight:300;
+    line-height:1.1;margin-bottom:24px;
+  }
+  .service-info h2 em{font-style:italic;color:var(--accent);}
+  .service-info p{color:var(--text-dim);font-size:0.95rem;line-height:1.85;margin-bottom:16px;}
+  .service-features{margin:28px 0;display:flex;flex-direction:column;gap:10px;}
+  .feature-item{
+    display:flex;align-items:center;gap:12px;
+    font-size:0.85rem;color:var(--text-dim);
+  }
+  .feature-item::before{
+    content:'';width:20px;height:1px;
+    background:var(--accent);opacity:0.6;flex-shrink:0;
+  }
+  .btn-primary{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:14px 32px;background:var(--accent);color:#0a0a0f;
+    border-radius:100px;text-decoration:none;
+    font-size:0.82rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;
+    transition:all 0.4s cubic-bezier(0.23,1,0.32,1);
+    box-shadow:0 0 30px rgba(201,169,110,0.2);
+  }
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 10px 40px rgba(201,169,110,0.4);}
+
+  /* DIVIDER */
+  .section-divider{
+    max-width:1200px;margin:0 auto 100px;
+    padding:0 60px;
+  }
+  .divider-line{height:1px;background:linear-gradient(to right,transparent,rgba(201,169,110,0.3),transparent);}
+
+  /* CTA */
+  .cta-section{position:relative;z-index:1;padding:0 60px 120px;max-width:1200px;margin:0 auto;}
+  .cta-inner{
+    padding:80px 60px;text-align:center;
+    background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+    border-radius:32px;backdrop-filter:blur(20px);
+    position:relative;overflow:hidden;
+  }
+  .cta-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(201,169,110,0.1),transparent 70%);pointer-events:none;}
+  .cta-inner h2{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:300;margin-bottom:20px;position:relative;}
+  .cta-inner p{color:var(--text-dim);max-width:480px;margin:0 auto 36px;line-height:1.7;position:relative;}
+
+  footer{padding:60px;border-top:1px solid rgba(255,255,255,0.06);position:relative;z-index:1;}
+  .footer-inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;}
+  .footer-brand{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--accent);}
+  .footer-links{display:flex;gap:32px;}
+  .footer-links a{color:var(--text-dim);text-decoration:none;font-size:0.82rem;letter-spacing:0.1em;text-transform:uppercase;transition:color 0.3s;}
+  .footer-links a:hover{color:var(--text);}
+  .footer-copy{font-size:0.72rem;color:var(--text-dim);}
+
+  @media(max-width:768px){
+    .page-header{padding:0 24px 60px;}
+    .intro-band{grid-template-columns:1fr;padding:40px 24px;gap:20px;}
+    .services-container{padding:0 24px 60px;}
+    .service-block{grid-template-columns:1fr;gap:32px;margin-bottom:80px;}
+    .service-block.reverse{direction:ltr;}
+    .service-image{height:280px;}
+    .cta-section{padding:0 24px 80px;}
+    .cta-inner{padding:40px 24px;}
+    footer{padding:40px 24px;}
+    .footer-inner{flex-direction:column;gap:24px;text-align:center;}
+    .footer-links{flex-wrap:wrap;justify-content:center;}
+    nav{width:calc(100% - 32px);}
+    .nav-links a:not(.nav-cta){display:none;}
+  }
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="bg-orbs"><div class="orb orb1"></div><div class="orb orb2"></div></div>
+
+<nav>
+  <a href="index.html" class="nav-logo">MIBO</a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="services.html" class="active">Services</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="process.html">Process</a>
+    <a href="contact.html" class="nav-cta">Get Started →</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-bg"></div>
+  <div class="page-header-grad"></div>
+  <div class="page-header-content">
+    <div class="page-eyebrow">Exclusively for the Home</div>
+    <h1 class="page-title">Our <em>Services</em><br>for Your Home</h1>
+  </div>
+</div>
+
+<div class="intro-band">
+  <div>
+    <p>At MIBO, every service we offer is designed with one purpose: to make your home the most beautiful, functional, and deeply personal space it can be.</p>
+    <p>We work exclusively on residential projects, which means our entire expertise, attention, and passion is devoted to the spaces where you live, rest, and create memories.</p>
+  </div>
+  <div>
+    <p>From the first brushstroke of paint to the final tile laid, from the sweep of a false ceiling to the grain of a furniture piece — <strong>MIBO manages every dimension of your home's transformation</strong> with precision and artistry.</p>
+  </div>
+</div>
+
+<div class="services-container">
+
+  <div class="service-block">
+    <div class="service-image">
+      <img src="https://images.unsplash.com/photo-1600210492493-0946911123ea?w=900&q=80" alt="Turnkey Interior Solutions">
+      <div class="service-image-overlay"></div>
+      <div class="service-num">01</div>
+    </div>
+    <div class="service-info">
+      <div class="service-tag">Complete Home Transformation</div>
+      <h2>Turnkey <em>Interior</em> Solutions</h2>
+      <p>The ultimate expression of MIBO's craft. We take complete ownership of your home's transformation — from the first design sketch to the final finishing touch — delivering a seamless, stress-free experience.</p>
+      <p>Our turnkey approach means a single point of contact, coordinated timelines, and zero surprises. We handle design, procurement, installation, and handover.</p>
+      <div class="service-features">
+        <div class="feature-item">Initial home assessment & brief</div>
+        <div class="feature-item">3D concept renders & material boards</div>
+        <div class="feature-item">Full procurement & project management</div>
+        <div class="feature-item">Professional installation teams</div>
+        <div class="feature-item">Quality walkthrough & aftercare</div>
+      </div>
+      <a href="contact.html" class="btn-primary">Begin Your Project →</a>
+    </div>
+  </div>
+
+  <div class="service-block reverse">
+    <div class="service-image">
+      <img src="https://images.unsplash.com/photo-1615873968403-89e068629265?w=900&q=80" alt="False Ceilings">
+      <div class="service-image-overlay"></div>
+      <div class="service-num">02</div>
+    </div>
+    <div class="service-info">
+      <div class="service-tag">Architectural Elegance</div>
+      <h2>False <em>Ceilings</em></h2>
+      <p>The ceiling is the fifth wall — and at MIBO, we treat it with the same reverence as any other surface. Our false ceilings don't just look beautiful; they transform the acoustics, lighting, and mood of an entire room.</p>
+      <p>From minimalist plaster planes to coffered statement ceilings with integrated lighting, we design and install ceilings that define the character of your home.</p>
+      <div class="service-features">
+        <div class="feature-item">Gypsum board & plaster designs</div>
+        <div class="feature-item">Integrated lighting systems</div>
+        <div class="feature-item">Acoustic improvement</div>
+        <div class="feature-item">Insulation & thermal benefits</div>
+        <div class="feature-item">Modern, classic & bespoke styles</div>
+      </div>
+      <a href="contact.html" class="btn-primary">Elevate Your Ceiling →</a>
+    </div>
+  </div>
+
+  <div class="service-block">
+    <div class="service-image">
+      <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=900&q=80" alt="Furniture">
+      <div class="service-image-overlay"></div>
+      <div class="service-num">03</div>
+    </div>
+    <div class="service-info">
+      <div class="service-tag">Curated Living</div>
+      <h2>Home <em>Furniture</em></h2>
+      <p>Furniture is the soul of a room. MIBO curates and sources pieces that feel right — not just visually, but ergonomically, emotionally, and proportionally within your space.</p>
+      <p>We offer custom-designed furniture commissions as well as sourced collections, each piece selected or designed to complement the specific architecture and lifestyle of your home.</p>
+      <div class="service-features">
+        <div class="feature-item">Living room, bedroom & dining suites</div>
+        <div class="feature-item">Custom carpentry & bespoke commissions</div>
+        <div class="feature-item">Fabric, material & finish selection</div>
+        <div class="feature-item">Spatial layout planning</div>
+        <div class="feature-item">Professional installation</div>
+      </div>
+      <a href="contact.html" class="btn-primary">Furnish Your Home →</a>
+    </div>
+  </div>
+
+  <div class="service-block reverse">
+    <div class="service-image">
+      <img src="https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=900&q=80" alt="Paints">
+      <div class="service-image-overlay"></div>
+      <div class="service-num">04</div>
+    </div>
+    <div class="service-info">
+      <div class="service-tag">Colour & Atmosphere</div>
+      <h2>Paints & <em>Finishes</em></h2>
+      <p>The right paint does more than add colour — it changes how light moves through a room, how large a space feels, how warm a home seems at dusk. MIBO's paint expertise transforms walls into atmosphere.</p>
+      <p>We carry luxury, premium, and eco-friendly ranges with hundreds of finishes, and our consultants pair each room's purpose with the perfect palette and texture.</p>
+      <div class="service-features">
+        <div class="feature-item">Interior & exterior residential painting</div>
+        <div class="feature-item">Matte, satin, gloss & textured finishes</div>
+        <div class="feature-item">Eco-friendly & low-VOC options</div>
+        <div class="feature-item">Colour consultation & mood boarding</div>
+        <div class="feature-item">Feature walls & decorative effects</div>
+      </div>
+      <a href="contact.html" class="btn-primary">Colour Your Home →</a>
+    </div>
+  </div>
+
+  <div class="service-block">
+    <div class="service-image">
+      <img src="https://images.unsplash.com/photo-1620626011761-996317702b0a?w=900&q=80" alt="Tiles">
+      <div class="service-image-overlay"></div>
+      <div class="service-num">05</div>
+    </div>
+    <div class="service-info">
+      <div class="service-tag">Surface Excellence</div>
+      <h2>Tiles & <em>Stone</em></h2>
+      <p>From the kitchen floor to the bathroom wall to the entrance foyer — MIBO's tile and stone collection brings durability and artistry together. We source the finest ceramic, porcelain, natural stone, glass, and mosaic materials.</p>
+      <p>Our specialists guide you through selection with eye for proportion, grout spacing, and pattern that most tile shops simply can't offer.</p>
+      <div class="service-features">
+        <div class="feature-item">Ceramic, porcelain & natural stone</div>
+        <div class="feature-item">Glass, mosaic & terracotta</div>
+        <div class="feature-item">Kitchen, bathroom & living surfaces</div>
+        <div class="feature-item">Expert pattern & layout design</div>
+        <div class="feature-item">Professional waterproof installation</div>
+      </div>
+      <a href="contact.html" class="btn-primary">Surface Your Vision →</a>
+    </div>
+  </div>
+
+  <div class="service-block reverse">
+    <div class="service-image">
+      <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80" alt="MIBOGypsum">
+      <div class="service-image-overlay"></div>
+      <div class="service-num">06</div>
+    </div>
+    <div class="service-info">
+      <div class="service-tag">Structural Artistry</div>
+      <h2>MIBOGypsum — <em>Drywall</em> & More</h2>
+      <p>The MIBOGypsum division is MIBO's specialist structural team. We install and finish drywall, partition walls, and insulation for homes — the invisible foundation that makes every room feel right.</p>
+      <p>Whether you're reconfiguring your home's layout, adding a home office, or finishing a new build, MIBOGypsum delivers flawless walls ready for the next MIBO touch.</p>
+      <div class="service-features">
+        <div class="feature-item">Drywall installation & boarding</div>
+        <div class="feature-item">Room partitions & dividers</div>
+        <div class="feature-item">Thermal & acoustic insulation</div>
+        <div class="feature-item">Plastering & skim finishing</div>
+        <div class="feature-item">Seamless integration with other MIBO services</div>
+      </div>
+      <a href="contact.html" class="btn-primary">Build Your Structure →</a>
+    </div>
+  </div>
+
+</div>
+
+<div class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-glow"></div>
+    <div style="font-size:0.68rem;letter-spacing:0.35em;text-transform:uppercase;color:var(--accent);margin-bottom:20px;position:relative;">For Your Home</div>
+    <h2>Every service. One <em>vision.</em><br>Your dream home.</h2>
+    <p>Let's talk about what your home could be. A free consultation, no obligations — just honest, expert conversation about possibility.</p>
+    <a href="contact.html" class="btn-primary">Book Free Consultation →</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">MIBO</div>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="process.html">Process</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="footer-copy">© 2025 MIBO. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+  const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.transform=`translate(${mx-6}px,${my-6}px)`;});
+  (function animRing(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.transform=`translate(${rx-20}px,${ry-20}px)`;requestAnimationFrame(animRing);})();
+  const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.1});
+  document.querySelectorAll('.service-block').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

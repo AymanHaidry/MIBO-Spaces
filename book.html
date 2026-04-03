@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Book Site Visit — MIBO Home Interiors</title>
+<meta name="description" content="Book your paid site visit consultation with MIBO. Local (Bihar/NCR) ₹7,000 | Rest of India ₹12,000. Secure Razorpay payment.">
+<link rel="stylesheet" href="styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet">
+<script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-trail" id="cursorTrail"></div>
+
+<nav class="nav solid" id="mainNav">
+  <a href="index.html" class="nav-logo"><span class="logo-m">M</span><span class="logo-i">IBO</span></a>
+  <div class="nav-links">
+    <a href="about.html">About</a><a href="services.html">Services</a>
+    <a href="gallery.html">Gallery</a><a href="book.html" class="active">Book Visit</a><a href="contact.html">Contact</a>
+  </div>
+  <div class="nav-right">
+    <a href="book.html" class="nav-cta">Book Consultation</a>
+    <button class="nav-burger" id="burger"><span></span><span></span></button>
+  </div>
+</nav>
+<div class="mobile-nav" id="mobileNav">
+  <a href="about.html">About</a><a href="services.html">Services</a>
+  <a href="gallery.html">Gallery</a><a href="book.html">Book Visit</a><a href="contact.html">Contact</a>
+  <a href="book.html" class="mobile-cta-btn">Book Visit</a>
+</div>
+
+<section class="page-hero" style="min-height:45vh">
+  <div class="page-hero-bg"></div>
+  <div class="page-hero-content">
+    <span class="page-tag rev">Site Visit Consultation</span>
+    <h1 class="page-title rev d1">Book your <em>home visit.</em><br>We come to you.</h1>
+  </div>
+</section>
+
+<div class="book-section">
+  <div class="book-grid">
+
+    <!-- LEFT INFO -->
+    <div>
+      <div class="book-info rev">
+        <h2>Your home deserves<br><em>expert eyes.</em></h2>
+        <p>Our paid site visit is the gateway to your transformation. A senior MIBO designer visits your home, learns your vision, and provides a full design brief — completely tailored to your space.</p>
+        <p>The visit fee is <strong style="color:var(--cream)">fully credited</strong> toward your project cost when you proceed.</p>
+      </div>
+
+      <div class="book-details rev d2">
+        <div class="book-detail">
+          <div class="det-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <div class="det-txt"><strong>Bihar &amp; Delhi NCR</strong><span>₹7,000 — Any day, flexible slots</span></div>
+        </div>
+        <div class="book-detail">
+          <div class="det-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></div>
+          <div class="det-txt"><strong>Rest of India</strong><span>₹12,000 — Fri &amp; Sat, 5–7 days advance booking</span></div>
+        </div>
+        <div class="book-detail">
+          <div class="det-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div class="det-txt"><strong>Secure Payment</strong><span>Razorpay — UPI, Card, Netbanking</span></div>
+        </div>
+        <div class="book-detail">
+          <div class="det-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 10h18M3 6h18M3 14h18M3 18h18"/></svg></div>
+          <div class="det-txt"><strong>Refund Policy</strong><span>Full refund if cancelled 48h before. Admin-approved time-based refunds.</span></div>
+        </div>
+      </div>
+
+      <div class="funnel-steps-mini rev d3">
+        <div class="fsm-row"><span class="fsm-n">01</span><span class="fsm-t">Fill in your home details and service interests</span></div>
+        <div class="fsm-row"><span class="fsm-n">02</span><span class="fsm-t">Pick an available slot — we auto-detect your location</span></div>
+        <div class="fsm-row"><span class="fsm-n">03</span><span class="fsm-t">Pay securely via Razorpay — booking confirmed instantly</span></div>
+        <div class="fsm-row"><span class="fsm-n">04</span><span class="fsm-t">You get SMS + email confirmation with booking reference</span></div>
+      </div>
+    </div>
+
+    <!-- RIGHT FORM -->
+    <div class="book-form-wrap glass rev-r d1">
+      <div id="formInner">
+        <div class="form-title">Book Site Visit</div>
+        <div class="form-sub">3 quick steps — takes under 2 minutes.</div>
+
+        <!-- PROGRESS -->
+        <div class="step-progress">
+          <div class="step-dot-p active" data-step="1">1</div>
+          <div class="step-line"></div>
+          <div class="step-dot-p" data-step="2">2</div>
+          <div class="step-line"></div>
+          <div class="step-dot-p" data-step="3">3</div>
+        </div>
+
+        <form id="bookingForm" novalidate>
+          <input type="hidden" id="selectedSlot" name="Slot">
+          <input type="hidden" id="visitCharge" name="Visit Charge" value="12000">
+          <input type="hidden" id="locationCategory" name="Location Category" value="remote">
+
+          <!-- STEP 1: Your Details -->
+          <div class="form-step active" data-step="1">
+            <div style="margin-bottom:18px;font-size:.78rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase">Step 1 — Your Details</div>
+            <p class="step-err" style="display:none;color:#e05050;font-size:.82rem;margin-bottom:12px">Please fill all required fields.</p>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">First Name *</label><input class="form-input" type="text" id="firstName" name="First Name" placeholder="First name" required></div>
+              <div class="form-group"><label class="form-label">Last Name *</label><input class="form-input" type="text" id="lastName" name="Last Name" placeholder="Last name" required></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Email *</label><input class="form-input" type="email" id="email" name="Email" placeholder="your@email.com" required></div>
+              <div class="form-group"><label class="form-label">Phone *</label><input class="form-input" type="tel" id="phone" name="Phone" placeholder="+91 98765 43210" required></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">City *</label>
+                <input class="form-input" type="text" id="city" name="City" placeholder="Your city" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">State *</label>
+                <select class="form-select" id="state" name="State" required>
+                  <option value="">Select state</option>
+                  <option value="Bihar">Bihar</option>
+                  <option value="Delhi">Delhi</option>
+                  <option value="Haryana">Haryana (NCR)</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh (NCR)</option>
+                  <option value="Andhra Pradesh">Andhra Pradesh</option>
+                  <option value="Assam">Assam</option>
+                  <option value="Gujarat">Gujarat</option>
+                  <option value="Jharkhand">Jharkhand</option>
+                  <option value="Karnataka">Karnataka</option>
+                  <option value="Kerala">Kerala</option>
+                  <option value="Madhya Pradesh">Madhya Pradesh</option>
+                  <option value="Maharashtra">Maharashtra</option>
+                  <option value="Punjab">Punjab</option>
+                  <option value="Rajasthan">Rajasthan</option>
+                  <option value="Tamil Nadu">Tamil Nadu</option>
+                  <option value="Telangana">Telangana</option>
+                  <option value="West Bengal">West Bengal</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Home Type</label>
+              <select class="form-select" id="homeType" name="Home Type">
+                <option value="">Select home type</option>
+                <option>Apartment / Flat</option><option>Independent House</option>
+                <option>Villa</option><option>Penthouse</option>
+                <option>Studio</option><option>New Build</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Home Size (approx.)</label>
+              <select class="form-select" name="Home Size">
+                <option value="">Select size</option>
+                <option>Under 500 sq ft</option><option>500–1000 sq ft</option>
+                <option>1000–2000 sq ft</option><option>2000–3500 sq ft</option>
+                <option>3500+ sq ft</option>
+              </select>
+            </div>
+            <div class="step-nav">
+              <button type="button" class="btn btn-gold" onclick="nextStep()" style="width:100%;justify-content:center">Continue → Step 2</button>
+            </div>
+          </div>
+
+          <!-- STEP 2: Project + Slot -->
+          <div class="form-step" data-step="2">
+            <div style="margin-bottom:18px;font-size:.78rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase">Step 2 — Your Project &amp; Preferred Date</div>
+            <p class="step-err" style="display:none;color:#e05050;font-size:.82rem;margin-bottom:12px">Please select a slot.</p>
+
+            <!-- Auto-detected location + price -->
+            <div class="loc-detect" id="locDetect">📍 Enter your city &amp; state above to see your visit fee automatically.</div>
+
+            <div class="form-group">
+              <label class="form-label">Services of Interest</label>
+              <div class="form-checks">
+                <div class="chk-item" data-service="Turnkey Interiors"><div class="chk-box">✓</div><span class="chk-lbl">Turnkey Interiors</span></div>
+                <div class="chk-item" data-service="False Ceilings"><div class="chk-box">✓</div><span class="chk-lbl">False Ceilings</span></div>
+                <div class="chk-item" data-service="Furniture"><div class="chk-box">✓</div><span class="chk-lbl">Furniture</span></div>
+                <div class="chk-item" data-service="Paints"><div class="chk-box">✓</div><span class="chk-lbl">Paints</span></div>
+                <div class="chk-item" data-service="Tiles"><div class="chk-box">✓</div><span class="chk-lbl">Tiles &amp; Stone</span></div>
+                <div class="chk-item" data-service="Drywall"><div class="chk-box">✓</div><span class="chk-lbl">Drywall / Gypsum</span></div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Estimated Budget</label>
+              <select class="form-select" id="budget" name="Budget">
+                <option value="">Select budget range</option>
+                <option>Under ₹1,00,000</option><option>₹1–3 Lakh</option>
+                <option>₹3–7 Lakh</option><option>₹7–15 Lakh</option>
+                <option>₹15–30 Lakh</option><option>₹30 Lakh+</option>
+                <option>Not sure yet</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Timeline</label>
+              <select class="form-select" name="Timeline">
+                <option value="">When do you want to start?</option>
+                <option>Within 1 month</option><option>1–3 months</option>
+                <option>3–6 months</option><option>Just exploring</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Pick a Date *</label>
+              <div class="slot-grid" id="slotGrid">
+                <div style="color:var(--dim);font-size:.82rem;padding:10px;grid-column:1/-1">Select your state first to see available slots...</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Preferred Time</label>
+              <select class="form-select" name="Preferred Time">
+                <option>Morning (9am–12pm)</option>
+                <option>Afternoon (12pm–4pm)</option>
+                <option>Evening (4pm–7pm)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Tell us about your vision</label>
+              <textarea class="form-textarea" id="message" name="Message" placeholder="Describe your home, what you'd like to change, style preferences, any inspiration images you love..."></textarea>
+            </div>
+
+            <div class="step-nav">
+              <button type="button" class="btn btn-ghost" onclick="prevStep()">← Back</button>
+              <button type="button" class="btn btn-gold" onclick="nextStep()" style="flex:2;justify-content:center">Continue → Review</button>
+            </div>
+          </div>
+
+          <!-- STEP 3: Review + Pay -->
+          <div class="form-step" data-step="3">
+            <div style="margin-bottom:18px;font-size:.78rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase">Step 3 — Review &amp; Pay</div>
+
+            <!-- Summary populated by JS -->
+            <div class="pay-summary" id="paySummary">
+              <div class="pay-row"><span>Visit Type</span><span id="summaryType">Remote</span></div>
+              <div class="pay-row"><span>Location</span><span id="summaryLoc">—</span></div>
+              <div class="pay-row"><span>Slot</span><span id="summarySlot">—</span></div>
+              <div class="pay-row"><span>Services</span><span id="summaryServices">—</span></div>
+              <div class="pay-row"><span>Total (incl. GST)</span><span id="payAmount">₹12,000</span></div>
+            </div>
+            <p class="pay-note">• Secure payment via Razorpay — UPI, Card, Net Banking accepted<br>• Full refund if cancelled 48h before visit<br>• Visit fee credited to your project upon commencement</p>
+
+            <div id="razorpay-wrap" style="margin-top:20px">
+              <button type="button" id="razorpay-btn" class="btn btn-gold" style="width:100%;justify-content:center;padding:18px">
+                Pay &amp; Confirm Booking →
+              </button>
+            </div>
+            <div class="step-nav" style="margin-top:12px">
+              <button type="button" class="btn btn-ghost btn-sm" onclick="prevStep()">← Edit Details</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- SUCCESS -->
+      <div class="form-success" id="formSuccess">
+        <div class="suc-icon">✦</div>
+        <div class="suc-title">Booking <em>Confirmed!</em></div>
+        <div class="suc-ref" id="refId">MIBO-XXXXXX</div>
+        <p class="suc-text">Your site visit has been booked and payment received. We'll send a confirmation SMS and email within minutes. Our designer will be in touch to confirm the exact timing.</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px">
+          <a href="gallery.html" class="btn btn-ghost btn-sm">View Our Work</a>
+          <a href="index.html" class="btn btn-gold btn-sm">Back to Home</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FAQ STRIP -->
+<section style="padding:60px 48px;max-width:800px;margin:0 auto" class="rev">
+  <div class="section-eye" style="text-align:center;margin-bottom:32px">FAQs</div>
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <details style="padding:18px 20px;background:rgba(255,255,255,.03);border:1px solid var(--glass-border);border-radius:12px">
+      <summary style="color:var(--cream);font-family:var(--display);font-size:1.1rem;cursor:pointer;list-style:none">What happens during the site visit?</summary>
+      <p style="color:var(--dim);font-size:.9rem;line-height:1.7;margin-top:12px">A senior MIBO designer visits your home, measures the space, understands your lifestyle and aesthetic, and creates a tailored design brief with material shortlists and a transparent project estimate.</p>
+    </details>
+    <details style="padding:18px 20px;background:rgba(255,255,255,.03);border:1px solid var(--glass-border);border-radius:12px">
+      <summary style="color:var(--cream);font-family:var(--display);font-size:1.1rem;cursor:pointer;list-style:none">Can I get a refund?</summary>
+      <p style="color:var(--dim);font-size:.9rem;line-height:1.7;margin-top:12px">Yes — full refund if you cancel at least 48 hours before your visit. Partial refunds for later cancellations are handled by our admin team on a case-by-case basis. If you proceed with your project, the visit fee is credited in full.</p>
+    </details>
+    <details style="padding:18px 20px;background:rgba(255,255,255,.03);border:1px solid var(--glass-border);border-radius:12px">
+      <summary style="color:var(--cream);font-family:var(--display);font-size:1.1rem;cursor:pointer;list-style:none">Why is there a visit fee?</summary>
+      <p style="color:var(--dim);font-size:.9rem;line-height:1.7;margin-top:12px">The site visit fee ensures serious, committed clients and covers our designer's time, travel, and the detailed brief they prepare. It is fully credited back to you when your project begins — so it's effectively free if you proceed.</p>
+    </details>
+    <details style="padding:18px 20px;background:rgba(255,255,255,.03);border:1px solid var(--glass-border);border-radius:12px">
+      <summary style="color:var(--cream);font-family:var(--display);font-size:1.1rem;cursor:pointer;list-style:none">How are payments processed?</summary>
+      <p style="color:var(--dim);font-size:.9rem;line-height:1.7;margin-top:12px">We use Razorpay — India's leading payment gateway. We accept UPI (PhonePe, GPay, Paytm), all major debit/credit cards, and net banking. Your payment is fully secured and encrypted.</p>
+    </details>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-logo"><span class="logo-m">M</span><span class="logo-i">IBO</span></div>
+      <p>Mesmerizing Interiors, Bold Outcomes.<br><em>Exclusively for homes.</em></p>
+      <div class="footer-soc">
+        <a href="https://www.instagram.com/_mibospaces/" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/></svg></a>
+        <a href="https://www.linkedin.com/in/mibo-mesmerizing-interiors-bold-outcomes-a41750319/" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 10v7M7 7v.01M12 17v-4c0-1.105.895-2 2-2s2 .895 2 2v4M12 10v7"/></svg></a>
+      </div>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col"><h4>Quick Links</h4><a href="index.html">Home</a><a href="services.html">Services</a><a href="gallery.html">Gallery</a><a href="contact.html">Contact</a></div>
+      <div class="footer-col"><h4>Legal</h4><a href="#">Refund Policy</a><a href="#">Privacy Policy</a><a href="#">Terms of Service</a></div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 MIBO. All rights reserved. Exclusively residential.</p>
+    <p>Payments secured by <strong style="color:var(--gold)">Razorpay</strong></p>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+<script>
+// Update summary when moving to step 3
+const origNextStep = window.nextStep;
+window.nextStep = function() {
+  origNextStep();
+  if (currentStep === 3) updateSummary();
+};
+function updateSummary() {
+  const city = document.getElementById('city')?.value || '';
+  const state = document.getElementById('state')?.value || '';
+  const slot = document.getElementById('selectedSlot')?.value || 'Not selected';
+  const services = Array.from(document.querySelectorAll('.chk-item.sel')).map(el=>el.dataset.service).join(', ') || 'Not selected';
+  document.getElementById('summaryType').textContent = detectedLocation.category === 'local' ? 'Local' : 'Remote';
+  document.getElementById('summaryLoc').textContent = [city, state].filter(Boolean).join(', ') || '—';
+  document.getElementById('summarySlot').textContent = slot;
+  document.getElementById('summaryServices').textContent = services;
+  document.getElementById('payAmount').textContent = '₹' + (detectedLocation.price || 12000).toLocaleString('en-IN');
+}
+</script>
+</body>
+</html>
