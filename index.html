@@ -315,39 +315,103 @@
   </div>
 </section>
 
-<!-- QUICK ENQUIRY WIDGET (L1/L2 Lead Capture) -->
 <section class="quick-widget" id="enquiry">
   <div class="qw-inner">
     <div class="glass rev">
       <div style="padding:44px">
         <div class="section-head" style="margin-bottom:28px">
           <span class="section-eye">Quick Enquiry</span>
-          <h2 style="font-family:var(--display);font-size:2rem;font-weight:300;color:var(--cream);margin-top:6px">Ready to talk about<br><em style="font-style:italic;color:var(--gold-l)">your home?</em></h2>
-          <p style="color:var(--dim);font-size:.92rem;margin-top:10px">We'll reply within 24 hours to arrange your free consultation.</p>
+          <h2 style="font-family:var(--display);font-size:2rem;font-weight:300;color:var(--cream);margin-top:6px">Ready to talk about<br><em style="color:var(--gold-l)">your home?</em></h2>
+          <p style="color:var(--dim);font-size:.92rem;margin-top:10px">Submit to instantly start a WhatsApp chat with our team.</p>
         </div>
+        
         <form id="quickEnquiryForm">
-          <input type="hidden" name="Form Source" value="Homepage Quick Enquiry">
+          <input type="hidden" name="source" value="Homepage Quick Enquiry">
           <div class="form-row" style="margin-bottom:14px">
-            <div><label class="form-label">Name *</label><input class="form-input" name="Name" type="text" placeholder="Your name" required></div>
-            <div><label class="form-label">Phone</label><input class="form-input" name="Phone" type="tel" placeholder="+91 98765 43210"></div>
+            <div><label class="form-label">Name *</label><input class="form-input" name="user_name" type="text" placeholder="Your name" required></div>
+            <div><label class="form-label">Phone</label><input class="form-input" name="user_phone" type="tel" placeholder="+91 98765 43210"></div>
           </div>
-          <div style="margin-bottom:14px"><label class="form-label">Email *</label><input class="form-input" name="Email" type="email" placeholder="your@email.com" required></div>
+          <div style="margin-bottom:14px"><label class="form-label">Email *</label><input class="form-input" name="user_email" type="email" placeholder="your@email.com" required></div>
           <div style="margin-bottom:22px">
             <label class="form-label">I need help with</label>
-            <select class="form-select" name="Service Interest">
-              <option value="">Select a service...</option>
-              <option>Turnkey Interior Design</option><option>False Ceilings</option>
-              <option>Bespoke Furniture</option><option>Tiles &amp; Stone</option>
-              <option>Paints &amp; Finishes</option><option>Drywall &amp; Partitions</option>
-              <option>Full Home Renovation</option>
+            <select class="form-select" name="user_interest">
+              <option value="General Interest">Select a service...</option>
+              <option value="Turnkey Interior Design">Turnkey Interior Design</option>
+              <option value="False Ceilings">False Ceilings</option>
+              <option value="Bespoke Furniture">Bespoke Furniture</option>
+              <option value="Full Home Renovation">Full Home Renovation</option>
             </select>
           </div>
-          <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center">Send Enquiry →</button>
+          <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center">Start WhatsApp Chat →</button>
         </form>
       </div>
     </div>
   </div>
 </section>
+
+<script src="shared.js"></script>
+
+<script>
+const S_URL = "https://lfygfnsiignolmdnewhb.supabase.co";
+const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmeWdmbnNpaWdub2xtZG5ld2hiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjE0MDYsImV4cCI6MjA5MDc5NzQwNn0.sw7n3JezeS5FcyN-IAhcbFycScKQxQyoyZTsaNbitS8";
+const WA_NUMBER = "919876543210"; // Update to your actual WhatsApp number
+
+const sbClient = supabase.createClient(S_URL, S_KEY);
+
+document.getElementById('quickEnquiryForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const form = e.target;
+  const btn = form.querySelector('button');
+  const fd = new FormData(form);
+  
+  // Prep Data
+  const payload = {
+    full_name: fd.get('user_name'),
+    email: fd.get('user_email'),
+    phone: fd.get('user_phone') || 'N/A',
+    service_type: fd.get('user_interest'),
+    source: fd.get('source'),
+    status: 'New Lead'
+  };
+
+  // UI state
+  btn.innerHTML = 'Connecting...';
+  btn.disabled = true;
+
+  try {
+    // 1. Save to Supabase
+    const { error } = await sbClient.from('leads').insert([payload]);
+    if (error) throw error;
+
+    // 2. Success UI
+    form.innerHTML = `
+      <div style="text-align:center;padding:30px;color:var(--cream)">
+        <div style="font-size:3rem;color:var(--gold);margin-bottom:10px">✦</div>
+        <h3>Inquiry Received!</h3>
+        <p>Redirecting you to WhatsApp now...</p>
+      </div>
+    `;
+
+    // 3. Build WhatsApp Message
+    const msg = `*New MIBO Website Lead*%0A` +
+                `*Name:* ${payload.full_name}%0A` +
+                `*Service:* ${payload.service_type}%0A` +
+                `*Email:* ${payload.email}`;
+    
+    // 4. Fire Redirect
+    setTimeout(() => {
+      window.location.href = `https://wa.me/${WA_NUMBER}?text=${msg}`;
+    }, 1200);
+
+  } catch (err) {
+    console.error(err);
+    alert('Submission failed. Redirecting to WhatsApp anyway...');
+    window.location.href = `https://wa.me/${WA_NUMBER}?text=Hi, I tried using your website form but it had an issue. My name is ${payload.full_name}.`;
+  }
+});
+</script>
+
 
 <!-- COMMERCIAL NOTE -->
 <div class="comm-banner">
