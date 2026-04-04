@@ -354,6 +354,69 @@
 <script>
 const S_URL = "https://lfygfnsiignolmdnewhb.supabase.co";
 const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmeWdmbnNpaWdub2xtZG5ld2hiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjE0MDYsImV4cCI6MjA5MDc5NzQwNn0.sw7n3JezeS5FcyN-IAhcbFycScKQxQyoyZTsaNbitS8";
+const WA_NUMBER = "919876543210"; 
+
+const sbClient = supabase.createClient(S_URL, S_KEY);
+
+document.getElementById('quickEnquiryForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const form = e.target;
+  const btn = form.querySelector('button');
+  const fd = new FormData(form);
+  
+  // Mapping precisely to your provided SQL schema
+  const payload = {
+    full_name: fd.get('user_name'),
+    email: fd.get('user_email'),
+    phone: fd.get('user_phone') || 'N/A',
+    service_type: fd.get('user_interest'),
+    source: fd.get('source'),
+    status: 'New' 
+  };
+
+  btn.innerHTML = 'Connecting...';
+  btn.disabled = true;
+
+  try {
+    // 1. Save to Supabase leads table
+    const { error } = await sbClient.from('leads').insert([payload]);
+    if (error) throw error;
+
+    // 2. Success UI state
+    form.innerHTML = `
+      <div style="text-align:center;padding:30px;color:var(--cream)">
+        <div style="font-size:3rem;color:var(--gold);margin-bottom:10px">✦</div>
+        <h3 style="font-family:var(--display);font-size:1.6rem;">Inquiry Received!</h3>
+        <p style="font-size:0.9rem;color:var(--dim)">Redirecting you to WhatsApp now...</p>
+      </div>
+    `;
+
+    // 3. Build WhatsApp Message
+    const msg = `*New MIBO Website Lead*%0A` +
+                `*Name:* ${payload.full_name}%0A` +
+                `*Service:* ${payload.service_type}%0A` +
+                `*Email:* ${payload.email}`;
+    
+    // 4. Fire Redirect
+    setTimeout(() => {
+      window.location.href = `https://wa.me/${WA_NUMBER}?text=${msg}`;
+    }, 1200);
+
+  } catch (err) {
+    console.error("Submission Error:", err);
+    // Graceful fallback: Redirect anyway so you don't lose the lead
+    alert('Database sync skipped. Opening WhatsApp directly...');
+    window.location.href = `https://wa.me/${WA_NUMBER}?text=Hi, I tried the form. My name is ${payload.full_name} and I'm interested in ${payload.service_type}.`;
+  }
+});
+</script>
+
+<script src="shared.js"></script>
+
+<script>
+const S_URL = "https://lfygfnsiignolmdnewhb.supabase.co";
+const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmeWdmbnNpaWdub2xtZG5ld2hiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjE0MDYsImV4cCI6MjA5MDc5NzQwNn0.sw7n3JezeS5FcyN-IAhcbFycScKQxQyoyZTsaNbitS8";
 const WA_NUMBER = "919876543210"; // Update to your actual WhatsApp number
 
 const sbClient = supabase.createClient(S_URL, S_KEY);
