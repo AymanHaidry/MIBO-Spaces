@@ -1,48 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>MIBO — Mesmerizing Interiors, Bold Outcomes | Home Interiors India</title>
-<meta name="description" content="MIBO transforms homes into living masterpieces. Turnkey interiors, false ceilings, furniture, tiles, paints, drywall. Bihar, Delhi NCR & all India.">
-<link rel="stylesheet" href="styles.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet">
-<style>
-/* Mobile optimizations */
-@media(max-width:600px){
-  .hero{min-height:100svh;}
-  .hero-title{font-size:clamp(2.2rem,11vw,3.5rem)!important;}
-  .hero-actions{flex-direction:column;gap:10px;align-items:center;}
-  .hero-actions .btn{width:min(280px,90vw);justify-content:center;}
-  .hero-float{display:none;}
-  .svc-photo-grid{padding:0 16px 16px!important;}
-  .book-grid{grid-template-columns:1fr!important;}
-  .pricing-grid{grid-template-columns:1fr!important;}
-  .stats-inner{grid-template-columns:repeat(2,1fr)!important;}
-  .funnel-grid{grid-template-columns:1fr!important;}
-  .process-steps{flex-direction:column!important;}
-  .proc-conn{display:none!important;}
-  .testi-track{padding:0 16px!important;}
-  .quick-widget{padding:0 16px!important;}
-  .qw-inner > .glass > div{padding:24px 20px!important;}
-  .form-row{grid-template-columns:1fr!important;}
-  section{padding-left:0!important;padding-right:0!important;}
-  .manifesto-inner{padding:0 20px!important;}
-  .funnel-inner{padding:0 20px!important;}
-  .process-section .section-head{padding:0 20px!important;}
-  .process-steps{padding:0 20px!important;}
-}
-@media(max-width:400px){
-  .hero-title{font-size:2rem!important;}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>MIBO — Mesmerizing Interiors, Bold Outcomes | Home Interiors India</title>
+  <meta name="description" content="MIBO transforms homes into living masterpieces. Turnkey interiors, false ceilings, furniture, tiles, paints, drywall. Bihar, Delhi NCR & all India.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* Mobile optimizations */
+    @media(max-width:600px){
+      .hero{min-height:100svh;}
+      .hero-title{font-size:clamp(2.2rem,11vw,3.5rem)!important;}
+      .hero-actions{flex-direction:column;gap:10px;align-items:center;}
+      .hero-actions .btn{width:min(280px,90vw);justify-content:center;}
+      .hero-float{display:none;}
+      .svc-photo-grid{padding:0 16px 16px!important;}
+      .book-grid{grid-template-columns:1fr!important;}
+      .pricing-grid{grid-template-columns:1fr!important;}
+      .stats-inner{grid-template-columns:repeat(2,1fr)!important;}
+      .funnel-grid{grid-template-columns:1fr!important;}
+      .process-steps{flex-direction:column!important;}
+      .proc-conn{display:none!important;}
+      .testi-track{padding:0 16px!important;}
+      .quick-widget{padding:0 16px!important;}
+      .qw-inner > .glass > div{padding:24px 20px!important;}
+      .form-row{grid-template-columns:1fr!important;}
+      section{padding-left:0!important;padding-right:0!important;}
+      .manifesto-inner{padding:0 20px!important;}
+      .funnel-inner{padding:0 20px!important;}
+      .process-section .section-head{padding:0 20px!important;}
+      .process-steps{padding:0 20px!important;}
+    }
+    @media(max-width:400px){
+      .hero-title{font-size:2rem!important;}
+    }
+    @keyframes heroZoom{from{transform:scale(1.04);}to{transform:scale(1.1);}}
+  </style>
 </head>
 <body>
 <div class="cursor" id="cursor"></div>
 <div class="cursor-trail" id="cursorTrail"></div>
 
-<!-- NAV -->
 <nav class="nav" id="mainNav">
   <a href="index.html" class="nav-logo"><span class="logo-m">M</span><span class="logo-i">IBO</span></a>
   <div class="nav-links">
@@ -63,7 +64,6 @@
   <a href="book.html" class="mobile-cta-btn">Book Consultation</a>
 </div>
 
-<!-- HERO -->
 <section class="hero">
   <div class="hero-bg">
     <div class="hero-bg-img" style="position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1600210492493-0946911123ea?w=1600&q=85') center/cover no-repeat;transform:scale(1.06);animation:heroZoom 22s ease-in-out infinite alternate;"></div>
@@ -90,9 +90,7 @@
     </div>
   </div>
 </section>
-<style>@keyframes heroZoom{from{transform:scale(1.04);}to{transform:scale(1.1);}}</style>
 
-<!-- MANIFESTO -->
 <section class="manifesto">
   <div class="manifesto-inner">
     <span class="man-tag rev">Our Philosophy</span>
@@ -101,7 +99,6 @@
   </div>
 </section>
 
-<!-- SERVICES PREVIEW -->
 <section class="services-preview">
   <div class="section-head">
     <span class="section-eye rev">What We Offer</span>
@@ -109,21 +106,21 @@
     <a href="services.html" class="btn btn-ghost rev d2" style="margin-top:8px">All Services →</a>
   </div>
   <style>
-  .svc-photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:0 max(24px,4vw) 20px;}
-  @media(max-width:900px){.svc-photo-grid{grid-template-columns:repeat(2,1fr);}}
-  @media(max-width:560px){.svc-photo-grid{grid-template-columns:1fr;gap:14px;}}
-  .svc-photo-card{position:relative;border-radius:16px;overflow:hidden;cursor:pointer;aspect-ratio:4/3;background:#1a1710;}
-  .svc-photo-card img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;display:block;}
-  .svc-photo-card:hover img{transform:scale(1.07);}
-  .svc-photo-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,12,10,.88) 0%,rgba(13,12,10,.15) 60%,transparent 100%);transition:background .4s;}
-  .svc-photo-card:hover .svc-photo-overlay{background:linear-gradient(to top,rgba(13,12,10,.95) 0%,rgba(13,12,10,.3) 70%,transparent 100%);}
-  .svc-photo-content{position:absolute;bottom:0;left:0;right:0;padding:20px 22px;}
-  .svc-photo-icon{font-size:1.4rem;margin-bottom:6px;}
-  .svc-photo-content h3{font-family:var(--display);font-size:1.2rem;font-weight:400;color:var(--cream);margin-bottom:4px;}
-  .svc-photo-content p{font-size:.8rem;color:rgba(232,224,208,.7);line-height:1.5;margin:0;max-height:0;overflow:hidden;transition:max-height .4s ease,opacity .4s;}
-  .svc-photo-card:hover .svc-photo-content p{max-height:60px;}
-  .svc-photo-arr{position:absolute;top:18px;right:18px;width:32px;height:32px;border-radius:50%;background:rgba(201,169,110,.2);border:1px solid rgba(201,169,110,.4);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--gold);opacity:0;transition:opacity .3s;}
-  .svc-photo-card:hover .svc-photo-arr{opacity:1;}
+    .svc-photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:0 max(24px,4vw) 20px;}
+    @media(max-width:900px){.svc-photo-grid{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:560px){.svc-photo-grid{grid-template-columns:1fr;gap:14px;}}
+    .svc-photo-card{position:relative;border-radius:16px;overflow:hidden;cursor:pointer;aspect-ratio:4/3;background:#1a1710;}
+    .svc-photo-card img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;display:block;}
+    .svc-photo-card:hover img{transform:scale(1.07);}
+    .svc-photo-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,12,10,.88) 0%,rgba(13,12,10,.15) 60%,transparent 100%);transition:background .4s;}
+    .svc-photo-card:hover .svc-photo-overlay{background:linear-gradient(to top,rgba(13,12,10,.95) 0%,rgba(13,12,10,.3) 70%,transparent 100%);}
+    .svc-photo-content{position:absolute;bottom:0;left:0;right:0;padding:20px 22px;}
+    .svc-photo-icon{font-size:1.4rem;margin-bottom:6px;}
+    .svc-photo-content h3{font-family:var(--display);font-size:1.2rem;font-weight:400;color:var(--cream);margin-bottom:4px;}
+    .svc-photo-content p{font-size:.8rem;color:rgba(232,224,208,.7);line-height:1.5;margin:0;max-height:0;overflow:hidden;transition:max-height .4s ease,opacity .4s;}
+    .svc-photo-card:hover .svc-photo-content p{max-height:60px;}
+    .svc-photo-arr{position:absolute;top:18px;right:18px;width:32px;height:32px;border-radius:50%;background:rgba(201,169,110,.2);border:1px solid rgba(201,169,110,.4);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--gold);opacity:0;transition:opacity .3s;}
+    .svc-photo-card:hover .svc-photo-arr{opacity:1;}
   </style>
   <div class="svc-photo-grid">
     <div class="svc-photo-card rev d1" onclick="location='services.html'">
@@ -189,7 +186,6 @@
   </div>
 </section>
 
-<!-- HOW IT WORKS FUNNEL (L1→L5) -->
 <section class="funnel">
   <div class="funnel-inner">
     <div class="section-head">
@@ -219,7 +215,6 @@
   </div>
 </section>
 
-<!-- PRICING STRIP -->
 <section class="pricing-strip">
   <div class="pricing-inner">
     <div class="section-head">
@@ -257,7 +252,6 @@
   </div>
 </section>
 
-<!-- STATS -->
 <div class="stats-bar">
   <div class="stats-inner">
     <div class="rev d1"><div class="stat-big">250+</div><div class="stat-lbl">Homes Designed</div></div>
@@ -267,7 +261,6 @@
   </div>
 </div>
 
-<!-- PROCESS -->
 <section class="process-section">
   <div class="process-bg"></div>
   <div class="section-head">
@@ -285,7 +278,6 @@
   </div>
 </section>
 
-<!-- TESTIMONIALS -->
 <section class="testimonials">
   <div class="section-head">
     <span class="section-eye rev">Real Homes, Real Stories</span>
@@ -340,6 +332,9 @@
               <option value="False Ceilings">False Ceilings</option>
               <option value="Bespoke Furniture">Bespoke Furniture</option>
               <option value="Full Home Renovation">Full Home Renovation</option>
+              <option value="Tiles and Stone">Tiles and Stone</option>
+              <option value="Paints and Finishes">Paints and Finishes</option>
+              <option value="Drywall and Partitions">Drywall and Partitions</option>
             </select>
           </div>
           <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center">Start WhatsApp Chat →</button>
@@ -349,134 +344,6 @@
   </div>
 </section>
 
-<script src="shared.js"></script>
-
-<script>
-const S_URL = "https://lfygfnsiignolmdnewhb.supabase.co";
-const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmeWdmbnNpaWdub2xtZG5ld2hiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjE0MDYsImV4cCI6MjA5MDc5NzQwNn0.sw7n3JezeS5FcyN-IAhcbFycScKQxQyoyZTsaNbitS8";
-const WA_NUMBER = "919876543210"; 
-
-const sbClient = supabase.createClient(S_URL, S_KEY);
-
-document.getElementById('quickEnquiryForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  const form = e.target;
-  const btn = form.querySelector('button');
-  const fd = new FormData(form);
-  
-  // Mapping precisely to your provided SQL schema
-  const payload = {
-    full_name: fd.get('user_name'),
-    email: fd.get('user_email'),
-    phone: fd.get('user_phone') || 'N/A',
-    service_type: fd.get('user_interest'),
-    source: fd.get('source'),
-    status: 'New' 
-  };
-
-  btn.innerHTML = 'Connecting...';
-  btn.disabled = true;
-
-  try {
-    // 1. Save to Supabase leads table
-    const { error } = await sbClient.from('leads').insert([payload]);
-    if (error) throw error;
-
-    // 2. Success UI state
-    form.innerHTML = `
-      <div style="text-align:center;padding:30px;color:var(--cream)">
-        <div style="font-size:3rem;color:var(--gold);margin-bottom:10px">✦</div>
-        <h3 style="font-family:var(--display);font-size:1.6rem;">Inquiry Received!</h3>
-        <p style="font-size:0.9rem;color:var(--dim)">Redirecting you to WhatsApp now...</p>
-      </div>
-    `;
-
-    // 3. Build WhatsApp Message
-    const msg = `*New MIBO Website Lead*%0A` +
-                `*Name:* ${payload.full_name}%0A` +
-                `*Service:* ${payload.service_type}%0A` +
-                `*Email:* ${payload.email}`;
-    
-    // 4. Fire Redirect
-    setTimeout(() => {
-      window.location.href = `https://wa.me/${WA_NUMBER}?text=${msg}`;
-    }, 1200);
-
-  } catch (err) {
-    console.error("Submission Error:", err);
-    // Graceful fallback: Redirect anyway so you don't lose the lead
-    alert('Database sync skipped. Opening WhatsApp directly...');
-    window.location.href = `https://wa.me/${WA_NUMBER}?text=Hi, I tried the form. My name is ${payload.full_name} and I'm interested in ${payload.service_type}.`;
-  }
-});
-</script>
-
-<script src="shared.js"></script>
-
-<script>
-const S_URL = "https://lfygfnsiignolmdnewhb.supabase.co";
-const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmeWdmbnNpaWdub2xtZG5ld2hiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjE0MDYsImV4cCI6MjA5MDc5NzQwNn0.sw7n3JezeS5FcyN-IAhcbFycScKQxQyoyZTsaNbitS8";
-const WA_NUMBER = "919876543210"; // Update to your actual WhatsApp number
-
-const sbClient = supabase.createClient(S_URL, S_KEY);
-
-document.getElementById('quickEnquiryForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  const form = e.target;
-  const btn = form.querySelector('button');
-  const fd = new FormData(form);
-  
-  // Prep Data
-  const payload = {
-    full_name: fd.get('user_name'),
-    email: fd.get('user_email'),
-    phone: fd.get('user_phone') || 'N/A',
-    service_type: fd.get('user_interest'),
-    source: fd.get('source'),
-    status: 'New Lead'
-  };
-
-  // UI state
-  btn.innerHTML = 'Connecting...';
-  btn.disabled = true;
-
-  try {
-    // 1. Save to Supabase
-    const { error } = await sbClient.from('leads').insert([payload]);
-    if (error) throw error;
-
-    // 2. Success UI
-    form.innerHTML = `
-      <div style="text-align:center;padding:30px;color:var(--cream)">
-        <div style="font-size:3rem;color:var(--gold);margin-bottom:10px">✦</div>
-        <h3>Inquiry Received!</h3>
-        <p>Redirecting you to WhatsApp now...</p>
-      </div>
-    `;
-
-    // 3. Build WhatsApp Message
-    const msg = `*New MIBO Website Lead*%0A` +
-                `*Name:* ${payload.full_name}%0A` +
-                `*Service:* ${payload.service_type}%0A` +
-                `*Email:* ${payload.email}`;
-    
-    // 4. Fire Redirect
-    setTimeout(() => {
-      window.location.href = `https://wa.me/${WA_NUMBER}?text=${msg}`;
-    }, 1200);
-
-  } catch (err) {
-    console.error(err);
-    alert('Submission failed. Redirecting to WhatsApp anyway...');
-    window.location.href = `https://wa.me/${WA_NUMBER}?text=Hi, I tried using your website form but it had an issue. My name is ${payload.full_name}.`;
-  }
-});
-</script>
-
-
-<!-- COMMERCIAL NOTE -->
 <div class="comm-banner">
   <div class="comm-inner">
     <div>
@@ -487,7 +354,6 @@ document.getElementById('quickEnquiryForm').addEventListener('submit', async (e)
   </div>
 </div>
 
-<!-- CTA -->
 <section class="cta-section">
   <div class="cta-bg-el"><div class="cta-o1"></div><div class="cta-o2"></div></div>
   <div class="cta-glass">
@@ -497,7 +363,6 @@ document.getElementById('quickEnquiryForm').addEventListener('submit', async (e)
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer class="footer">
   <div class="footer-top">
     <div class="footer-brand">
@@ -541,5 +406,70 @@ document.getElementById('quickEnquiryForm').addEventListener('submit', async (e)
 </footer>
 
 <script src="main.js"></script>
+<script src="shared.js"></script>
+
+<script>
+  // SUPABASE CONFIG
+  const S_URL = "https://lfygfnsiignolmdnewhb.supabase.co";
+  const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmeWdmbnNpaWdub2xtZG5ld2hiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjE0MDYsImV4cCI6MjA5MDc5NzQwNn0.sw7n3JezeS5FcyN-IAhcbFycScKQxQyoyZTsaNbitS8";
+  const WA_NUMBER = "917979726061"; // Your actual WhatsApp Number
+
+  const sbClient = supabase.createClient(S_URL, S_KEY);
+
+  // FORM HANDLER
+  document.getElementById('quickEnquiryForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const form = e.target;
+    const btn = form.querySelector('button');
+    const fd = new FormData(form);
+    
+    // Payload mapped to public.leads schema
+    const payload = {
+      full_name: fd.get('user_name'),
+      email: fd.get('user_email'),
+      phone: fd.get('user_phone') || 'N/A',
+      service_type: fd.get('user_interest'),
+      source: fd.get('source'),
+      status: 'New' 
+    };
+
+    btn.innerHTML = 'Connecting...';
+    btn.disabled = true;
+
+    try {
+      // 1. Insert into Supabase
+      const { error } = await sbClient.from('leads').insert([payload]);
+      if (error) throw error;
+
+      // 2. Visual Success Feedback
+      form.innerHTML = `
+        <div style="text-align:center;padding:30px;color:var(--cream)">
+          <div style="font-size:3.5rem;color:var(--gold);margin-bottom:12px;animation:rev .8s ease forwards;">✦</div>
+          <h3 style="font-family:var(--display);font-size:1.8rem;font-weight:300;margin-bottom:8px">Inquiry Received!</h3>
+          <p style="font-size:0.9rem;color:var(--dim);letter-spacing:0.5px">Opening WhatsApp now...</p>
+        </div>
+      `;
+
+      // 3. Construct WhatsApp Message
+      const msg = `*New MIBO Website Lead*%0A` +
+                  `*Name:* ${payload.full_name}%0A` +
+                  `*Service:* ${payload.service_type}%0A` +
+                  `*Email:* ${payload.email}`;
+      
+      // 4. Redirect after brief pause
+      setTimeout(() => {
+        window.location.href = `https://wa.me/${WA_NUMBER}?text=${msg}`;
+      }, 1200);
+
+    } catch (err) {
+      console.error("Supabase Submission Error:", err);
+      // Fallback: Redirect to WhatsApp anyway to capture the lead manually
+      alert('Network issue. Opening WhatsApp chat directly...');
+      window.location.href = `https://wa.me/${WA_NUMBER}?text=Hi MIBO, I'm interested in ${payload.service_type}. My name is ${payload.full_name}.`;
+    }
+  });
+</script>
+
 </body>
 </html>
