@@ -371,7 +371,13 @@
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+  // Supabase client (same as CRM)
+  const SBU='https://lfygfnsiignolmdnewhb.supabase.co';
+  const SBK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmeWdmbnNpaWdub2xtZG5ld2hiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjE0MDYsImV4cCI6MjA5MDc5NzQwNn0.sw7n3JezeS5FcyN-IAhcbFycScKQxQyoyZTsaNbitS8';
+  const sb=window.supabase.createClient(SBU,SBK);
+
   const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
   let mx=0,my=0,rx=0,ry=0;
   document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.transform=`translate(${mx-6}px,${my-6}px)`;});
@@ -388,19 +394,60 @@
     el.addEventListener('mouseleave',()=>{cursor.classList.remove('expanded');ring.classList.remove('expanded');});
   });
 
-  function handleSubmit(){
+  async function handleSubmit(){
     const first=document.getElementById('firstName').value.trim();
+    const last=document.getElementById('lastName').value.trim();
     const email=document.getElementById('email').value.trim();
+    const phone=document.getElementById('phone').value.trim();
+    
     if(!first){alert('Please enter your first name.');return;}
     if(!email||!email.includes('@')){alert('Please enter a valid email address.');return;}
+    
     const btn=document.getElementById('submitBtn');
     btn.textContent='Sending...';
     btn.disabled=true;
-    setTimeout(()=>{
-      document.getElementById('contactForm').style.display='none';
-      const s=document.getElementById('formSuccess');
-      s.classList.add('show');
-    },1200);
+    
+    try {
+      // Get selected services
+      const services=Array.from(document.querySelectorAll('.check-item.selected'))
+        .map(el=>el.getAttribute('data-service'))
+        .join(', ');
+      
+      // Get message
+      const message=document.getElementById('message').value.trim();
+      
+      // Get home type
+      const homeType=document.getElementById('homeType').value;
+      
+      // Insert lead into Supabase
+      const{error}=await sb.from('leads').insert([{
+        full_name:first+(last?' '+last:''),
+        email:email,
+        phone:phone||null,
+        city:null,
+        service_type:services||'Enquiry',
+        budget_range:null,
+        status:'New',
+        lead_score:'Basic',
+        source:'Booking Form',
+        message:message,
+        is_paid:false,
+        amount_paid:null
+      }]);
+      
+      if(error)throw error;
+      
+      // Show success
+      setTimeout(()=>{
+        document.getElementById('contactForm').style.display='none';
+        const s=document.getElementById('formSuccess');
+        s.classList.add('show');
+      },800);
+    }catch(err){
+      alert('Error sending enquiry: '+err.message);
+      btn.textContent='Send My Enquiry →';
+      btn.disabled=false;
+    }
   }
 </script>
 </body>
