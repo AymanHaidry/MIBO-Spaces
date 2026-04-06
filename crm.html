@@ -1,1337 +1,835 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MIBO CRM — Pipeline & Interactions</title>
-<meta name="robots" content="noindex, nofollow">
+<title>MIBO CRM — Team Portal</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%23c9a96e'/><text y='.85em' x='10' font-size='72' font-family='Georgia,serif' fill='%230d0c0a'>M</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --gold:#c9a96e;--dark:#0d0c0a;--dark2:#141210;--dark3:#1e1b16;
+  --gold:#c9a96e;--gold-l:#e8c98a;--gold-d:#9a7a4a;
+  --bg:#0d0c0a;--bg2:#141210;--bg3:#1e1b16;--bg4:#2a2520;
   --text:#e8e0d0;--dim:#a09080;--dimmer:#6a5f50;--cream:#f5f0e8;
   --glass:rgba(255,255,255,.05);--gb:rgba(201,169,110,.15);
   --green:#4caf7a;--red:#e05050;--blue:#5b9bd5;--orange:#e8923a;--purple:#9b7fd4;
+  --border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.04);
+  --shadow:0 4px 24px rgba(0,0,0,.4);
   --f:'Outfit',sans-serif;--display:'Cormorant Garamond',serif;
 }
+[data-theme="light"]{
+  --bg:#f4f1ec;--bg2:#ffffff;--bg3:#ede9e2;--bg4:#e2ddd5;
+  --text:#1e1b16;--dim:#5a5048;--dimmer:#8a7d6e;--cream:#0d0c0a;
+  --glass:rgba(0,0,0,.03);--gb:rgba(201,169,110,.2);
+  --border:rgba(0,0,0,.09);--border2:rgba(0,0,0,.04);
+  --shadow:0 4px 24px rgba(0,0,0,.08);
+}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:var(--dark);color:var(--text);font-family:var(--f);font-size:14px;overflow-x:hidden}
-a{color:inherit;text-decoration:none}
-input,select,textarea,button{font-family:var(--f)}
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse 70% 70% at 50% 0%,#1a1408,var(--dark) 70%)}
-.login-box{width:400px;background:var(--glass);backdrop-filter:blur(24px);border:1px solid var(--gb);border-radius:20px;padding:48px 40px;text-align:center}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f);font-size:14px;overflow-x:hidden;transition:background .25s,color .25s}
+a{color:inherit;text-decoration:none}input,select,textarea,button{font-family:var(--f)}
+
+/* ── ANIMATED BACKGROUND ── */
+.crm-bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.bg-orb{position:absolute;border-radius:50%;filter:blur(90px);animation:orb-drift ease-in-out infinite}
+@keyframes orb-drift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-50px) scale(1.08)}66%{transform:translate(-30px,30px) scale(.93)}}
+[data-theme="light"] .bg-orb{opacity:.08}
+[data-theme="dark"] .bg-orb{opacity:.22}
+
+/* ── LOGIN ── */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;z-index:10}
+.login-box{width:400px;background:var(--glass);backdrop-filter:blur(28px);border:1px solid var(--gb);border-radius:20px;padding:48px 40px;text-align:center;box-shadow:var(--shadow)}
 .login-logo{font-family:var(--display);font-size:2.4rem;font-weight:300;color:var(--gold);margin-bottom:2px}
-.login-tagline{font-size:.7rem;color:var(--dimmer);letter-spacing:.2em;text-transform:uppercase;margin-bottom:30px}
-.l-inp{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 14px;color:var(--text);font-size:.9rem;outline:none;margin-bottom:12px;transition:border-color .3s}
-.l-inp:focus{border-color:rgba(201,169,110,.5)}
-.l-btn{width:100%;padding:13px;background:var(--gold);color:var(--dark);border:none;border-radius:10px;font-weight:600;font-size:.88rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .3s;margin-top:6px}
-.l-btn:hover{background:#e8c98a;transform:translateY(-1px)}
-.l-err{color:var(--red);font-size:.8rem;margin-top:10px;display:none;text-align:left;padding:8px 12px;background:rgba(224,80,80,.08);border-radius:8px;border:1px solid rgba(224,80,80,.2)}
-.crm{display:none;height:100vh;overflow:hidden}
-.crm.show{display:flex}
-.sidebar{width:235px;flex-shrink:0;background:var(--dark2);border-right:1px solid rgba(201,169,110,.1);display:flex;flex-direction:column}
-.sb-logo{padding:24px 20px 18px;border-bottom:1px solid rgba(255,255,255,.05)}
-.sb-logo-txt{font-family:var(--display);font-size:1.6rem;font-weight:300;color:var(--gold)}
-.sb-badge{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dimmer);margin-top:3px}
-.sb-nav{padding:12px 0;flex:1;overflow-y:auto}
-.sb-sec{font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--dimmer);padding:12px 20px 5px}
-.sb-link{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--dim);font-size:.85rem;cursor:pointer;transition:all .25s;border-left:2px solid transparent}
-.sb-link:hover{color:var(--text);background:rgba(255,255,255,.03)}
-.sb-link.active{color:var(--gold);border-left-color:var(--gold);background:rgba(201,169,110,.06)}
-.sb-link svg{width:15px;height:15px;flex-shrink:0}
-.sb-count{margin-left:auto;padding:1px 7px;border-radius:100px;font-size:.68rem}
-.sb-footer{padding:14px 20px;border-top:1px solid rgba(255,255,255,.05)}
-.sb-user-name{font-size:.84rem;color:var(--text);font-weight:500}
-.sb-user-role{font-size:.72rem;color:var(--dim)}
-.sb-logout{font-size:.72rem;color:var(--red);cursor:pointer;margin-top:6px;display:inline-block}
-.main{flex:1;overflow-y:auto;background:var(--dark)}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 26px;border-bottom:1px solid rgba(255,255,255,.05);background:var(--dark);position:sticky;top:0;z-index:10}
-.topbar h1{font-family:var(--display);font-size:1.5rem;font-weight:300}
-.topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.tb-btn{padding:7px 16px;border-radius:8px;font-size:.78rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;border:none;cursor:pointer;transition:all .3s}
-.tb-gold{background:var(--gold);color:var(--dark)}.tb-gold:hover{background:#e8c98a}
-.tb-ghost{background:rgba(255,255,255,.05);color:var(--text);border:1px solid rgba(255,255,255,.1)}.tb-ghost:hover{background:rgba(255,255,255,.1)}
-.tb-red{background:rgba(224,80,80,.12);color:var(--red);border:1px solid rgba(224,80,80,.25)}.tb-red:hover{background:rgba(224,80,80,.22)}
-.attend-strip{display:flex;align-items:center;gap:12px;padding:9px 26px;background:var(--dark3);border-bottom:1px solid rgba(255,255,255,.04);font-size:.8rem;color:var(--dim);flex-wrap:wrap}
-.clock{font-family:monospace;font-size:.9rem;color:var(--cream);min-width:72px}
-.attend-btn{padding:5px 14px;border-radius:6px;font-size:.74rem;font-weight:500;border:none;cursor:pointer;transition:all .3s}
-.attend-in{background:rgba(76,175,122,.15);color:var(--green);border:1px solid rgba(76,175,122,.3)}
-.attend-out{background:rgba(224,80,80,.1);color:var(--red);border:1px solid rgba(224,80,80,.2)}
-.attend-status{font-size:.75rem;padding:3px 10px;border-radius:100px}
-/* realtime indicator */
-.rt-dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:5px;animation:rt-pulse 2s ease-in-out infinite}
-@keyframes rt-pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(76,175,122,.4)}50%{opacity:.7;box-shadow:0 0 0 4px rgba(76,175,122,0)}}
-.rt-dead{background:var(--red);animation:none}
-.page{display:none;padding:22px 26px}.page.active{display:block}
-.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
-.metric-card{background:var(--glass);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:18px}
-.metric-card.gold{border-color:rgba(201,169,110,.3);background:rgba(201,169,110,.05)}
-.metric-val{font-family:var(--display);font-size:2.2rem;font-weight:300;line-height:1;margin-bottom:3px}
-.metric-lbl{font-size:.72rem;color:var(--dim);letter-spacing:.08em;text-transform:uppercase}
-.table-wrap{background:var(--glass);border:1px solid rgba(255,255,255,.07);border-radius:12px;overflow:hidden;margin-bottom:20px}
-.table-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.05);gap:10px;flex-wrap:wrap}
-.table-head h3{font-size:.88rem;font-weight:400}
-.search-inp{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 11px;color:var(--text);font-size:.8rem;outline:none;width:190px}
-.search-inp:focus{border-color:rgba(201,169,110,.4)}
+.login-tag{font-size:.68rem;color:var(--dimmer);letter-spacing:.22em;text-transform:uppercase;margin-bottom:28px}
+.l-inp{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:.9rem;outline:none;margin-bottom:12px;transition:border-color .3s}
+[data-theme="light"] .l-inp{background:rgba(0,0,0,.04)}
+.l-inp:focus{border-color:rgba(201,169,110,.55)}
+.l-btn{width:100%;padding:13px;background:var(--gold);color:#0d0c0a;border:none;border-radius:10px;font-weight:600;font-size:.88rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .3s;margin-top:6px}
+.l-btn:hover{background:var(--gold-l);transform:translateY(-1px)}
+.l-err{color:var(--red);font-size:.8rem;margin-top:10px;display:none;padding:8px 12px;background:rgba(224,80,80,.08);border-radius:8px;border:1px solid rgba(224,80,80,.2)}
+
+/* ── SHELL ── */
+.crm{display:none;height:100vh;overflow:hidden;position:relative;z-index:1}.crm.show{display:flex}
+.sidebar{width:230px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column}
+.sb-top{padding:20px 18px 14px;border-bottom:1px solid var(--border2)}
+.sb-logo{font-family:var(--display);font-size:1.55rem;font-weight:300;color:var(--gold)}
+.sb-badge{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dimmer);margin-top:2px;display:flex;align-items:center;gap:4px}
+.rt-dot{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;animation:rt-p 2s ease-in-out infinite;flex-shrink:0}
+@keyframes rt-p{0%,100%{box-shadow:0 0 0 0 rgba(76,175,122,.4)}50%{box-shadow:0 0 0 4px rgba(76,175,122,0)}}
+.rt-dot.dead{background:var(--red);animation:none}
+.sb-nav{padding:10px 0;flex:1;overflow-y:auto}
+.sb-sec{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dimmer);padding:10px 18px 4px}
+.sb-link{display:flex;align-items:center;gap:9px;padding:9px 18px;color:var(--dim);font-size:.83rem;cursor:pointer;transition:all .22s;border-left:2px solid transparent}
+.sb-link:hover{color:var(--text);background:rgba(201,169,110,.06)}
+.sb-link.active{color:var(--gold);border-left-color:var(--gold);background:rgba(201,169,110,.08)}
+.sb-link svg{width:14px;height:14px;flex-shrink:0}
+.sb-cnt{margin-left:auto;padding:1px 6px;border-radius:100px;font-size:.65rem}
+.sb-footer{padding:12px 18px;border-top:1px solid var(--border2)}
+.sb-name{font-size:.82rem;color:var(--text);font-weight:500}
+.sb-role{font-size:.7rem;color:var(--dim)}
+.sb-out{font-size:.7rem;color:var(--red);cursor:pointer;margin-top:4px;display:inline-block}
+/* theme toggle */
+.theme-row{display:flex;align-items:center;gap:8px;padding:10px 18px;cursor:pointer;border-top:1px solid var(--border2);color:var(--dim);font-size:.78rem;transition:color .2s}
+.theme-row:hover{color:var(--text)}
+.t-track{width:30px;height:17px;border-radius:100px;background:var(--bg4);border:1px solid var(--border);position:relative;flex-shrink:0;transition:background .3s}
+.t-thumb{position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:var(--dimmer);transition:all .3s}
+[data-theme="light"] .t-thumb{left:15px;background:var(--gold)}
+[data-theme="light"] .t-track{background:rgba(201,169,110,.15)}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;background:var(--bg);display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:13px 22px;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:10;flex-wrap:wrap;gap:8px}
+.topbar h1{font-family:var(--display);font-size:1.4rem;font-weight:300}
+.tr{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.tb{padding:6px 13px;border-radius:8px;font-size:.75rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;border:none;cursor:pointer;transition:all .3s}
+.tb-g{background:var(--gold);color:#0d0c0a}.tb-g:hover{background:var(--gold-l)}
+.tb-gh{background:var(--glass);color:var(--text);border:1px solid var(--border)}.tb-gh:hover{background:var(--bg3)}
+.tb-r{background:rgba(224,80,80,.1);color:var(--red);border:1px solid rgba(224,80,80,.25)}
+
+/* ── CLOCK STRIP ── */
+.cl-strip{display:flex;align-items:center;gap:10px;padding:8px 22px;background:var(--bg3);border-bottom:1px solid var(--border2);flex-wrap:wrap;font-size:.79rem;color:var(--dim)}
+.cl-time{font-family:monospace;font-size:.95rem;color:var(--cream);min-width:78px;font-weight:500}
+.cl-btn{padding:5px 13px;border-radius:6px;font-size:.72rem;font-weight:500;border:none;cursor:pointer;transition:all .3s}
+.cl-in{background:rgba(76,175,122,.15);color:var(--green);border:1px solid rgba(76,175,122,.3)}
+.cl-out{background:rgba(224,80,80,.1);color:var(--red);border:1px solid rgba(224,80,80,.2)}
+.cl-badge{font-size:.72rem;padding:3px 9px;border-radius:100px;background:var(--bg4);color:var(--dim)}
+.cl-badge.cin{background:rgba(76,175,122,.12);color:var(--green)}
+.cl-badge.cout{background:rgba(224,80,80,.1);color:var(--red)}
+
+/* ── PAGES ── */
+.page{display:none;padding:18px 22px}.page.active{display:block}
+
+/* ── METRICS ── */
+.mg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.mc{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:15px;transition:border-color .3s}
+.mc:hover{border-color:rgba(201,169,110,.25)}
+.mc.gold{border-color:rgba(201,169,110,.3);background:rgba(201,169,110,.05)}
+.mv{font-family:var(--display);font-size:1.9rem;font-weight:300;line-height:1;margin-bottom:3px}
+.ml{font-size:.68rem;color:var(--dim);letter-spacing:.08em;text-transform:uppercase}
+
+/* ── TABLE ── */
+.tw{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.th{display:flex;align-items:center;justify-content:space-between;padding:11px 15px;border-bottom:1px solid var(--border2);gap:8px;flex-wrap:wrap}
+.th h3{font-size:.84rem;font-weight:500}
+.si{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--text);font-size:.78rem;outline:none;width:170px}
+.si:focus{border-color:rgba(201,169,110,.4)}
 table{width:100%;border-collapse:collapse}
-th{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);font-weight:400;padding:9px 14px;text-align:left;border-bottom:1px solid rgba(255,255,255,.05)}
-td{padding:11px 14px;font-size:.84rem;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:middle}
+th{font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:400;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);background:var(--bg3)}
+td{padding:9px 12px;font-size:.81rem;border-bottom:1px solid var(--border2);vertical-align:middle}
 tr:last-child td{border:none}
-tr:hover td{background:rgba(255,255,255,.02)}
-.badge{display:inline-block;padding:2px 9px;border-radius:100px;font-size:.68rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase}
-.badge.hot{background:rgba(224,80,80,.15);color:var(--red);border:1px solid rgba(224,80,80,.25)}
-.badge.warm{background:rgba(232,146,58,.15);color:var(--orange);border:1px solid rgba(232,146,58,.25)}
+tr:hover td{background:rgba(201,169,110,.025)}
+.badge{display:inline-block;padding:2px 8px;border-radius:100px;font-size:.64rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase}
+.badge.hot{background:rgba(224,80,80,.14);color:var(--red);border:1px solid rgba(224,80,80,.24)}
+.badge.warm{background:rgba(232,146,58,.14);color:var(--orange);border:1px solid rgba(232,146,58,.24)}
 .badge.basic{background:rgba(91,155,213,.12);color:var(--blue);border:1px solid rgba(91,155,213,.2)}
 .badge.won,.badge.confirmed{background:rgba(76,175,122,.12);color:var(--green);border:1px solid rgba(76,175,122,.2)}
 .badge.lost,.badge.refunded{background:rgba(224,80,80,.08);color:var(--red)}
 .badge.new{background:rgba(155,127,212,.12);color:var(--purple)}
 .badge.contacted,.badge.proposal,.badge.pending{background:rgba(91,155,213,.12);color:var(--blue)}
-.act-btn{padding:4px 11px;border-radius:6px;font-size:.72rem;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:var(--text);cursor:pointer;transition:all .25s}
-.act-btn:hover{background:rgba(255,255,255,.09)}
-.act-btn.danger{border-color:rgba(224,80,80,.3);color:var(--red)}.act-btn.danger:hover{background:rgba(224,80,80,.1)}
-.act-btn.success{border-color:rgba(76,175,122,.3);color:var(--green)}.act-btn.success:hover{background:rgba(76,175,122,.08)}
-.kanban{display:flex;gap:14px;overflow-x:auto;padding-bottom:10px;min-height:400px}
-.k-col{flex-shrink:0;width:220px;background:var(--dark3);border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,.05)}
-.k-col-head{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
-.k-col-head span{font-family:var(--display);font-size:1rem;color:var(--text);font-weight:300;letter-spacing:0}
-.k-card{background:var(--glass);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:12px;margin-bottom:10px;cursor:pointer;transition:all .25s}
-.k-card:hover{border-color:rgba(201,169,110,.3);background:rgba(255,255,255,.06)}
-.k-card-name{font-size:.86rem;color:var(--text);margin-bottom:4px}
-.k-card-val{font-size:.78rem;color:var(--gold)}
-.k-card-meta{font-size:.7rem;color:var(--dim);margin-top:4px}
-.k-card-due{font-size:.67rem;margin-top:6px;padding:2px 7px;border-radius:4px;display:inline-block}
-.k-card-due.overdue{background:rgba(224,80,80,.12);color:var(--red)}
-.k-card-due.today{background:rgba(232,146,58,.12);color:var(--orange)}
-.k-card-due.ok{background:rgba(76,175,122,.08);color:var(--green)}
-.int-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
-.int-item{background:var(--glass);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
-.int-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
-.int-icon.call{background:rgba(76,175,122,.15)}.int-icon.email{background:rgba(91,155,213,.15)}
-.int-icon.meeting{background:rgba(201,169,110,.15)}.int-icon.whatsapp{background:rgba(76,175,122,.15)}.int-icon.note{background:rgba(255,255,255,.08)}
-.int-body{flex:1}
-.int-who{font-size:.82rem;color:var(--text);font-weight:500}
-.int-what{font-size:.8rem;color:var(--dim);margin-top:2px;line-height:1.5}
-.int-meta{font-size:.7rem;color:var(--dimmer);margin-top:4px}
-.form-group{margin-bottom:14px}
-.form-label{display:block;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
-.form-inp{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 12px;color:var(--text);font-size:.88rem;outline:none;transition:border-color .3s}
-.form-inp:focus{border-color:rgba(201,169,110,.45)}
-.form-sel{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 12px;color:var(--text);font-size:.88rem;outline:none}
-.form-sel option{background:var(--dark2)}
-.form-row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.form-ta{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 12px;color:var(--text);font-size:.88rem;outline:none;min-height:80px;resize:vertical}
-.form-ta:focus{border-color:rgba(201,169,110,.45)}
-.panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
-.panel{background:var(--glass);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:18px}
-.panel-title{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:14px}
-.fu-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-.fu-item:last-child{border:none}
-.fu-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.fu-dot.overdue{background:var(--red)}.fu-dot.today{background:var(--orange)}.fu-dot.upcoming{background:var(--green)}
-.fu-body{flex:1}
-.fu-name{font-size:.84rem;color:var(--text)}.fu-detail{font-size:.74rem;color:var(--dim);margin-top:2px}.fu-date{font-size:.7rem;color:var(--dimmer)}
-.forecast-bars{display:flex;align-items:flex-end;gap:8px;height:140px;margin-top:10px}
-.f-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
-.f-bar{width:100%;border-radius:4px 4px 0 0;min-height:4px;transition:height .6s}
-.f-bar.won{background:linear-gradient(to top,var(--green),rgba(76,175,122,.3))}
-.f-bar.pipeline{background:linear-gradient(to top,var(--gold),rgba(201,169,110,.3))}
-.f-bar-lbl{font-size:.6rem;color:var(--dimmer)}
-.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
-.tpl-card{background:var(--dark3);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px;cursor:pointer;transition:all .3s}
-.tpl-card:hover{border-color:rgba(201,169,110,.3)}
-.tpl-tag{font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
-.tpl-name{font-size:.86rem;color:var(--text);margin-bottom:4px}
-.tpl-preview{font-size:.74rem;color:var(--dim);line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.att-today{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
-.att-card{background:var(--glass);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px;text-align:center}
-.att-num{font-family:var(--display);font-size:1.8rem;font-weight:300;margin-bottom:2px}
-.att-lbl{font-size:.7rem;color:var(--dim);letter-spacing:.08em;text-transform:uppercase}
-.email-compose{background:var(--dark3);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:18px}
-.email-to{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:10px;font-size:.82rem}
-.email-to label{color:var(--dim);width:40px;flex-shrink:0}
-.email-to input{flex:1;background:transparent;border:none;color:var(--text);font-size:.84rem;outline:none}
-.email-subject{width:100%;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,.06);color:var(--text);font-size:.9rem;padding:8px 0;outline:none;margin-bottom:12px;font-family:var(--display);font-style:italic}
-.email-body{width:100%;background:transparent;border:none;color:var(--text);font-size:.84rem;outline:none;min-height:120px;resize:vertical;line-height:1.6}
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
-.modal-bg.open{display:flex}
-.modal{background:var(--dark2);border:1px solid var(--gb);border-radius:16px;padding:28px;width:580px;max-width:100%;max-height:90vh;overflow-y:auto}
-.modal h3{font-family:var(--display);font-size:1.4rem;font-weight:300;margin-bottom:20px}
-.modal-actions{display:flex;gap:10px;margin-top:22px;justify-content:flex-end}
-.modal-row{display:flex;justify-content:space-between;font-size:.84rem;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
-.modal-row:last-child{border:none}
-.modal-row span:first-child{color:var(--dim)}
-.notif{position:fixed;bottom:22px;right:22px;padding:13px 18px;background:var(--dark3);border:1px solid var(--gb);border-radius:12px;font-size:.84rem;z-index:9999;transform:translateY(80px);opacity:0;transition:all .4s;max-width:320px;pointer-events:none}
-.notif.show{transform:none;opacity:1}
-.notif.success{border-color:rgba(76,175,122,.4);background:rgba(76,175,122,.08)}
-.notif.error{border-color:rgba(224,80,80,.4);background:rgba(224,80,80,.08)}
-.opp-tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.ab{padding:3px 9px;border-radius:5px;font-size:.68rem;border:1px solid var(--border);background:var(--bg3);color:var(--text);cursor:pointer;transition:all .22s}
+.ab:hover{background:var(--bg4)}
+.ab.danger{border-color:rgba(224,80,80,.3);color:var(--red)}.ab.danger:hover{background:rgba(224,80,80,.08)}
+.ab.suc{border-color:rgba(76,175,122,.3);color:var(--green)}.ab.suc:hover{background:rgba(76,175,122,.06)}
+
+/* ── KANBAN ── */
+.kanban{display:flex;gap:11px;overflow-x:auto;padding-bottom:8px;min-height:320px}
+.kc{flex-shrink:0;width:205px;background:var(--bg3);border-radius:10px;padding:12px;border:1px solid var(--border)}
+.kch{font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.kch span{font-family:var(--display);font-size:.9rem;color:var(--text);font-weight:300;letter-spacing:0}
+.kcard{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px;cursor:pointer;transition:all .22s}
+.kcard:hover{border-color:rgba(201,169,110,.3)}
+.kcard-n{font-size:.82rem;color:var(--text);font-weight:500;margin-bottom:3px}
+.kcard-v{font-size:.74rem;color:var(--gold)}
+.kcard-m{font-size:.67rem;color:var(--dim);margin-top:2px}
+
+/* ── PANEL ── */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:15px;margin-bottom:14px}
+.pt{font-size:.7rem;letter-spacing:.11em;text-transform:uppercase;color:var(--dim);margin-bottom:11px}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:16px}
+
+/* ── FORM ── */
+.fg{margin-bottom:11px}
+.fl{display:block;font-size:.67rem;letter-spacing:.11em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+.fi{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:.85rem;outline:none;transition:border-color .3s}
+.fi:focus{border-color:rgba(201,169,110,.45)}
+.fs{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:.85rem;outline:none}
+.fs option{background:var(--bg2)}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fta{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:.85rem;outline:none;min-height:78px;resize:vertical}
+.fta:focus{border-color:rgba(201,169,110,.45)}
+
+/* ── INTERACTIONS ── */
+.il{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.ii{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:11px 13px;display:flex;gap:10px;align-items:flex-start}
+.iic{width:29px;height:29px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.84rem;flex-shrink:0}
+.iic.call{background:rgba(76,175,122,.14)}.iic.email{background:rgba(91,155,213,.14)}.iic.meeting{background:rgba(201,169,110,.14)}.iic.whatsapp{background:rgba(76,175,122,.14)}.iic.note{background:var(--bg3)}
+.ib{flex:1}
+.iw{font-size:.79rem;color:var(--text);font-weight:500}
+.it2{font-size:.76rem;color:var(--dim);margin-top:2px;line-height:1.5}
+.im{font-size:.66rem;color:var(--dimmer);margin-top:3px}
+
+/* ── FOLLOWUPS ── */
+.fui{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border2)}
+.fui:last-child{border:none}
+.fud{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.fud.overdue{background:var(--red)}.fud.today{background:var(--orange)}.fud.upcoming{background:var(--green)}
+.fub{flex:1}.fun{font-size:.81rem;color:var(--text)}.fudt{font-size:.72rem;color:var(--dim)}.fudm{font-size:.67rem;color:var(--dimmer)}
+
+/* ── TEMPLATES ── */
+.tg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.tc{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:12px;transition:border-color .25s}
+.tc:hover{border-color:rgba(201,169,110,.3)}
+.ttag{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+.tn{font-size:.83rem;color:var(--text);margin-bottom:3px;font-weight:500}
+.tprev{font-size:.7rem;color:var(--dim);line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+
+/* ── SPREADSHEET ── */
+.sw{overflow:auto;border-radius:10px;border:1px solid var(--border);max-height:60vh}
+.st{border-collapse:collapse;min-width:100%}
+.st th{background:var(--bg3);padding:7px 10px;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);border:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:2}
+.st td{border:1px solid var(--border2);padding:0}
+.st td input{width:100%;background:transparent;border:none;padding:6px 9px;color:var(--text);font-size:.81rem;outline:none;min-width:90px}
+.st td input:focus{background:rgba(201,169,110,.06)}
+.srn{background:var(--bg3);color:var(--dimmer);font-size:.68rem;text-align:center;padding:0 8px;border:1px solid var(--border);position:sticky;left:0;z-index:1;user-select:none;cursor:pointer}
+.srn:hover{color:var(--red)}
+.sadd{padding:8px 14px;font-size:.74rem;background:var(--bg3);border-top:1px dashed var(--border);color:var(--dim);cursor:pointer;text-align:center;transition:all .25s}
+.sadd:hover{border-color:var(--gold);color:var(--gold)}
+.stb{display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap}
+
 /* ── DOCUMENTS ── */
-.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:20px}
-.doc-card{background:var(--dark3);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:8px;transition:border-color .3s}
-.doc-card:hover{border-color:rgba(201,169,110,.3)}
-.doc-icon{font-size:1.8rem;margin-bottom:4px}
-.doc-name{font-size:.84rem;color:var(--text);word-break:break-all}
-.doc-meta{font-size:.7rem;color:var(--dim)}
-.doc-actions{display:flex;gap:6px;margin-top:4px}
-.drop-zone{border:2px dashed rgba(201,169,110,.25);border-radius:12px;padding:40px 20px;text-align:center;cursor:pointer;transition:all .3s;margin-bottom:20px}
-.drop-zone:hover,.drop-zone.drag-over{border-color:var(--gold);background:rgba(201,169,110,.04)}
-.drop-zone-icon{font-size:2rem;margin-bottom:10px}
-.drop-zone p{font-size:.84rem;color:var(--dim)}
-.drop-zone strong{color:var(--gold)}
-.upload-progress{height:4px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:10px;overflow:hidden;display:none}
-.upload-progress-bar{height:100%;background:var(--gold);border-radius:2px;width:0;transition:width .3s}
-/* ── SKELETON LOADER ── */
-.skel{background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 75%);background-size:200% 100%;animation:skel-anim 1.5s infinite}
-@keyframes skel-anim{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.skel-row{height:44px;border-radius:6px;margin-bottom:8px}
-/* ── CONFIRM DIALOG ── */
-.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
-.confirm-overlay.open{display:flex}
-.confirm-box{background:var(--dark2);border:1px solid rgba(224,80,80,.3);border-radius:16px;padding:28px;width:400px;max-width:90vw;text-align:center}
-.confirm-box h3{font-family:var(--display);font-size:1.3rem;font-weight:300;color:var(--cream);margin-bottom:10px}
-.confirm-box p{font-size:.86rem;color:var(--dim);margin-bottom:24px;line-height:1.6}
-.confirm-btns{display:flex;gap:10px;justify-content:center}
-@media(max-width:900px){.sidebar{width:190px}.metric-grid{grid-template-columns:repeat(2,1fr)}.panel-grid{grid-template-columns:1fr}.tpl-grid{grid-template-columns:1fr 1fr}.att-today{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:640px){.sidebar{display:none}.metric-grid{grid-template-columns:1fr 1fr}.form-row2{grid-template-columns:1fr}.tpl-grid{grid-template-columns:1fr}.kanban{flex-direction:column}.k-col{width:100%}}
+.dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:11px;margin-bottom:14px}
+.dc{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:13px;transition:border-color .25s}
+.dc:hover{border-color:rgba(201,169,110,.3)}
+.di{font-size:1.55rem;margin-bottom:5px}
+.dn{font-size:.8rem;color:var(--text);word-break:break-all;margin-bottom:3px}
+.dm{font-size:.66rem;color:var(--dim);margin-bottom:7px}
+.dz{border:2px dashed rgba(201,169,110,.22);border-radius:10px;padding:28px 18px;text-align:center;cursor:pointer;transition:all .25s;margin-bottom:14px}
+.dz:hover,.dz.ov{border-color:var(--gold);background:rgba(201,169,110,.04)}
+.up{height:4px;background:var(--border);border-radius:2px;margin-top:9px;overflow:hidden;display:none}
+.ub{height:100%;background:var(--gold);border-radius:2px;width:0;transition:width .3s}
+
+/* ── REVENUE ── */
+.fb{display:flex;align-items:flex-end;gap:7px;height:110px;margin-top:9px}
+.fbw{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.fbar{width:100%;border-radius:4px 4px 0 0;min-height:4px;transition:height .5s}
+.fbar.won{background:linear-gradient(to top,var(--green),rgba(76,175,122,.3))}
+.fbar.pipe{background:linear-gradient(to top,var(--gold),rgba(201,169,110,.3))}
+.fbl{font-size:.56rem;color:var(--dimmer)}
+
+/* ── EMAIL COMPOSE ── */
+.ec{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:11px}
+.et{display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--border2);margin-bottom:8px;font-size:.79rem}
+.et label{color:var(--dim);width:34px;flex-shrink:0}
+.et input{flex:1;background:transparent;border:none;color:var(--text);font-size:.8rem;outline:none}
+.es{width:100%;background:transparent;border:none;border-bottom:1px solid var(--border2);color:var(--text);font-size:.86rem;padding:7px 0;outline:none;margin-bottom:9px;font-family:var(--display);font-style:italic}
+.eb{width:100%;background:transparent;border:none;color:var(--text);font-size:.8rem;outline:none;min-height:100px;resize:vertical;line-height:1.6}
+
+/* ── MODAL ── */
+.mb{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9000;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(5px)}
+.mb.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--gb);border-radius:15px;padding:22px;width:550px;max-width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.modal h3{font-family:var(--display);font-size:1.3rem;font-weight:300;margin-bottom:16px}
+.ma{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+.mr{display:flex;justify-content:space-between;font-size:.8rem;padding:6px 0;border-bottom:1px solid var(--border2)}
+.mr:last-child{border:none}.mr span:first-child{color:var(--dim)}
+
+/* ── CONFIRM ── */
+.cb{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.cb.open{display:flex}
+.cbox{background:var(--bg2);border:1px solid rgba(224,80,80,.3);border-radius:14px;padding:26px;width:370px;max-width:90vw;text-align:center}
+.cbox h3{font-family:var(--display);font-size:1.2rem;font-weight:300;margin-bottom:8px}
+.cbox p{font-size:.83rem;color:var(--dim);margin-bottom:20px;line-height:1.6}
+.cbtns{display:flex;gap:9px;justify-content:center}
+
+/* ── PRICING CARDS ── */
+.pce{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:15px}
+.pcard{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:16px;transition:border-color .3s}
+.pcard:hover{border-color:rgba(201,169,110,.3)}
+.pcard h3{font-family:var(--display);font-size:1.1rem;font-weight:400;margin-bottom:3px}
+.pc-sub{font-size:.74rem;color:var(--dim);margin-bottom:12px}
+.pc-cur{font-family:var(--display);font-size:1.9rem;font-weight:300;color:var(--gold);margin-bottom:9px}
+
+/* ── ATT ── */
+.atg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:15px}
+.atc{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:13px;text-align:center}
+.atn{font-family:var(--display);font-size:1.7rem;font-weight:300;margin-bottom:2px}
+.atl{font-size:.67rem;color:var(--dim);letter-spacing:.08em;text-transform:uppercase}
+
+/* ── NOTIF ── */
+.notif{position:fixed;bottom:18px;right:18px;padding:11px 15px;background:var(--bg2);border:1px solid var(--gb);border-radius:11px;font-size:.8rem;z-index:9999;transform:translateY(80px);opacity:0;transition:all .38s;max-width:290px;pointer-events:none;box-shadow:var(--shadow)}
+.notif.show{transform:none;opacity:1}
+.notif.success{border-color:rgba(76,175,122,.4);background:rgba(76,175,122,.06)}
+.notif.error{border-color:rgba(224,80,80,.4);background:rgba(224,80,80,.06)}
+
+/* ── SKELETON ── */
+.sk{background:linear-gradient(90deg,var(--bg3) 25%,var(--bg4) 50%,var(--bg3) 75%);background-size:200% 100%;animation:sk 1.5s infinite;border-radius:6px;height:36px;margin-bottom:6px}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){.sidebar{width:185px}.mg{grid-template-columns:repeat(2,1fr)}.pg{grid-template-columns:1fr}.tg{grid-template-columns:1fr 1fr}.atg{grid-template-columns:repeat(2,1fr)}.pce{grid-template-columns:1fr}}
+@media(max-width:640px){.sidebar{display:none}.mg{grid-template-columns:1fr 1fr}.fr2{grid-template-columns:1fr}.tg{grid-template-columns:1fr}.kanban{flex-direction:column}.kc{width:100%}.atg{grid-template-columns:1fr 1fr}}
 </style>
 </head>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <body>
-<!-- ── LOGIN ── -->
+
+<!-- ANIMATED BG -->
+<div class="crm-bg">
+  <div class="bg-orb" style="width:500px;height:500px;background:radial-gradient(circle,#c9a96e,transparent 70%);top:-140px;right:-80px;animation-duration:17s"></div>
+  <div class="bg-orb" style="width:380px;height:380px;background:radial-gradient(circle,#5b9bd5,transparent 70%);bottom:-80px;left:-60px;animation-duration:13s;animation-delay:-6s"></div>
+  <div class="bg-orb" style="width:280px;height:280px;background:radial-gradient(circle,#9b7fd4,transparent 70%);top:45%;left:35%;animation-duration:21s;animation-delay:-10s"></div>
+</div>
+
+<!-- LOGIN -->
 <div class="login-wrap" id="loginPage">
   <div class="login-box">
     <div class="login-logo">MIBO</div>
-    <div class="login-tagline">CRM · Team Portal</div>
+    <div class="login-tag">CRM · Techsbeyond Pvt Limited</div>
     <input class="l-inp" type="email" id="loginEmail" placeholder="Email address" autocomplete="username">
     <input class="l-inp" type="password" id="loginPass" placeholder="Password" autocomplete="current-password">
-    <button class="l-btn" onclick="doLogin()">Sign In</button>
+    <button class="l-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
     <div class="l-err" id="loginErr"></div>
+    <p style="margin-top:14px;font-size:.72rem;color:var(--dimmer)">Users managed via Supabase Auth.<br>Contact admin to create accounts.</p>
   </div>
 </div>
 
-<!-- ── CONFIRM DIALOG ── -->
-<div class="confirm-overlay" id="confirmOverlay">
-  <div class="confirm-box">
-    <h3 id="confirmTitle">Confirm Delete</h3>
-    <p id="confirmMsg">Are you sure? This cannot be undone.</p>
-    <div class="confirm-btns">
-      <button class="tb-btn tb-ghost" onclick="closeConfirm()">Cancel</button>
-      <button class="tb-btn tb-red" id="confirmOkBtn">Delete</button>
+<!-- CONFIRM -->
+<div class="cb" id="confirmBg">
+  <div class="cbox">
+    <h3 id="confTitle">Delete?</h3>
+    <p id="confMsg">This cannot be undone.</p>
+    <div class="cbtns">
+      <button class="tb tb-gh" onclick="closeConf()">Cancel</button>
+      <button class="tb tb-r" id="confOk">Delete</button>
     </div>
   </div>
 </div>
 
-<!-- ── CRM SHELL ── -->
+<!-- CRM -->
 <div class="crm" id="crmShell">
   <div class="sidebar">
-    <div class="sb-logo">
-      <div class="sb-logo-txt">MIBO</div>
-      <div class="sb-badge">CRM · <span class="rt-dot" id="rtDot"></span><span id="rtStatus">Connecting…</span></div>
+    <div class="sb-top">
+      <div class="sb-logo">MIBO</div>
+      <div class="sb-badge"><span class="rt-dot" id="rtDot"></span><span id="rtTxt">Connecting…</span></div>
     </div>
     <div class="sb-nav">
       <div class="sb-sec">Overview</div>
-      <div class="sb-link active" onclick="nav('dashboard',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard
-      </div>
-      <div class="sb-link" onclick="nav('opportunities',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Opportunities
-      </div>
+      <div class="sb-link active" onclick="nav('dashboard',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</div>
+      <div class="sb-link" onclick="nav('opportunities',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Pipeline</div>
       <div class="sb-sec">Leads</div>
-      <div class="sb-link" onclick="nav('leads',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>All Leads
-        <span class="sb-count" id="sbLeadsCount" style="background:rgba(201,169,110,.15);color:var(--gold)">0</span>
-      </div>
-      <div class="sb-link" onclick="nav('interactions',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Interactions
-      </div>
-      <div class="sb-link" onclick="nav('followups',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Follow-ups
-        <span class="sb-count" id="sbFuCount" style="background:rgba(232,146,58,.15);color:var(--orange)">0</span>
-      </div>
+      <div class="sb-link" onclick="nav('leads',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>All Leads<span class="sb-cnt" id="sbL" style="background:rgba(201,169,110,.15);color:var(--gold)">0</span></div>
+      <div class="sb-link" onclick="nav('interactions',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Interactions</div>
+      <div class="sb-link" onclick="nav('followups',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Follow-ups<span class="sb-cnt" id="sbFu" style="background:rgba(232,146,58,.15);color:var(--orange)">0</span></div>
       <div class="sb-sec">Tools</div>
-      <div class="sb-link" onclick="nav('compose',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Email &amp; SMS
-      </div>
-      <div class="sb-link" onclick="nav('documents',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Documents
-        <span class="sb-count" id="sbDocsCount" style="background:rgba(155,127,212,.15);color:var(--purple)">0</span>
-      </div>
-      <div class="sb-link" onclick="nav('revenue',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Revenue Forecast
-      </div>
-      <div class="sb-link" onclick="nav('attendance',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Attendance
-      </div>
-      <div class="sb-link" onclick="nav('settings',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings
-      </div>
+      <div class="sb-link" onclick="nav('compose',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Email &amp; SMS</div>
+      <div class="sb-link" onclick="nav('templates',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Templates</div>
+      <div class="sb-link" onclick="nav('spreadsheet',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>Spreadsheet</div>
+      <div class="sb-link" onclick="nav('documents',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>Documents<span class="sb-cnt" id="sbDocs" style="background:rgba(155,127,212,.15);color:var(--purple)">0</span></div>
+      <div class="sb-link" onclick="nav('revenue',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Revenue</div>
+      <div class="sb-link" onclick="nav('attendance',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Attendance</div>
+      <div class="sb-link" onclick="nav('settings',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</div>
     </div>
+    <div class="theme-row" onclick="toggleTheme()"><div class="t-track"><div class="t-thumb"></div></div><span id="themeLbl">Dark Mode</span></div>
     <div class="sb-footer">
-      <div class="sb-user-name" id="sbUserName">—</div>
-      <div class="sb-user-role" id="sbUserRole">—</div>
-      <span class="sb-logout" onclick="doLogout()">Sign out</span>
+      <div class="sb-name" id="sbName">—</div>
+      <div class="sb-role" id="sbRole">—</div>
+      <span class="sb-out" onclick="doLogout()">Sign out</span>
     </div>
   </div>
 
   <div class="main">
-    <!-- TOPBAR -->
     <div class="topbar">
       <h1 id="pageTitle">Dashboard</h1>
-      <div class="topbar-right">
-        <span style="font-size:.78rem;color:var(--dim)" id="topbarDate"></span>
-        <button class="tb-btn tb-ghost" onclick="exportCSV()">Export CSV</button>
-        <button class="tb-btn tb-gold" onclick="openAddLead()">+ Add Lead</button>
+      <div class="tr">
+        <span style="font-size:.74rem;color:var(--dim)" id="tDate"></span>
+        <span style="font-size:.7rem;color:var(--dimmer)" id="tSync"></span>
+        <button class="tb tb-gh" onclick="exportCSV()">Export CSV</button>
+        <button class="tb tb-g" onclick="openAddLead()">+ Lead</button>
       </div>
     </div>
-    <!-- CLOCK STRIP -->
-    <div class="attend-strip">
-      <span class="clock" id="liveClock">00:00:00</span>
-      <button class="attend-btn attend-in" id="clockInBtn" onclick="clockIn()">Clock In</button>
-      <button class="attend-btn attend-out" id="clockOutBtn" onclick="clockOut()" style="display:none">Clock Out</button>
-      <span class="attend-status" id="attendStatusBadge" style="background:rgba(255,255,255,.06);color:var(--dim)">Not clocked in</span>
-      <span style="margin-left:auto;font-size:.74rem;color:var(--dimmer)" id="lastSyncTime">—</span>
+    <div class="cl-strip">
+      <span class="cl-time" id="liveClock">--:--:--</span>
+      <button class="cl-btn cl-in" id="ciBtn" onclick="clockIn()">Clock In</button>
+      <button class="cl-btn cl-out" id="coBtn" onclick="clockOut()" style="display:none">Clock Out</button>
+      <span class="cl-badge" id="clBadge">Not clocked in</span>
+      <span style="margin-left:auto;font-size:.68rem;color:var(--dimmer)" id="myHours"></span>
     </div>
 
-    <!-- ── DASHBOARD ── -->
+    <!-- DASHBOARD -->
     <div class="page active" id="page-dashboard">
-      <div class="metric-grid">
-        <div class="metric-card gold"><div class="metric-val" id="dashRev" style="color:var(--gold)">₹0</div><div class="metric-lbl">Revenue Collected</div></div>
-        <div class="metric-card"><div class="metric-val" id="dashLeads">0</div><div class="metric-lbl">Total Leads</div></div>
-        <div class="metric-card"><div class="metric-val" id="dashBookings">0</div><div class="metric-lbl">Paid Bookings</div></div>
-        <div class="metric-card"><div class="metric-val" id="dashOverdue" style="color:var(--red)">0</div><div class="metric-lbl">Overdue Follow-ups</div></div>
+      <div class="mg">
+        <div class="mc gold"><div class="mv" id="dRev" style="color:var(--gold)">₹0</div><div class="ml">Revenue Collected</div></div>
+        <div class="mc"><div class="mv" id="dLeads">0</div><div class="ml">Total Leads</div></div>
+        <div class="mc"><div class="mv" id="dBook">0</div><div class="ml">Paid Bookings</div></div>
+        <div class="mc"><div class="mv" id="dOv" style="color:var(--red)">0</div><div class="ml">Overdue Reminders</div></div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
-        <div class="panel">
-          <div class="panel-title">Lead Velocity (8 Weeks)</div>
-          <div style="display:flex;align-items:flex-end;gap:6px;height:80px" id="dashChart"></div>
-        </div>
-        <div class="panel">
-          <div class="panel-title">Pipeline by Stage</div>
-          <div id="dashStages" style="display:flex;flex-direction:column;gap:8px;margin-top:4px"></div>
-        </div>
+      <div class="pg">
+        <div class="panel"><div class="pt">Lead Velocity (8 weeks)</div><div style="display:flex;align-items:flex-end;gap:5px;height:65px" id="dChart"></div></div>
+        <div class="panel"><div class="pt">Pipeline by Stage</div><div id="dStages" style="display:flex;flex-direction:column;gap:6px;margin-top:4px"></div></div>
       </div>
-      <div class="table-wrap">
-        <div class="table-head"><h3>Recent Leads</h3><a onclick="nav('leads',document.querySelector('.sb-link:nth-child(3)'))" style="font-size:.78rem;color:var(--gold);cursor:pointer">View all →</a></div>
-        <table><thead><tr><th>Name</th><th>City</th><th>Service</th><th>Score</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
-        <tbody id="recentLeadsTbl"><tr><td colspan="7"><div class="skel skel-row"></div><div class="skel skel-row"></div></td></tr></tbody></table>
+      <div class="tw">
+        <div class="th"><h3>Recent Leads</h3><a onclick="nav('leads',null)" style="font-size:.74rem;color:var(--gold);cursor:pointer">All →</a></div>
+        <table><thead><tr><th>Name</th><th>City</th><th>Service</th><th>Score</th><th>Stage</th><th>Date</th><th></th></tr></thead>
+        <tbody id="recTbl"><tr><td colspan="7"><div class="sk"></div><div class="sk"></div></td></tr></tbody></table>
       </div>
     </div>
 
-    <!-- ── OPPORTUNITIES (KANBAN) ── -->
+    <!-- PIPELINE -->
     <div class="page" id="page-opportunities">
-      <div class="opp-tabs" id="oppTabs">
-        <button class="tb-btn tb-gold" onclick="filterOpps(null,this)">All</button>
-        <button class="tb-btn tb-ghost" onclick="filterOpps('New',this)">New</button>
-        <button class="tb-btn tb-ghost" onclick="filterOpps('Contacted',this)">Contacted</button>
-        <button class="tb-btn tb-ghost" onclick="filterOpps('Proposal',this)">Proposal</button>
-        <button class="tb-btn tb-ghost" onclick="filterOpps('Won',this)">Won</button>
-        <button class="tb-btn tb-ghost" onclick="filterOpps('Lost',this)">Lost</button>
+      <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap" id="oppTabs">
+        <button class="tb tb-g" onclick="filterOpps(null,this)">All</button>
+        <button class="tb tb-gh" onclick="filterOpps('New',this)">New</button>
+        <button class="tb tb-gh" onclick="filterOpps('Contacted',this)">Contacted</button>
+        <button class="tb tb-gh" onclick="filterOpps('Proposal',this)">Proposal</button>
+        <button class="tb tb-gh" onclick="filterOpps('Won',this)">Won</button>
+        <button class="tb tb-gh" onclick="filterOpps('Lost',this)">Lost</button>
       </div>
       <div class="kanban" id="kanbanBoard"></div>
     </div>
 
-    <!-- ── ALL LEADS ── -->
+    <!-- LEADS -->
     <div class="page" id="page-leads">
-      <div class="table-wrap">
-        <div class="table-head">
-          <h3>All Leads <span style="font-size:.72rem;color:var(--dim)" id="leadsTableCount"></span></h3>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-            <select class="form-sel" style="width:130px;padding:6px 10px;font-size:.78rem" onchange="filterLeadsByStage(this.value)">
-              <option value="">All Stages</option>
-              <option>New</option><option>Contacted</option><option>Proposal</option><option>Won</option><option>Lost</option><option>Refunded</option>
-            </select>
-            <input class="search-inp" placeholder="Search leads…" oninput="filterTable(this.value,'leadsTbl')">
+      <div class="tw">
+        <div class="th">
+          <h3>All Leads <span style="font-size:.7rem;color:var(--dim)" id="lCount"></span></h3>
+          <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
+            <select class="fs" style="width:115px;padding:5px 8px;font-size:.74rem" onchange="stageFilter(this.value)"><option value="">All Stages</option><option>New</option><option>Contacted</option><option>Proposal</option><option>Won</option><option>Lost</option><option>Refunded</option></select>
+            <input class="si" placeholder="Search…" oninput="filterTbl(this.value,'lTbl')">
           </div>
         </div>
-        <table>
-          <thead><tr><th>Name</th><th>Phone</th><th>City</th><th>Service</th><th>Budget</th><th>Score</th><th>Stage</th><th>Paid</th><th>Created</th><th>Actions</th></tr></thead>
-          <tbody id="leadsTbl"><tr><td colspan="10"><div class="skel skel-row"></div><div class="skel skel-row"></div><div class="skel skel-row"></div></td></tr></tbody>
-        </table>
+        <table><thead><tr><th>Name</th><th>Phone</th><th>City</th><th>Service</th><th>Budget</th><th>Score</th><th>Stage</th><th>Paid</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody id="lTbl"><tr><td colspan="10"><div class="sk"></div><div class="sk"></div><div class="sk"></div></td></tr></tbody></table>
       </div>
     </div>
 
-    <!-- ── INTERACTIONS ── -->
+    <!-- INTERACTIONS -->
     <div class="page" id="page-interactions">
-      <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap">
-        <button class="tb-btn tb-gold" onclick="openAddInteraction()">+ Log Interaction</button>
-        <button class="tb-btn tb-ghost" onclick="filterInteractions(null)">All</button>
-        <button class="tb-btn tb-ghost" onclick="filterInteractions('Call')">Calls</button>
-        <button class="tb-btn tb-ghost" onclick="filterInteractions('Email')">Email</button>
-        <button class="tb-btn tb-ghost" onclick="filterInteractions('Meeting')">Meetings</button>
-        <button class="tb-btn tb-ghost" onclick="filterInteractions('WhatsApp')">WhatsApp</button>
+      <div style="display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap">
+        <button class="tb tb-g" onclick="openAddInt()">+ Log</button>
+        <button class="tb tb-gh" onclick="filterInts(null)">All</button>
+        <button class="tb tb-gh" onclick="filterInts('Call')">Calls</button>
+        <button class="tb tb-gh" onclick="filterInts('Email')">Email</button>
+        <button class="tb tb-gh" onclick="filterInts('Meeting')">Meetings</button>
+        <button class="tb tb-gh" onclick="filterInts('WhatsApp')">WhatsApp</button>
+        <button class="tb tb-gh" onclick="filterInts('Note')">Notes</button>
       </div>
-      <div class="int-list" id="allIntList"><div class="skel skel-row"></div><div class="skel skel-row"></div></div>
+      <div class="il" id="intList"><div class="sk"></div><div class="sk"></div></div>
     </div>
 
-    <!-- ── FOLLOW-UPS ── -->
+    <!-- FOLLOWUPS -->
     <div class="page" id="page-followups">
-      <div style="display:flex;gap:8px;margin-bottom:18px">
-        <button class="tb-btn tb-gold" onclick="openAddFollowup()">+ Add Reminder</button>
+      <div style="display:flex;gap:7px;margin-bottom:14px"><button class="tb tb-g" onclick="openAddFu()">+ Reminder</button></div>
+      <div class="pg">
+        <div class="panel"><div class="pt" style="color:var(--red)">⚠ Overdue</div><div id="fuOv"></div></div>
+        <div class="panel"><div class="pt" style="color:var(--orange)">Today</div><div id="fuTd"></div></div>
       </div>
-      <div class="panel-grid">
-        <div class="panel">
-          <div class="panel-title" style="color:var(--red)">⚠ Overdue</div>
-          <div id="fuOverdue"></div>
-        </div>
-        <div class="panel">
-          <div class="panel-title" style="color:var(--orange)">Today</div>
-          <div id="fuToday"></div>
-        </div>
-      </div>
-      <div class="table-wrap">
-        <div class="table-head"><h3>All Reminders</h3></div>
-        <table><thead><tr><th>Lead</th><th>Type</th><th>Due</th><th>Note</th><th>Assigned</th><th>Status</th><th>Action</th></tr></thead>
-        <tbody id="fuTbl"></tbody></table>
-      </div>
+      <div class="tw"><div class="th"><h3>All Reminders</h3></div>
+        <table><thead><tr><th>Lead</th><th>Type</th><th>Due</th><th>Note</th><th>Status</th><th>Action</th></tr></thead><tbody id="fuTbl"></tbody></table></div>
     </div>
 
-    <!-- ── COMPOSE ── -->
+    <!-- COMPOSE -->
     <div class="page" id="page-compose">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
         <div>
-          <div style="font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:14px">Select Lead</div>
-          <div class="table-wrap" style="max-height:320px;overflow-y:auto">
-            <table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th></th></tr></thead>
-            <tbody id="composeLeadTbl"></tbody></table>
-          </div>
-          <div style="margin-top:16px">
-            <div class="panel-title">Templates</div>
-            <div class="tpl-grid" id="templatesGrid"></div>
-          </div>
+          <div style="font-size:.7rem;letter-spacing:.11em;text-transform:uppercase;color:var(--dim);margin-bottom:9px">Select Lead</div>
+          <div class="tw" style="max-height:220px;overflow-y:auto"><table><thead><tr><th>Name</th><th>Contact</th><th></th></tr></thead><tbody id="compTbl"></tbody></table></div>
         </div>
         <div>
-          <div class="email-compose" style="margin-bottom:14px">
-            <div style="font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:12px">Email</div>
-            <div class="email-to"><label>To</label><input id="emailTo" placeholder="recipient@email.com"></div>
-            <input class="email-subject" id="emailSubject" placeholder="Subject line…">
-            <textarea class="email-body" id="emailBody" placeholder="Write your message…"></textarea>
-            <div style="display:flex;gap:8px;margin-top:12px">
-              <button class="tb-btn tb-gold" onclick="sendEmail()">Send →</button>
-              <button class="tb-btn tb-ghost" onclick="saveDraft()">Save Draft</button>
-            </div>
+          <div class="ec">
+            <div style="font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:9px">Email</div>
+            <div class="et"><label>To</label><input id="eTo" placeholder="email@example.com"></div>
+            <input class="es" id="eSubj" placeholder="Subject…">
+            <textarea class="eb" id="eBody" placeholder="Message…"></textarea>
+            <div style="display:flex;gap:7px;margin-top:9px"><button class="tb tb-g" onclick="sendEmail()">Send →</button><button class="tb tb-gh" onclick="saveDraft()">Draft</button></div>
           </div>
-          <div class="email-compose">
-            <div style="font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:12px">WhatsApp / SMS</div>
-            <div class="form-group"><label class="form-label">Phone</label><input class="form-inp" id="smsPhone" placeholder="+91 98765 43210" type="tel"></div>
-            <div class="form-group"><label class="form-label">Channel</label><select class="form-sel" id="smsChannel"><option value="whatsapp">WhatsApp</option><option value="sms">SMS</option></select></div>
-            <div class="form-group"><label class="form-label">Message</label><textarea class="form-ta" id="smsBody" placeholder="Your message…"></textarea></div>
-            <button class="tb-btn tb-gold" onclick="sendSMS()">Send →</button>
+          <div class="ec">
+            <div style="font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:9px">WhatsApp / SMS</div>
+            <div class="fg"><label class="fl">Phone</label><input class="fi" id="smsPhone" type="tel" placeholder="+91 98765 43210"></div>
+            <div class="fg"><label class="fl">Channel</label><select class="fs" id="smsCh"><option value="whatsapp">WhatsApp</option><option value="sms">SMS</option></select></div>
+            <div class="fg"><label class="fl">Message</label><textarea class="fta" id="smsBody" placeholder="Message…"></textarea></div>
+            <button class="tb tb-g" onclick="sendSMS()">Send →</button>
           </div>
-          <div style="margin-top:12px;padding:14px;background:var(--glass);border-radius:10px;font-size:.78rem;color:var(--dim)" id="sentLog">Sent messages will appear here…</div>
+          <div style="margin-top:9px;padding:10px;background:var(--bg3);border-radius:8px;font-size:.74rem;color:var(--dim);max-height:90px;overflow-y:auto" id="sLog">Sent log will appear here…</div>
         </div>
       </div>
     </div>
 
-    <!-- ── DOCUMENTS ── -->
+    <!-- TEMPLATES -->
+    <div class="page" id="page-templates">
+      <div style="display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap">
+        <button class="tb tb-g" onclick="openNewTpl()">+ New Template</button>
+        <button class="tb tb-gh" onclick="tplFilter='all';renderTpls()">All</button>
+        <button class="tb tb-gh" onclick="tplFilter='Email';renderTpls()">Email</button>
+        <button class="tb tb-gh" onclick="tplFilter='WhatsApp';renderTpls()">WhatsApp</button>
+        <button class="tb tb-gh" onclick="tplFilter='SMS';renderTpls()">SMS</button>
+      </div>
+      <div class="tg" id="tplGrid"></div>
+    </div>
+
+    <!-- SPREADSHEET -->
+    <div class="page" id="page-spreadsheet">
+      <div class="stb">
+        <button class="tb tb-g" onclick="addRow()">+ Row</button>
+        <button class="tb tb-gh" onclick="addCol()">+ Column</button>
+        <button class="tb tb-gh" onclick="exportSheet()">Export CSV</button>
+        <button class="tb tb-gh" onclick="clearSheet()">Clear</button>
+        <input type="file" id="csvIn" accept=".csv" style="display:none" onchange="importCSV(this)">
+        <button class="tb tb-gh" onclick="document.getElementById('csvIn').click()">Import CSV</button>
+        <span style="font-size:.76rem;color:var(--dim);padding:6px 0" id="shInfo"></span>
+      </div>
+      <div class="sw"><table class="st" id="shTable"></table><div class="sadd" onclick="addRow()">+ Add Row</div></div>
+    </div>
+
+    <!-- DOCUMENTS -->
     <div class="page" id="page-documents">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-        <div>
-          <div style="font-size:.78rem;color:var(--dim);margin-top:4px">Shared team document library — visible to everyone. Stored in Supabase Storage.</div>
-        </div>
-        <div style="display:flex;gap:8px">
-          <input class="search-inp" placeholder="Search documents…" oninput="filterDocs(this.value)" style="width:200px">
-          <button class="tb-btn tb-gold" onclick="document.getElementById('docFileInput').click()">Upload File</button>
-          <input type="file" id="docFileInput" multiple style="display:none" onchange="uploadDocs(this.files)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;flex-wrap:wrap;gap:8px">
+        <span style="font-size:.76rem;color:var(--dim)">Shared team library — visible to all signed-in users.</span>
+        <div style="display:flex;gap:7px">
+          <input class="si" placeholder="Search…" oninput="filterDocs(this.value)">
+          <button class="tb tb-g" onclick="document.getElementById('docIn').click()">Upload</button>
+          <input type="file" id="docIn" multiple style="display:none" onchange="uploadDocs(this.files)">
         </div>
       </div>
-
-      <div class="drop-zone" id="dropZone">
-        <div class="drop-zone-icon">📁</div>
-        <p><strong>Drop files here</strong> or click Upload File</p>
-        <p style="margin-top:6px;font-size:.76rem">Any file type · Max 50MB each · Shared with all team members</p>
-        <div class="upload-progress" id="uploadProgress"><div class="upload-progress-bar" id="uploadBar"></div></div>
-      </div>
-
-      <div class="doc-grid" id="docGrid">
-        <div class="skel skel-row" style="height:100px;border-radius:10px"></div>
-        <div class="skel skel-row" style="height:100px;border-radius:10px"></div>
-        <div class="skel skel-row" style="height:100px;border-radius:10px"></div>
-      </div>
+      <div class="dz" id="dz"><div style="font-size:1.8rem;margin-bottom:7px">📁</div><p style="font-size:.8rem;color:var(--dim)"><strong style="color:var(--text)">Drop files here</strong> or click Upload · Any type · Max 50MB</p><div class="up" id="uProg"><div class="ub" id="uBar"></div></div></div>
+      <div class="dg" id="docGrid"><div class="sk" style="height:90px;border-radius:9px"></div><div class="sk" style="height:90px;border-radius:9px"></div><div class="sk" style="height:90px;border-radius:9px"></div></div>
     </div>
 
-    <!-- ── REVENUE ── -->
+    <!-- REVENUE -->
     <div class="page" id="page-revenue">
-      <div class="metric-grid" style="grid-template-columns:repeat(4,1fr)">
-        <div class="metric-card gold"><div class="metric-val" id="fRevWon">₹0</div><div class="metric-lbl">Won Revenue</div></div>
-        <div class="metric-card"><div class="metric-val" id="fRevPipeline">₹0</div><div class="metric-lbl">Pipeline Value</div></div>
-        <div class="metric-card"><div class="metric-val" id="fRevForecast" style="color:var(--gold)">₹0</div><div class="metric-lbl">Weighted Forecast</div></div>
-        <div class="metric-card"><div class="metric-val" id="fRevTarget">₹5L</div><div class="metric-lbl">Monthly Target</div></div>
+      <div class="mg">
+        <div class="mc gold"><div class="mv" id="rW">₹0</div><div class="ml">Won</div></div>
+        <div class="mc"><div class="mv" id="rP">₹0</div><div class="ml">Pipeline</div></div>
+        <div class="mc"><div class="mv" id="rF" style="color:var(--gold)">₹0</div><div class="ml">Weighted Forecast</div></div>
+        <div class="mc"><div class="mv" id="rT">₹5L</div><div class="ml">Monthly Target</div></div>
       </div>
-      <div class="panel-grid">
-        <div class="panel">
-          <div class="panel-title">Monthly Revenue Bars</div>
-          <div class="forecast-bars" id="forecastBars"></div>
-        </div>
-        <div class="panel">
-          <div class="panel-title">Pipeline by Stage</div>
-          <div id="stageValues" style="display:flex;flex-direction:column;gap:10px;margin-top:8px"></div>
-        </div>
+      <div class="pg">
+        <div class="panel"><div class="pt">Monthly Revenue</div><div class="fb" id="fBars"></div></div>
+        <div class="panel"><div class="pt">By Stage</div><div id="sVals" style="display:flex;flex-direction:column;gap:8px;margin-top:5px"></div></div>
       </div>
-      <div class="table-wrap">
-        <div class="table-head"><h3>Active Deals</h3></div>
-        <table><thead><tr><th>Lead</th><th>Service</th><th>Deal Value</th><th>Stage</th><th>Win %</th><th>Weighted</th><th>Expected Close</th></tr></thead>
-        <tbody id="dealsTbl"></tbody></table>
-      </div>
+      <div class="tw"><div class="th"><h3>Active Deals</h3></div>
+        <table><thead><tr><th>Lead</th><th>Service</th><th>Value</th><th>Stage</th><th>Win%</th><th>Weighted</th></tr></thead><tbody id="dealsTbl"></tbody></table></div>
     </div>
 
-    <!-- ── ATTENDANCE ── -->
+    <!-- ATTENDANCE -->
     <div class="page" id="page-attendance">
-      <div class="att-today">
-        <div class="att-card"><div class="att-num" id="attPresent">0</div><div class="att-lbl">Present Today</div></div>
-        <div class="att-card"><div class="att-num" id="attAbsent">0</div><div class="att-lbl">Absent</div></div>
-        <div class="att-card"><div class="att-num" id="attCalls">0</div><div class="att-lbl">Calls Today</div></div>
-        <div class="att-card"><div class="att-num" id="attAvgDur">0m</div><div class="att-lbl">Avg Call Duration</div></div>
+      <div class="atg">
+        <div class="atc"><div class="atn" id="atP">0</div><div class="atl">Present</div></div>
+        <div class="atc"><div class="atn" id="atC">0</div><div class="atl">Calls</div></div>
+        <div class="atc"><div class="atn" id="atA">0m</div><div class="atl">Avg Call</div></div>
+        <div class="atc"><div class="atn" id="atH">0h</div><div class="atl">My Hours</div></div>
       </div>
-      <div class="panel-grid">
-        <div class="table-wrap">
-          <div class="table-head"><h3>Today's Attendance</h3><button class="tb-btn tb-ghost" onclick="logCall()">+ Log Call</button></div>
-          <table><thead><tr><th>Name</th><th>Role</th><th>In</th><th>Out</th><th>Duration</th><th>Status</th></tr></thead>
-          <tbody id="attTbl"></tbody></table>
-        </div>
-        <div class="table-wrap">
-          <div class="table-head"><h3>Today's Calls</h3></div>
-          <table><thead><tr><th>Agent</th><th>Lead</th><th>Duration</th><th>Outcome</th><th>Time</th></tr></thead>
-          <tbody id="callTbl"></tbody></table>
-        </div>
+      <div class="pg">
+        <div class="tw"><div class="th"><h3>Today's Attendance</h3><button class="tb tb-gh" onclick="openLogCall()">+ Log Call</button></div>
+          <table><thead><tr><th>User</th><th>In</th><th>Out</th><th>Duration</th><th>Status</th></tr></thead><tbody id="attTbl"></tbody></table></div>
+        <div class="tw"><div class="th"><h3>Today's Calls</h3></div>
+          <table><thead><tr><th>Lead</th><th>Dur</th><th>Outcome</th><th>Time</th></tr></thead><tbody id="callTbl"></tbody></table></div>
       </div>
     </div>
 
-    <!-- ── SETTINGS ── -->
+    <!-- SETTINGS -->
     <div class="page" id="page-settings">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-        <div class="panel">
-          <div class="panel-title">Revenue Settings</div>
-          <div class="form-group"><label class="form-label">Monthly Target (₹)</label><input class="form-inp" id="cfgTarget" type="number" value="500000"></div>
-          <div class="form-row2">
-            <div class="form-group"><label class="form-label">New %</label><input class="form-inp" id="probNew" type="number" value="10"></div>
-            <div class="form-group"><label class="form-label">Contacted %</label><input class="form-inp" id="probContacted" type="number" value="25"></div>
-            <div class="form-group"><label class="form-label">Proposal %</label><input class="form-inp" id="probProposal" type="number" value="50"></div>
-            <div class="form-group"><label class="form-label">Won %</label><input class="form-inp" id="probWon" type="number" value="100"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <div class="panel" style="margin-bottom:14px">
+            <div class="pt">Site Visit Pricing — Updates booking page live</div>
+            <p style="font-size:.76rem;color:var(--dim);margin-bottom:13px">Saved to Supabase settings table. Reflected immediately on the public site.</p>
+            <div class="pce">
+              <div class="pcard"><h3>Local (Bihar / NCR)</h3><div class="pc-sub">Any day · Flexible</div><div class="pc-cur" id="pLocD">₹7,000</div><input class="fi" id="pLoc" type="number" value="7000" min="1000" step="500"></div>
+              <div class="pcard"><h3>Remote (All India)</h3><div class="pc-sub">Fri/Sat · 5-7d advance</div><div class="pc-cur" id="pRemD">₹12,000</div><input class="fi" id="pRem" type="number" value="12000" min="1000" step="500"></div>
+            </div>
+            <button class="tb tb-g" onclick="savePricing()">Save &amp; Publish</button>
           </div>
-          <button class="tb-btn tb-gold" onclick="saveSettings()">Save Settings</button>
+          <div class="panel">
+            <div class="pt">Revenue Probability</div>
+            <div class="fg"><label class="fl">Monthly Target (₹)</label><input class="fi" id="cfgT" type="number" value="500000"></div>
+            <div class="fr2">
+              <div class="fg"><label class="fl">New %</label><input class="fi" id="pN" type="number" value="10"></div>
+              <div class="fg"><label class="fl">Contacted %</label><input class="fi" id="pCo" type="number" value="25"></div>
+              <div class="fg"><label class="fl">Proposal %</label><input class="fi" id="pPr" type="number" value="50"></div>
+              <div class="fg"><label class="fl">Won %</label><input class="fi" id="pW" type="number" value="100"></div>
+            </div>
+            <button class="tb tb-g" onclick="saveRevCfg()">Save</button>
+          </div>
         </div>
-        <div class="panel">
-          <div class="panel-title">Team Members</div>
-          <div id="teamList" style="margin-bottom:14px"></div>
-          <button class="tb-btn tb-ghost" onclick="openAddUser()">+ Add User</button>
+        <div>
+          <div class="panel" style="margin-bottom:14px">
+            <div class="pt">Team (Supabase Auth)</div>
+            <p style="font-size:.76rem;color:var(--dim);margin-bottom:11px">Users are created in Supabase Auth — not the profiles table. This means no plaintext passwords are stored in your database.</p>
+            <p style="font-size:.76rem;color:var(--dim);margin-bottom:11px">To invite a new team member:<br>Supabase Dashboard → Auth → Users → Invite User</p>
+            <a href="https://supabase.com/dashboard" target="_blank" class="tb tb-g" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none">Open Supabase Dashboard →</a>
+            <div id="teamList" style="margin-top:13px;font-size:.81rem;color:var(--dim)">Loading team…</div>
+          </div>
+          <div class="panel">
+            <div class="pt">DB Connection</div>
+            <div id="dbStatus" style="font-size:.8rem;color:var(--dim)">Checking…</div>
+            <button class="tb tb-gh" style="margin-top:9px" onclick="pingDB()">Test Connection</button>
+          </div>
         </div>
       </div>
-      <div class="panel" style="margin-top:16px">
-        <div class="panel-title">Supabase Connection</div>
-        <div id="cfgSbStatus" style="font-size:.82rem;color:var(--dim)">Checking…</div>
-        <div style="margin-top:10px;font-size:.78rem;color:var(--dimmer)">URL: <code style="color:var(--gold)">lfygfnsiignolmdnewhb.supabase.co</code></div>
-        <button class="tb-btn tb-ghost" style="margin-top:12px" onclick="pingDB()">Test Connection</button>
-      </div>
-    </div>
-  </div><!-- /main -->
-</div><!-- /crm -->
-
-<!-- ── MODALS ── -->
-<div class="modal-bg" id="modalAddLead">
-  <div class="modal">
-    <h3 id="leadModalTitle">Add Lead</h3>
-    <input type="hidden" id="leadEditId">
-    <div class="form-row2">
-      <div class="form-group"><label class="form-label">Full Name *</label><input class="form-inp" id="alName" placeholder="Full name"></div>
-      <div class="form-group"><label class="form-label">Phone *</label><input class="form-inp" id="alPhone" placeholder="+91 98765 43210" type="tel"></div>
-    </div>
-    <div class="form-row2">
-      <div class="form-group"><label class="form-label">Email</label><input class="form-inp" id="alEmail" type="email" placeholder="email@example.com"></div>
-      <div class="form-group"><label class="form-label">City</label><input class="form-inp" id="alCity" placeholder="City"></div>
-    </div>
-    <div class="form-row2">
-      <div class="form-group"><label class="form-label">Service</label>
-        <select class="form-sel" id="alService">
-          <option>Turnkey Interiors</option><option>False Ceilings</option><option>Furniture</option>
-          <option>Tiles & Stone</option><option>Paints</option><option>Drywall</option><option>Full Renovation</option>
-        </select>
-      </div>
-      <div class="form-group"><label class="form-label">Budget (₹)</label><input class="form-inp" id="alDeal" type="number" placeholder="Deal value"></div>
-    </div>
-    <div class="form-row2">
-      <div class="form-group"><label class="form-label">Stage</label>
-        <select class="form-sel" id="alStage">
-          <option>New</option><option>Contacted</option><option>Proposal</option><option>Won</option><option>Lost</option>
-        </select>
-      </div>
-      <div class="form-group"><label class="form-label">Score</label>
-        <select class="form-sel" id="alScore"><option>Basic</option><option>Warm</option><option>Hot</option></select>
-      </div>
-    </div>
-    <div class="form-row2">
-      <div class="form-group"><label class="form-label">Source</label>
-        <select class="form-sel" id="alSource"><option>Booking Form</option><option>Quick Enquiry</option><option>Referral</option><option>Instagram</option><option>Walk-in</option></select>
-      </div>
-      <div class="form-group"><label class="form-label">Expected Close</label><input class="form-inp" id="alClose" type="date"></div>
-    </div>
-    <div class="form-group"><label class="form-label">Internal Note</label><textarea class="form-ta" id="alNote" rows="2" placeholder="Any notes…"></textarea></div>
-    <div class="modal-actions">
-      <button class="tb-btn tb-ghost" onclick="closeModal('modalAddLead')">Cancel</button>
-      <button class="tb-btn tb-gold" onclick="saveLead()">Save Lead</button>
     </div>
   </div>
 </div>
 
-<div class="modal-bg" id="modalAddInt">
-  <div class="modal">
-    <h3>Log Interaction</h3>
-    <div class="form-row2">
-      <div class="form-group"><label class="form-label">Lead</label><select class="form-sel" id="intLead"></select></div>
-      <div class="form-group"><label class="form-label">Type</label>
-        <select class="form-sel" id="intType"><option>Call</option><option>Email</option><option>Meeting</option><option>WhatsApp</option><option>Note</option></select>
-      </div>
-    </div>
-    <div class="form-row2">
-      <div class="form-group"><label class="form-label">Date</label><input class="form-inp" id="intDate" type="date"></div>
-      <div class="form-group"><label class="form-label">Duration (min)</label><input class="form-inp" id="intDur" type="number" placeholder="Minutes"></div>
-    </div>
-    <div class="form-group"><label class="form-label">Notes</label><textarea class="form-ta" id="intNote" placeholder="What was discussed…"></textarea></div>
-    <div class="form-row2">
-      <div class="form-group"><label class="form-label">Outcome</label>
-        <select class="form-sel" id="intOutcome"><option>Interested</option><option>Needs Follow-up</option><option>Not Interested</option><option>Proposal Sent</option><option>Booked</option></select>
-      </div>
-      <div class="form-group"><label class="form-label">Next Action</label><input class="form-inp" id="intNextAction" placeholder="e.g. Send proposal"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="tb-btn tb-ghost" onclick="closeModal('modalAddInt')">Cancel</button>
-      <button class="tb-btn tb-gold" onclick="saveInteraction()">Save</button>
-    </div>
-  </div>
-</div>
+<!-- MODALS -->
+<div class="mb" id="mLead"><div class="modal"><h3 id="mLeadT">Add Lead</h3><input type="hidden" id="eId"><div class="fr2"><div class="fg"><label class="fl">Full Name *</label><input class="fi" id="aN"></div><div class="fg"><label class="fl">Phone *</label><input class="fi" id="aPh" type="tel"></div></div><div class="fr2"><div class="fg"><label class="fl">Email</label><input class="fi" id="aEm" type="email"></div><div class="fg"><label class="fl">City</label><input class="fi" id="aCi"></div></div><div class="fr2"><div class="fg"><label class="fl">Service</label><select class="fs" id="aSv"><option>Turnkey Interiors</option><option>False Ceilings</option><option>Furniture</option><option>Tiles &amp; Stone</option><option>Paints</option><option>Drywall</option><option>Full Renovation</option></select></div><div class="fg"><label class="fl">Amount Paid (₹)</label><input class="fi" id="aAm" type="number"></div></div><div class="fr2"><div class="fg"><label class="fl">Stage</label><select class="fs" id="aSt"><option>New</option><option>Contacted</option><option>Proposal</option><option>Won</option><option>Lost</option></select></div><div class="fg"><label class="fl">Score</label><select class="fs" id="aSc"><option>Basic</option><option>Warm</option><option>Hot</option></select></div></div><div class="fr2"><div class="fg"><label class="fl">Source</label><select class="fs" id="aSo"><option>Booking Form</option><option>Quick Enquiry</option><option>Referral</option><option>Instagram</option><option>Walk-in</option></select></div><div class="fg"><label class="fl">Budget Range</label><input class="fi" id="aBu" placeholder="e.g. ₹7–15 Lakh"></div></div><div class="fg"><label class="fl">Note</label><textarea class="fta" id="aNo" rows="2"></textarea></div><div class="ma"><button class="tb tb-gh" onclick="closeM('mLead')">Cancel</button><button class="tb tb-g" onclick="saveLead()">Save</button></div></div></div>
 
-<div class="modal-bg" id="modalAddFu">
-  <div class="modal">
-    <h3>Set Reminder</h3>
-    <div class="form-row2">
-      <div class="form-group"><label class="form-label">Lead</label><select class="form-sel" id="fuLead"></select></div>
-      <div class="form-group"><label class="form-label">Type</label>
-        <select class="form-sel" id="fuType"><option>Call</option><option>Email</option><option>Meeting</option><option>WhatsApp</option><option>Follow-up</option></select>
-      </div>
-    </div>
-    <div class="form-row2">
-      <div class="form-group"><label class="form-label">Due Date</label><input class="form-inp" id="fuDate" type="date"></div>
-      <div class="form-group"><label class="form-label">Assign To</label><select class="form-sel" id="fuAssigned"></select></div>
-    </div>
-    <div class="form-group"><label class="form-label">Note</label><textarea class="form-ta" id="fuNote" placeholder="What to do…"></textarea></div>
-    <div class="modal-actions">
-      <button class="tb-btn tb-ghost" onclick="closeModal('modalAddFu')">Cancel</button>
-      <button class="tb-btn tb-gold" onclick="saveFollowup()">Set Reminder</button>
-    </div>
-  </div>
-</div>
+<div class="mb" id="mInt"><div class="modal"><h3>Log Interaction</h3><div class="fr2"><div class="fg"><label class="fl">Lead</label><select class="fs" id="iL"></select></div><div class="fg"><label class="fl">Type</label><select class="fs" id="iT"><option>Call</option><option>Email</option><option>Meeting</option><option>WhatsApp</option><option>Note</option></select></div></div><div class="fr2"><div class="fg"><label class="fl">Date</label><input class="fi" id="iD" type="date"></div><div class="fg"><label class="fl">Duration (min)</label><input class="fi" id="iDu" type="number"></div></div><div class="fg"><label class="fl">Notes</label><textarea class="fta" id="iN"></textarea></div><div class="fr2"><div class="fg"><label class="fl">Outcome</label><select class="fs" id="iO"><option>Interested</option><option>Needs Follow-up</option><option>Not Interested</option><option>Proposal Sent</option><option>Booked</option></select></div><div class="fg"><label class="fl">Next Action</label><input class="fi" id="iNA"></div></div><div class="ma"><button class="tb tb-gh" onclick="closeM('mInt')">Cancel</button><button class="tb tb-g" onclick="saveInt()">Save</button></div></div></div>
 
-<div class="modal-bg" id="modalLogCall">
-  <div class="modal">
-    <h3>Log Call</h3>
-    <div class="form-row2">
-      <div class="form-group"><label class="form-label">Lead</label><select class="form-sel" id="callLead"></select></div>
-      <div class="form-group"><label class="form-label">Duration (min)</label><input class="form-inp" id="callDur" type="number" placeholder="Minutes"></div>
-    </div>
-    <div class="form-group"><label class="form-label">Outcome</label>
-      <select class="form-sel" id="callOutcome"><option>Interested</option><option>Needs Follow-up</option><option>Not Interested</option><option>Booked</option><option>Voicemail</option></select>
-    </div>
-    <div class="form-group"><label class="form-label">Notes</label><textarea class="form-ta" id="callNote" placeholder="Call summary…"></textarea></div>
-    <div class="modal-actions">
-      <button class="tb-btn tb-ghost" onclick="closeModal('modalLogCall')">Cancel</button>
-      <button class="tb-btn tb-gold" onclick="saveCall()">Log Call</button>
-    </div>
-  </div>
-</div>
+<div class="mb" id="mFu"><div class="modal"><h3>Set Reminder</h3><div class="fr2"><div class="fg"><label class="fl">Lead</label><select class="fs" id="fL"></select></div><div class="fg"><label class="fl">Type</label><select class="fs" id="fT"><option>Call</option><option>Email</option><option>Meeting</option><option>WhatsApp</option><option>Follow-up</option></select></div></div><div class="fr2"><div class="fg"><label class="fl">Due Date</label><input class="fi" id="fD" type="date"></div><div class="fg"><label class="fl">Assign To</label><input class="fi" id="fA" placeholder="Team member"></div></div><div class="fg"><label class="fl">Note</label><textarea class="fta" id="fN"></textarea></div><div class="ma"><button class="tb tb-gh" onclick="closeM('mFu')">Cancel</button><button class="tb tb-g" onclick="saveFu()">Set</button></div></div></div>
 
-<div class="modal-bg" id="modalAddUser">
-  <div class="modal">
-    <h3>Add Team Member</h3>
-    <div class="form-group"><label class="form-label">Full Name</label><input class="form-inp" id="uName" placeholder="Full name"></div>
-    <div class="form-group"><label class="form-label">Email</label><input class="form-inp" id="uEmail" type="email" placeholder="Work email"></div>
-    <div class="form-group"><label class="form-label">Role</label>
-      <select class="form-sel" id="uRole"><option value="sales">Sales</option><option value="designer">Designer</option><option value="admin">Admin</option></select>
-    </div>
-    <div class="form-group"><label class="form-label">Temporary Password</label><input class="form-inp" id="uPass" type="password" placeholder="Min 8 characters" value="Mibo@2026"></div>
-    <div class="modal-actions">
-      <button class="tb-btn tb-ghost" onclick="closeModal('modalAddUser')">Cancel</button>
-      <button class="tb-btn tb-gold" onclick="saveUser()">Create User</button>
-    </div>
-  </div>
-</div>
+<div class="mb" id="mCall"><div class="modal"><h3>Log Call</h3><div class="fr2"><div class="fg"><label class="fl">Lead</label><select class="fs" id="cL"></select></div><div class="fg"><label class="fl">Duration (min)</label><input class="fi" id="cD" type="number"></div></div><div class="fg"><label class="fl">Outcome</label><select class="fs" id="cO"><option>Interested</option><option>Needs Follow-up</option><option>Not Interested</option><option>Booked</option><option>Voicemail</option></select></div><div class="fg"><label class="fl">Notes</label><textarea class="fta" id="cN"></textarea></div><div class="ma"><button class="tb tb-gh" onclick="closeM('mCall')">Cancel</button><button class="tb tb-g" onclick="saveCall()">Log</button></div></div></div>
 
-<div class="modal-bg" id="modalViewLead">
-  <div class="modal" style="width:620px">
-    <h3 id="viewLeadName">Lead Detail</h3>
-    <div id="viewLeadBody"></div>
-    <div class="modal-actions">
-      <button class="tb-btn tb-ghost" onclick="closeModal('modalViewLead')">Close</button>
-      <button class="tb-btn tb-ghost" onclick="editFromView()">Edit</button>
-      <button class="tb-btn tb-red" onclick="deleteFromView()">Delete Lead</button>
-      <button class="tb-btn tb-gold" onclick="openInteractionFromView()">+ Interaction</button>
-    </div>
-  </div>
-</div>
+<div class="mb" id="mTpl"><div class="modal" style="width:620px"><h3 id="tplT">New Template</h3><input type="hidden" id="tplEId"><div class="fr2"><div class="fg"><label class="fl">Name *</label><input class="fi" id="tplN" placeholder="e.g. Welcome Email"></div><div class="fg"><label class="fl">Type</label><select class="fs" id="tplTy" onchange="document.getElementById('tplSG').style.display=this.value==='Email'?'block':'none'"><option>Email</option><option>WhatsApp</option><option>SMS</option></select></div></div><div class="fg" id="tplSG"><label class="fl">Subject (email only)</label><input class="fi" id="tplS" placeholder="Subject line"></div><div class="fg"><label class="fl">Body * — Variables: {{name}} {{service}} {{slot_date}} {{deal_value}} {{agent}}</label><textarea class="fta" id="tplB" style="min-height:150px" placeholder="Template body…"></textarea></div><div class="ma"><button class="tb tb-gh" onclick="closeM('mTpl')">Cancel</button><button class="tb tb-g" onclick="saveTpl()">Save Template</button></div></div></div>
+
+<div class="mb" id="mView"><div class="modal" style="width:590px"><h3 id="vName">Lead</h3><div id="vBody"></div><div class="ma"><button class="tb tb-gh" onclick="closeM('mView')">Close</button><button class="tb tb-gh" onclick="editFV()">Edit</button><button class="tb tb-r" onclick="delFV()">Delete</button><button class="tb tb-g" onclick="intFV()">+ Interaction</button></div></div></div>
 
 <div class="notif" id="notif"></div>
 
 <script>
-// ═══════════════════════════════════════════════════
-// MIBO CRM — Supabase Realtime v4.0
-// NO localStorage. Everything is live from Supabase.
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// MIBO CRM v5 — Full Supabase Realtime
+// © 2026 Techsbeyond Pvt Limited · Director: Amber Fatima
+// ═══════════════════════════════════════════════
+const SBU='https://lfygfnsiignolmdnewhb.supabase.co';
+const SBK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmeWdmbnNpaWdub2xtZG5ld2hiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjE0MDYsImV4cCI6MjA5MDc5NzQwNn0.sw7n3JezeS5FcyN-IAhcbFycScKQxQyoyZTsaNbitS8';
+const BUCKET='mibo-documents';
+const sb=window.supabase.createClient(SBU,SBK,{auth:{autoRefreshToken:true,persistSession:true}});
+let S={leads:[],interactions:[],followups:[],calls:[],attendance:[],documents:[],cfg:{target:500000,probNew:10,probContacted:25,probProposal:50,probWon:100}};
+let CU=null,ciTime=null,vLid=null,sentL=[],oppF=null,tplFilter='all',rtCh=null;
+let sheetCols=['A','B','C','D','E','F'],sheetRows=[];
 
-const SB_URL  = 'https://lfygfnsiignolmdnewhb.supabase.co';
-const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmeWdmbnNpaWdub2xtZG5ld2hiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjE0MDYsImV4cCI6MjA5MDc5NzQwNn0.sw7n3JezeS5FcyN-IAhcbFycScKQxQyoyZTsaNbitS8';
-const DOC_BUCKET = 'mibo-documents'; // Supabase Storage bucket name
+// ── THEME ──────────────────────────────────────
+const savedTh=localStorage.getItem('miboCrmTheme')||'dark';
+document.documentElement.dataset.theme=savedTh;
+function toggleTheme(){const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=t;document.getElementById('themeLbl').textContent=t==='dark'?'Dark Mode':'Light Mode';localStorage.setItem('miboCrmTheme',t);}
 
-const sb = window.supabase.createClient(SB_URL, SB_KEY, {
-  auth:{ autoRefreshToken:true, persistSession:true }
-});
-
-// ── IN-MEMORY STATE (from Supabase, refreshed via realtime) ──
-let STATE = {
-  leads:[],interactions:[],followups:[],calls:[],
-  attendance:[],users:[],templates:[],documents:[],
-  settings:{ target:500000,probNew:10,probContacted:25,probProposal:50,probWon:100 },
-};
-let currentUser = null;
-let clockInTime = null;
-let viewingLeadId = null;
-let sentLog = [];
-let realtimeChannel = null;
-
-// ── INIT ──
-const TPLS = {
-  followup:{subj:'Following up — Your MIBO Consultation',body:'Hi {{name}},\n\nFollowing up on your enquiry. Would you be free for a quick call?\n\nBest,\n{{agent}}'},
-  proposal:{subj:'Your MIBO Design Proposal — {{service}}',body:'Dear {{name}},\n\nPlease find your personalised design proposal attached.\n\nEstimated: {{deal_value}} | Timeline: 6–8 weeks\n\nKind regards,\n{{agent}} | MIBO'},
-  welcome:{subj:'Welcome to MIBO',body:'Dear {{name}},\n\nThank you for reaching out to MIBO! We\'ll be in touch within 24 hours.\n\nWarm regards,\nMIBO Team'},
-  reminder:{subj:'Your MIBO Site Visit — Reminder',body:'Hi {{name}},\n\nReminder: your MIBO site visit is on {{slot_date}}.\n\nSee you soon!\nMIBO'},
-};
-
-// ── AUTH ──────────────────────────────────────────────────────
+// ── AUTH ───────────────────────────────────────
 async function doLogin(){
-  const email=document.getElementById('loginEmail').value.trim();
-  const pass=document.getElementById('loginPass').value;
-  const err=document.getElementById('loginErr');
+  const email=$('loginEmail').value.trim(),pass=$('loginPass').value,err=$('loginErr');
   err.style.display='none';
   if(!email||!pass){err.textContent='Email and password required.';err.style.display='block';return;}
+  $('loginBtn').textContent='Signing in…';$('loginBtn').disabled=true;
   const{data,error}=await sb.auth.signInWithPassword({email,password:pass});
+  $('loginBtn').textContent='Sign In';$('loginBtn').disabled=false;
   if(error){err.textContent=error.message;err.style.display='block';return;}
   await onLogin(data.user);
 }
 async function onLogin(user){
-  const{data:profile}=await sb.from('profiles').select('*').eq('id',user.id).single();
-  currentUser={id:user.id,email:user.email,name:profile?.name||user.email.split('@')[0],role:profile?.role||'sales'};
-  document.getElementById('sbUserName').textContent=currentUser.name;
-  document.getElementById('sbUserRole').textContent=currentUser.role;
-  document.getElementById('sbUser')?.setText?.(currentUser.email);
-  document.getElementById('loginPage').style.display='none';
-  document.getElementById('crmShell').classList.add('show');
-  document.getElementById('topbarDate').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
-  startClock();
-  await loadAll();
-  subscribeRealtime();
+  const { data: p } = await sb.from('profiles').select('*').eq('id',user.id).single();
+  CU={id:user.id,email:user.email,name:p?.name||user.email.split('@')[0],role:p?.role||'sales'};
+  $('sbName').textContent=CU.name;$('sbRole').textContent=CU.role;
+  $('loginPage').style.display='none';$('crmShell').classList.add('show');
+  $('tDate').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+  startClock();checkCiState();
+  await loadAll();subRT();initDz();initSheet();loadPricing();loadTeam();
 }
-async function doLogout(){
-  if(realtimeChannel)sb.removeChannel(realtimeChannel);
-  await sb.auth.signOut();
-  location.reload();
-}
-// Auto-restore session
+async function doLogout(){if(rtCh)sb.removeChannel(rtCh);await sb.auth.signOut();location.reload();}
 (async()=>{const{data:{session}}=await sb.auth.getSession();if(session)await onLogin(session.user);})();
 
-// ── LOAD ALL DATA ─────────────────────────────────────────────
-async function loadAll(){
-  await Promise.all([loadLeads(),loadInteractions(),loadFollowups(),loadCalls(),loadAttendance(),loadDocuments()]);
-  renderAll();
-  document.getElementById('lastSyncTime').textContent='Synced '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+// ── REALTIME ───────────────────────────────────
+function setRT(ok){const d=$('rtDot'),t=$('rtTxt');d.className='rt-dot'+(ok?'':' dead');t.textContent=ok?'Live':'Reconnecting…';}
+function subRT(){
+  setRT(false);
+  rtCh=sb.channel('mibo-crm-v5')
+    .on('postgres_changes',{event:'*',schema:'public',table:'leads'},async()=>{await loadLeads();renderAll();})
+    .on('postgres_changes',{event:'*',schema:'public',table:'interactions'},async()=>{await loadInts();renderInts();})
+    .on('postgres_changes',{event:'*',schema:'public',table:'followups'},async()=>{await loadFus();renderFu();counts();})
+    .on('postgres_changes',{event:'*',schema:'public',table:'calls'},async()=>{await loadCalls();renderAtt();})
+    .on('postgres_changes',{event:'*',schema:'public',table:'attendance'},async()=>{await loadAtt();renderAtt();})
+    .subscribe(s=>{setRT(s==='SUBSCRIBED');if(s==='SUBSCRIBED')notify('Realtime connected ●','success');});
 }
 
-async function loadLeads(){
-  const{data,error}=await sb.from('leads').select('*').order('created_at',{ascending:false});
-  if(error)return console.error('leads',error);
-  STATE.leads=data||[];
-}
-async function loadInteractions(){
-  const{data,error}=await sb.from('interactions').select('*').order('date',{ascending:false});
-  if(error)return;
-  STATE.interactions=data||[];
-}
-async function loadFollowups(){
-  const{data,error}=await sb.from('followups').select('*').order('due_date',{ascending:true});
-  if(error)return;
-  STATE.followups=(data||[]).map(f=>({...f,leadId:f.lead_id,due:f.due_date,type:f.type,assigned:f.note,note:f.note,status:f.status}));
-}
-async function loadCalls(){
-  const{data,error}=await sb.from('calls').select('*').order('created_at',{ascending:false});
-  if(error)return;
-  STATE.calls=(data||[]).map(c=>({...c,leadId:c.lead_id,dur:c.duration,outcome:c.outcome,note:c.notes,by:'',date:c.created_at?.split('T')[0],time:c.created_at?new Date(c.created_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'-'}));
-}
-async function loadAttendance(){
+// ── LOAD ───────────────────────────────────────
+const q=async(table,opts={})=>{let r=sb.from(table).select('*');if(opts.order)r=r.order(opts.order,{ascending:opts.asc??false});if(opts.eq)r=r.eq(...opts.eq);const { data } = await r; return data||[];};
+async function loadAll(){await Promise.all([loadLeads(),loadInts(),loadFus(),loadCalls(),loadAtt(),loadDocs()]);renderAll();$('tSync').textContent='Synced '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+async function loadLeads(){S.leads=await q('leads',{order:'created_at'});}
+async function loadInts(){S.interactions=await q('interactions',{order:'date'});}
+async function loadFus(){S.followups=(await q('followups',{order:'due_date',asc:true})).map(f=>({...f,leadId:f.lead_id,due:f.due_date}));}
+async function loadCalls(){S.calls=(await q('calls',{order:'created_at'})).map(c=>({...c,leadId:c.lead_id,dur:c.duration,note:c.notes,date:c.created_at?.split('T')[0],time:c.created_at?new Date(c.created_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'-'}));}
+async function loadAtt(){const today=new Date().toISOString().split('T')[0];S.attendance=(await q('attendance',{eq:['date',today]})).map(a=>({...a,userId:a.user_id,clockIn:a.clock_in,clockOut:a.clock_out}));}
+async function loadDocs(){const { data } = await sb.storage.from(BUCKET).list('',{sortBy:{column:'created_at',order:'desc'}});S.documents=data||[];$('sbDocs').textContent=S.documents.length;}
+
+// ── RENDER ALL ─────────────────────────────────
+function renderAll(){renderDash();renderKanban();renderLeads();renderInts();renderFu();renderCompose();renderTpls();renderRevenue();renderAtt();counts();}
+function counts(){$('sbL').textContent=S.leads.length;const t=new Date().toISOString().split('T')[0];const ov=S.followups.filter(f=>f.status!=='Done'&&f.due<t).length;$('sbFu').textContent=ov||'';}
+
+// ── DASHBOARD ──────────────────────────────────
+function renderDash(){
+  const rev=S.leads.filter(l=>l.is_paid).reduce((s,l)=>s+N(l.amount_paid),0);
   const today=new Date().toISOString().split('T')[0];
-  const{data}=await sb.from('attendance').select('*').eq('date',today);
-  STATE.attendance=(data||[]).map(a=>({...a,userId:a.user_id,userName:a.user_id,clockIn:a.clock_in,clockOut:a.clock_out}));
-}
-async function loadDocuments(){
-  const{data,error}=await sb.storage.from(DOC_BUCKET).list('',{sortBy:{column:'created_at',order:'desc'}});
-  if(error){STATE.documents=[];return;}
-  STATE.documents=data||[];
-  document.getElementById('sbDocsCount').textContent=STATE.documents.length;
+  $('dRev').textContent=INR(rev);$('dLeads').textContent=S.leads.length;$('dBook').textContent=S.leads.filter(l=>l.is_paid).length;$('dOv').textContent=S.followups.filter(f=>f.status!=='Done'&&f.due<today).length;
+  const weeks=new Array(8).fill(0);const now=new Date();S.leads.forEach(l=>{const d=Math.floor((now-new Date(l.created_at||0))/(864e5*7));if(d>=0&&d<8)weeks[7-d]++;});const mx=Math.max(...weeks,1);
+  $('dChart').innerHTML=weeks.map((w,i)=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="width:100%;background:linear-gradient(to top,var(--gold),rgba(201,169,110,.3));border-radius:3px 3px 0 0;height:${Math.round(w/mx*54)}px;min-height:3px"></div><div style="font-size:.54rem;color:var(--dimmer)">W${i+1}</div></div>`).join('');
+  const stg=['New','Contacted','Proposal','Won','Lost'];const mxS=Math.max(...stg.map(s=>S.leads.filter(l=>l.status===s).length),1);const cols={New:'var(--purple)',Contacted:'var(--blue)',Proposal:'var(--orange)',Won:'var(--green)',Lost:'var(--red)'};
+  $('dStages').innerHTML=stg.map(s=>{const c=S.leads.filter(l=>l.status===s).length;return`<div style="display:flex;align-items:center;gap:7px;font-size:.74rem"><div style="width:66px;color:var(--dim)">${s}</div><div style="flex:1;background:var(--bg3);border-radius:3px;height:5px"><div style="width:${Math.round(c/mxS*100)}%;height:100%;border-radius:3px;background:${cols[s]}"></div></div><div style="width:18px;text-align:right;color:var(--text)">${c}</div></div>`;}).join('');
+  $('recTbl').innerHTML=S.leads.slice(0,6).map(l=>`<tr><td><span style="cursor:pointer;font-weight:500" onclick="viewL('${l.id}')">${l.full_name}</span></td><td style="color:var(--dim)">${l.city||'—'}</td><td>${l.service_type||'—'}</td><td><span class="badge ${sc(l.lead_score)}">${l.lead_score||'Basic'}</span></td><td><span class="badge ${sc(l.status)}">${l.status||'New'}</span></td><td style="color:var(--dim);font-size:.72rem">${dt(l.created_at)}</td><td><button class="ab" onclick="viewL('${l.id}')">View</button></td></tr>`).join('')||'<tr><td colspan="7" style="color:var(--dim);text-align:center;padding:18px">No leads yet.</td></tr>';
 }
 
-// ── SUPABASE REALTIME ─────────────────────────────────────────
-function subscribeRealtime(){
-  setRTStatus(false);
-  realtimeChannel=sb.channel('mibo-crm-realtime')
-    .on('postgres_changes',{event:'*',schema:'public',table:'leads'},async(payload)=>{
-      await loadLeads();renderAll();showNotif(`Lead ${payload.eventType.toLowerCase()}d`,'success');
-    })
-    .on('postgres_changes',{event:'*',schema:'public',table:'interactions'},async()=>{
-      await loadInteractions();renderInteractions();
-    })
-    .on('postgres_changes',{event:'*',schema:'public',table:'followups'},async()=>{
-      await loadFollowups();renderFollowups();updateSidebarCounts();
-    })
-    .on('postgres_changes',{event:'*',schema:'public',table:'calls'},async()=>{
-      await loadCalls();renderAttendance();
-    })
-    .on('postgres_changes',{event:'*',schema:'public',table:'attendance'},async()=>{
-      await loadAttendance();renderAttendance();
-    })
-    .subscribe(status=>{
-      setRTStatus(status==='SUBSCRIBED');
-      if(status==='SUBSCRIBED')showNotif('Live updates active ●','success');
-    });
-}
-function setRTStatus(ok){
-  const dot=document.getElementById('rtDot'),st=document.getElementById('rtStatus');
-  if(!dot)return;
-  dot.className='rt-dot'+(ok?'':' rt-dead');
-  st.textContent=ok?'Live':'Reconnecting…';
+// ── KANBAN ─────────────────────────────────────
+function filterOpps(f,btn){oppF=f;document.querySelectorAll('#oppTabs button').forEach(b=>b.className='tb tb-gh');if(btn)btn.className='tb tb-g';renderKanban();}
+function renderKanban(){const stages=['New','Contacted','Proposal','Won','Lost'];const leads=oppF?S.leads.filter(l=>l.status===oppF):S.leads;$('kanbanBoard').innerHTML=stages.map(s=>{const cards=leads.filter(l=>l.status===s);return`<div class="kc"><div class="kch">${s}<span>${cards.length}</span></div>${cards.map(l=>`<div class="kcard" onclick="viewL('${l.id}')"><div class="kcard-n">${l.full_name}</div>${l.amount_paid?`<div class="kcard-v">${INR(l.amount_paid)}</div>`:''}<div class="kcard-m">${l.city||''} · ${l.service_type||'—'}</div><button class="ab danger" onclick="event.stopPropagation();confDel('lead','${l.id}','${esc(l.full_name)}')" style="margin-top:5px;font-size:.66rem">✕</button></div>`).join('')||`<div style="color:var(--dim);font-size:.74rem;padding:8px">No leads</div>`}</div>`;}).join('');}
+
+// ── LEADS TABLE ────────────────────────────────
+function renderLeads(){$('lCount').textContent=`(${S.leads.length})`;$('lTbl').innerHTML=S.leads.map(l=>`<tr><td><span style="cursor:pointer;font-weight:500" onclick="viewL('${l.id}')">${l.full_name}</span></td><td><a href="tel:${l.phone}" style="color:var(--dim)">${l.phone||'—'}</a></td><td style="color:var(--dim)">${l.city||'—'}</td><td>${l.service_type||'—'}</td><td style="color:var(--dim)">${l.budget_range||'—'}</td><td><span class="badge ${sc(l.lead_score)}">${l.lead_score||'Basic'}</span></td><td><select class="fs" style="padding:3px 6px;font-size:.72rem;width:104px" onchange="chStage('${l.id}',this.value)">${['New','Contacted','Proposal','Won','Lost','Refunded'].map(s=>`<option ${l.status===s?'selected':''}>${s}</option>`).join('')}</select></td><td>${l.is_paid?`<span class="badge won">${INR(l.amount_paid)}</span>`:'<span style="color:var(--dim)">—</span>'}</td><td style="color:var(--dim);font-size:.72rem">${dt(l.created_at)}</td><td style="display:flex;gap:3px"><button class="ab" onclick="viewL('${l.id}')">View</button><button class="ab danger" onclick="confDel('lead','${l.id}','${esc(l.full_name)}')">✕</button></td></tr>`).join('')||'<tr><td colspan="10" style="color:var(--dim);text-align:center;padding:18px">No leads. Click + Lead.</td></tr>';}
+function stageFilter(s){document.querySelectorAll('#lTbl tr').forEach(r=>{r.style.display=!s||r.textContent.toLowerCase().includes(s.toLowerCase())?'':'none';});}
+
+// ── LEAD CRUD ──────────────────────────────────
+function openAddLead(){$('mLeadT').textContent='Add Lead';$('eId').value='';['aN','aPh','aEm','aCi','aAm','aBu','aNo'].forEach(id=>$(id).value='');$('aSt').value='New';$('aSc').value='Basic';openM('mLead');}
+function openEditL(id){const l=S.leads.find(x=>x.id===id);if(!l)return;$('mLeadT').textContent='Edit Lead';$('eId').value=l.id;$('aN').value=l.full_name||'';$('aPh').value=l.phone||'';$('aEm').value=l.email||'';$('aCi').value=l.city||'';$('aAm').value=l.amount_paid||'';$('aBu').value=l.budget_range||'';$('aSt').value=l.status||'New';$('aSc').value=l.lead_score||'Basic';$('aNo').value=l.message||'';openM('mLead');}
+async function saveLead(){const id=$('eId').value,name=$('aN').value.trim(),phone=$('aPh').value.trim();if(!name||!phone)return notify('Name and phone required','error');const p={full_name:name,phone,email:$('aEm').value.trim(),city:$('aCi').value.trim(),service_type:$('aSv').value,amount_paid:N($('aAm').value)||null,budget_range:$('aBu').value,status:$('aSt').value,lead_score:$('aSc').value,source:$('aSo').value,message:$('aNo').value};if(id){const{error}=await sb.from('leads').update(p).eq('id',id);if(error)return notify('Update failed: '+error.message,'error');}else{const{error}=await sb.from('leads').insert([p]);if(error)return notify('Insert failed: '+error.message,'error');}closeM('mLead');await loadLeads();renderAll();notify(id?'Lead updated':'Lead added','success');}
+async function chStage(id,s){await sb.from('leads').update({status:s}).eq('id',id);const l=S.leads.find(x=>x.id===id);if(l)l.status=s;renderKanban();renderLeads();renderDash();}
+
+// ── VIEW LEAD ──────────────────────────────────
+function viewL(id){vLid=id;const l=S.leads.find(x=>x.id===id);if(!l)return;$('vName').textContent=l.full_name;const ints=S.interactions.filter(i=>i.lead_id===id);$('vBody').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr">${[['Phone',`<a href="tel:${l.phone}" style="color:var(--gold)">${l.phone}</a>`],['Email',l.email||'—'],['City',l.city||'—'],['Service',l.service_type||'—'],['Budget',l.budget_range||'—'],['Score',`<span class="badge ${sc(l.lead_score)}">${l.lead_score||'Basic'}</span>`],['Stage',`<span class="badge ${sc(l.status)}">${l.status}</span>`],['Paid',l.is_paid?`<span class="badge won">${INR(l.amount_paid)}</span>`:'No'],['Payment ID',l.payment_id||'—'],['Source',l.source||'—'],['Created',dt(l.created_at)]].map(([k,v])=>`<div class="mr"><span>${k}</span><span>${v}</span></div>`).join('')}</div>${l.message?`<div style="margin-top:9px;padding:8px 10px;background:var(--bg3);border-radius:7px;font-size:.79rem;color:var(--dim)">${l.message}</div>`:''}<div style="margin-top:12px;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px">Interactions (${ints.length})</div>${ints.slice(0,3).map(i=>`<div style="font-size:.76rem;color:var(--dim);padding:4px 0;border-bottom:1px solid var(--border2)">${i.type} · ${i.date} · ${i.outcome||''}</div>`).join('')||'<div style="font-size:.74rem;color:var(--dimmer)">None yet</div>'}`;openM('mView');}
+function editFV(){closeM('mView');if(vLid)openEditL(vLid);}
+function delFV(){closeM('mView');const l=S.leads.find(x=>x.id===vLid);if(l)confDel('lead',l.id,l.full_name);}
+function intFV(){closeM('mView');openAddInt();if(vLid)$('iL').value=vLid;}
+
+// ── DELETE ─────────────────────────────────────
+let pD={};
+function confDel(t,id,n='this'){pD={t,id};$('confTitle').textContent='Delete?';$('confMsg').textContent=`"${n}" will be permanently deleted. Cannot be undone.`;$('confOk').onclick=execDel;$('confirmBg').classList.add('open');}
+function closeConf(){$('confirmBg').classList.remove('open');}
+async function execDel(){closeConf();const{t,id}=pD;if(!t||!id)return;notify('Deleting…');
+  if(t==='lead'){await sb.from('interactions').delete().eq('lead_id',id);await sb.from('followups').delete().eq('lead_id',id);await sb.from('calls').delete().eq('lead_id',id);const{error}=await sb.from('leads').delete().eq('id',id);if(error)return notify('Delete failed: '+error.message,'error');}
+  else if(t==='int'){await sb.from('interactions').delete().eq('id',id);}
+  else if(t==='fu'){await sb.from('followups').delete().eq('id',id);}
+  else if(t==='doc'){await sb.storage.from(BUCKET).remove([id]);await loadDocs();renderDocs();return notify('Deleted','success');}
+  notify('Deleted','success');await loadAll();renderAll();
 }
 
-// ── RENDER ALL ────────────────────────────────────────────────
-function renderAll(){
-  renderDashboard();renderOpportunities();renderLeadsTable();
-  renderInteractions();renderFollowups();renderComposeLead();
-  renderTemplates();renderRevenue();renderAttendance();renderSettings();
-  updateSidebarCounts();
-}
-function updateSidebarCounts(){
-  document.getElementById('sbLeadsCount').textContent=STATE.leads.length;
-  const today=new Date().toISOString().split('T')[0];
-  const overdue=STATE.followups.filter(f=>f.status!=='Done'&&f.due<today);
-  document.getElementById('sbFuCount').textContent=overdue.length||'';
-}
+// ── INTERACTIONS ───────────────────────────────
+const IICONS={Call:'📞',Email:'📧',Meeting:'🤝',WhatsApp:'💬',Note:'📝'};
+let intF=null;
+function filterInts(t){intF=t;renderInts();}
+function renderInts(){const ints=intF?S.interactions.filter(i=>i.type===intF):S.interactions;$('intList').innerHTML=ints.map(i=>{const lead=S.leads.find(l=>l.id===i.lead_id);return`<div class="ii"><div class="iic ${(i.type||'').toLowerCase()}">${IICONS[i.type]||'📌'}</div><div class="ib"><div class="iw">${lead?.full_name||'Unknown'} <span style="color:var(--dim);font-weight:300">via ${i.type}</span></div><div class="it2">${i.notes||'No notes'}</div><div class="im">${i.date||''}${i.duration?' · '+i.duration+'m':''} · ${i.outcome||''}</div></div><button class="ab danger" onclick="confDel('int','${i.id}','${i.type}')">✕</button></div>`;}).join('')||'<div style="color:var(--dim);padding:18px;text-align:center">No interactions. Click + Log.</div>';}
+function openAddInt(){popLeads();$('iD').value=new Date().toISOString().split('T')[0];openM('mInt');}
+async function saveInt(){const{error}=await sb.from('interactions').insert([{lead_id:$('iL').value,type:$('iT').value,date:$('iD').value||new Date().toISOString().split('T')[0],duration:N($('iDu').value)||null,notes:$('iN').value,outcome:$('iO').value}]);if(error)return notify('Save failed: '+error.message,'error');closeM('mInt');await loadInts();renderInts();notify('Interaction logged','success');}
 
-// ── DASHBOARD ─────────────────────────────────────────────────
-function renderDashboard(){
-  const revenue=STATE.leads.filter(l=>l.is_paid).reduce((s,l)=>s+Number(l.amount_paid||0),0);
-  const bookings=STATE.leads.filter(l=>l.is_paid).length;
-  const today=new Date().toISOString().split('T')[0];
-  const overdue=STATE.followups.filter(f=>f.status!=='Done'&&f.due<today).length;
-  document.getElementById('dashRev').textContent=fmtINR(revenue);
-  document.getElementById('dashLeads').textContent=STATE.leads.length;
-  document.getElementById('dashBookings').textContent=bookings;
-  document.getElementById('dashOverdue').textContent=overdue;
-  // Mini chart
-  const weeks=new Array(8).fill(0);const now=new Date();
-  STATE.leads.forEach(l=>{const d=Math.floor((now-new Date(l.created_at||0))/(864e5*7));if(d>=0&&d<8)weeks[7-d]++;});
-  const mx=Math.max(...weeks,1);
-  document.getElementById('dashChart').innerHTML=weeks.map((w,i)=>`
-    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
-      <div style="width:100%;background:linear-gradient(to top,var(--gold),rgba(201,169,110,.3));border-radius:3px 3px 0 0;height:${Math.round(w/mx*64)}px;min-height:3px"></div>
-      <div style="font-size:.58rem;color:var(--dimmer)">W${i+1}</div>
-    </div>`).join('');
-  // Stage bars
-  const stages=['New','Contacted','Proposal','Won','Lost'];
-  const mxS=Math.max(...stages.map(s=>STATE.leads.filter(l=>l.status===s).length),1);
-  document.getElementById('dashStages').innerHTML=stages.map(s=>{
-    const cnt=STATE.leads.filter(l=>l.status===s).length;
-    const colors={New:'var(--purple)',Contacted:'var(--blue)',Proposal:'var(--orange)',Won:'var(--green)',Lost:'var(--red)'};
-    return`<div style="display:flex;align-items:center;gap:8px;font-size:.78rem"><div style="width:70px;color:var(--dim)">${s}</div><div style="flex:1;background:rgba(255,255,255,.06);border-radius:3px;height:7px"><div style="width:${Math.round(cnt/mxS*100)}%;height:100%;border-radius:3px;background:${colors[s]}"></div></div><div style="width:24px;text-align:right;color:var(--text)">${cnt}</div></div>`;
-  }).join('');
-  // Recent leads
-  document.getElementById('recentLeadsTbl').innerHTML=STATE.leads.slice(0,6).map(l=>`
-    <tr>
-      <td><span style="color:var(--cream);font-weight:500">${l.full_name}</span></td>
-      <td style="color:var(--dim)">${l.city||'—'}</td>
-      <td>${l.service_type||'—'}</td>
-      <td><span class="badge ${(l.lead_score||'basic').toLowerCase()}">${l.lead_score||'Basic'}</span></td>
-      <td><span class="badge ${(l.status||'new').toLowerCase()}">${l.status||'New'}</span></td>
-      <td style="color:var(--dim);font-size:.76rem">${fmtDate(l.created_at)}</td>
-      <td><button class="act-btn" onclick="viewLead('${l.id}')">View</button></td>
-    </tr>`).join('')||'<tr><td colspan="7" style="color:var(--dim);text-align:center;padding:20px">No leads yet.</td></tr>';
-}
+// ── FOLLOWUPS ──────────────────────────────────
+function renderFu(){const today=new Date().toISOString().split('T')[0];const ov=S.followups.filter(f=>f.status!=='Done'&&f.due<today);const td=S.followups.filter(f=>f.status!=='Done'&&f.due===today);const card=(f,cls)=>{const l=S.leads.find(x=>x.id===f.leadId);return`<div class="fui"><div class="fud ${cls}"></div><div class="fub"><div class="fun">${l?.full_name||'?'} — ${f.type||'Reminder'}</div><div class="fudt">${f.note||''}</div><div class="fudm">Due: ${f.due||'—'}</div></div><button class="ab suc" onclick="doneFu('${f.id}')">Done ✓</button></div>`;};$('fuOv').innerHTML=ov.map(f=>card(f,'overdue')).join('')||'<div style="color:var(--dim);font-size:.76rem;padding:7px">None overdue 🎉</div>';$('fuTd').innerHTML=td.map(f=>card(f,'today')).join('')||'<div style="color:var(--dim);font-size:.76rem;padding:7px">None today</div>';$('fuTbl').innerHTML=S.followups.map(f=>{const l=S.leads.find(x=>x.id===f.leadId);const cls=f.status==='Done'?'won':f.due<today?'hot':f.due===today?'warm':'basic';return`<tr><td>${l?.full_name||'?'}</td><td>${f.type||'—'}</td><td>${f.due||'—'}</td><td style="font-size:.74rem">${f.note||'—'}</td><td><span class="badge ${cls}">${f.status==='Done'?'Done':f.due<today?'Overdue':f.due===today?'Today':'Upcoming'}</span></td><td style="display:flex;gap:3px"><button class="ab ${f.status==='Done'?'':'suc'}" onclick="doneFu('${f.id}')">${f.status==='Done'?'Reopen':'Done ✓'}</button><button class="ab danger" onclick="confDel('fu','${f.id}','reminder')">✕</button></td></tr>`;}).join('')||'<tr><td colspan="6" style="color:var(--dim);text-align:center;padding:14px">No reminders.</td></tr>';}
+async function doneFu(id){const f=S.followups.find(x=>x.id===id);if(!f)return;const ns=f.status==='Done'?'Pending':'Done';await sb.from('followups').update({status:ns}).eq('id',id);f.status=ns;renderFu();counts();}
+function openAddFu(){popLeads('fL');$('fD').value=new Date().toISOString().split('T')[0];openM('mFu');}
+async function saveFu(){const due=$('fD').value;if(!due)return notify('Due date required','error');const{error}=await sb.from('followups').insert([{lead_id:$('fL').value,type:$('fT').value,due_date:due,note:$('fN').value,status:'Pending'}]);if(error)return notify('Save failed: '+error.message,'error');closeM('mFu');await loadFus();renderFu();counts();notify('Reminder set','success');}
 
-// ── KANBAN ────────────────────────────────────────────────────
-let oppFilter=null;
-function filterOpps(stage,btn){
-  oppFilter=stage;
-  document.querySelectorAll('.opp-tabs button').forEach(b=>b.className='tb-btn tb-ghost');
-  if(btn)btn.className='tb-btn tb-gold';
-  renderOpportunities();
-}
-function renderOpportunities(){
-  const stages=['New','Contacted','Proposal','Won','Lost'];
-  const leads=oppFilter?STATE.leads.filter(l=>l.status===oppFilter):STATE.leads;
-  document.getElementById('kanbanBoard').innerHTML=stages.map(stage=>{
-    const cards=leads.filter(l=>l.status===stage);
-    return`<div class="k-col">
-      <div class="k-col-head">${stage}<span>${cards.length}</span></div>
-      ${cards.map(l=>`
-        <div class="k-card" onclick="viewLead('${l.id}')">
-          <div class="k-card-name">${l.full_name}</div>
-          ${l.amount_paid?`<div class="k-card-val">${fmtINR(l.amount_paid)}</div>`:''}
-          <div class="k-card-meta">${l.city||''} · ${l.service_type||'—'}</div>
-          <button class="act-btn danger" onclick="event.stopPropagation();confirmDelete('lead','${l.id}','${l.full_name}')" style="margin-top:6px;font-size:.68rem">✕</button>
-        </div>`).join('')||`<div style="color:var(--dim);font-size:.78rem;padding:10px">No leads</div>`}
-    </div>`;
-  }).join('');
-}
+// ── COMPOSE ────────────────────────────────────
+function renderCompose(){$('compTbl').innerHTML=S.leads.map(l=>`<tr><td>${l.full_name}</td><td style="font-size:.72rem">${l.email||l.phone||'—'}</td><td><button class="ab" onclick="selL('${l.id}')">→</button></td></tr>`).join('');}
+function selL(id){const l=S.leads.find(x=>x.id===id);if(!l)return;$('eTo').value=l.email||'';$('smsPhone').value=l.phone||'';notify(`Selected: ${l.full_name}`);}
+function sendEmail(){const to=$('eTo').value,sub=$('eSubj').value,body=$('eBody').value;if(!to||!sub)return notify('To and Subject required','error');window.open(`mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`,'_blank');logSent('Email → '+to);}
+function saveDraft(){notify('Draft saved','success');}
+function sendSMS(){const phone=$('smsPhone').value,body=$('smsBody').value,ch=$('smsCh').value;if(!phone||!body)return notify('Phone and message required','error');if(ch==='whatsapp')window.open(`https://wa.me/${phone.replace(/\D/g,'')}?text=${encodeURIComponent(body)}`,'_blank');logSent(ch.toUpperCase()+' → '+phone);}
+function logSent(msg){sentL.unshift(new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+' — '+msg);$('sLog').innerHTML=sentL.slice(0,8).join('<br>');}
 
-// ── LEADS TABLE ───────────────────────────────────────────────
-function renderLeadsTable(){
-  document.getElementById('leadsTableCount').textContent=`(${STATE.leads.length})`;
-  document.getElementById('leadsTbl').innerHTML=STATE.leads.map(l=>`
-    <tr>
-      <td><span style="cursor:pointer;color:var(--cream)" onclick="viewLead('${l.id}')">${l.full_name}</span></td>
-      <td><a href="tel:${l.phone}" style="color:var(--dim)">${l.phone}</a></td>
-      <td style="color:var(--dim)">${l.city||'—'}</td>
-      <td>${l.service_type||'—'}</td>
-      <td style="color:var(--dim)">${l.budget_range||'—'}</td>
-      <td><span class="badge ${(l.lead_score||'basic').toLowerCase()}">${l.lead_score||'Basic'}</span></td>
-      <td>
-        <select class="form-sel" style="padding:3px 6px;font-size:.74rem;width:110px" onchange="changeStage('${l.id}',this.value)">
-          ${['New','Contacted','Proposal','Won','Lost','Refunded'].map(s=>`<option ${l.status===s?'selected':''}>${s}</option>`).join('')}
-        </select>
-      </td>
-      <td>${l.is_paid?`<span class="badge won">₹${Number(l.amount_paid||0).toLocaleString('en-IN')}</span>`:'<span style="color:var(--dim)">—</span>'}</td>
-      <td style="color:var(--dim);font-size:.76rem">${fmtDate(l.created_at)}</td>
-      <td style="display:flex;gap:4px;flex-wrap:nowrap">
-        <button class="act-btn" onclick="viewLead('${l.id}')">View</button>
-        <button class="act-btn danger" onclick="confirmDelete('lead','${l.id}','${l.full_name}')">✕</button>
-      </td>
-    </tr>`).join('')||'<tr><td colspan="10" style="color:var(--dim);text-align:center;padding:24px">No leads. Click "+ Add Lead" to start.</td></tr>';
-}
-function filterLeadsByStage(stage){
-  document.querySelectorAll('#leadsTbl tr').forEach(r=>{r.style.display=!stage||r.textContent.toLowerCase().includes(stage.toLowerCase())?'':'none';});
-}
+// ── TEMPLATES (12 built-in + custom) ───────────
+const BTPLS=[
+  {id:'b1',type:'Email',name:'Welcome',subject:'Welcome to MIBO Interiors',body:'Dear {{name}},\n\nThank you for reaching out to MIBO! We\'re thrilled to connect.\n\nOur team will be in touch within 24 hours.\n\nWarm regards,\n{{agent}}\nMIBO Interiors'},
+  {id:'b2',type:'Email',name:'Follow-up',subject:'Following up — Your MIBO Enquiry',body:'Hi {{name}},\n\nFollowing up on your {{service}} enquiry. Would you be free for a quick call this week?\n\nBest,\n{{agent}}'},
+  {id:'b3',type:'Email',name:'Proposal Ready',subject:'Your MIBO Design Proposal — {{service}}',body:'Dear {{name}},\n\nYour personalised design proposal is ready.\n\nService: {{service}}\nEstimated Value: {{deal_value}}\nTimeline: 6–8 weeks\n\nPlease review and let us know your thoughts.\n\nKind regards,\n{{agent}} | MIBO'},
+  {id:'b4',type:'Email',name:'Site Visit Reminder',subject:'MIBO Site Visit — Tomorrow',body:'Hi {{name}},\n\nFriendly reminder: your MIBO site visit is tomorrow — {{slot_date}}.\n\nOur designer will be there on time. Please ensure the property is accessible.\n\nSee you soon!\nMIBO Team'},
+  {id:'b5',type:'Email',name:'Thank You',subject:'Thank you for choosing MIBO',body:'Dear {{name}},\n\nThank you for choosing MIBO! Your design brief will arrive within 48 hours.\n\nWith warmth,\nThe MIBO Team'},
+  {id:'b6',type:'Email',name:'Booking Confirmed',subject:'Your MIBO Booking is Confirmed ✓',body:'Dear {{name}},\n\nYour MIBO site visit is confirmed for {{slot_date}}.\n\nRef: {{deal_value}}\n\nOur designer will contact you 24 hours before to confirm timing.\n\nSee you soon! ✦\nMIBO Team'},
+  {id:'b7',type:'Email',name:'Not Interested Recovery',subject:'Still here when you\'re ready — MIBO',body:'Hi {{name}},\n\nNo pressure at all — we understand timing matters.\n\nWhen you\'re ready to transform your home, we\'ll be here.\n\nAll the best,\n{{agent}} | MIBO'},
+  {id:'b8',type:'WhatsApp',name:'Visit Reminder WA',body:'🏠 *MIBO Site Visit Reminder*\n\nHi {{name}}, your visit is tomorrow — *{{slot_date}}*.\n\nOur designer will be on time. Questions? Reply here! — MIBO ✦'},
+  {id:'b9',type:'WhatsApp',name:'Booking Confirmed WA',body:'✅ *MIBO Booking Confirmed!*\n\nHi {{name}}, your site visit for *{{slot_date}}* is confirmed.\n\nThank you for choosing MIBO! 🏠'},
+  {id:'b10',type:'WhatsApp',name:'Referral Thank You WA',body:'🙏 Hi {{name}},\n\nThank you for referring a friend to MIBO! We truly appreciate it.\n\nYour referral gets priority scheduling. ✦ — MIBO'},
+  {id:'b11',type:'SMS',name:'Follow-up SMS',body:'Hi {{name}}, following up on your MIBO enquiry. Schedule your free site visit? Reply YES or call us. — MIBO'},
+  {id:'b12',type:'SMS',name:'Booking Reminder SMS',body:'MIBO reminder: Your site visit is on {{slot_date}}. Our designer will be on time. — MIBO Interiors'},
+];
+let customTpls=JSON.parse(localStorage.getItem('miboCrmTpls')||'[]');
+function allTpls(){return[...BTPLS,...customTpls];}
+function renderTpls(){const tpls=tplFilter==='all'?allTpls():allTpls().filter(t=>t.type===tplFilter);$('tplGrid').innerHTML=tpls.map(t=>`<div class="tc"><div class="ttag">${t.type}${t.id.startsWith('b')?' · built-in':''}</div><div class="tn">${t.name}</div><div class="tprev">${(t.body||'').replace(/\n/g,' ')}</div><div style="display:flex;gap:6px;margin-top:8px"><button class="ab" onclick="useTpl('${t.id}')">Use</button>${!t.id.startsWith('b')?`<button class="ab" onclick="editTpl('${t.id}')">Edit</button><button class="ab danger" onclick="delTpl('${t.id}')">✕</button>`:''}</div></div>`).join('')||'<div style="color:var(--dim);padding:18px">No templates found.</div>';}
+function useTpl(id){const t=allTpls().find(x=>x.id===id);if(!t)return;if(t.type==='Email'){$('eSubj').value=t.subject||'';$('eBody').value=t.body||'';}else{$('smsBody').value=t.body||'';}nav('compose',document.querySelector('.sb-link:nth-of-type(9)'));notify('Template loaded','success');}
+function openNewTpl(){$('tplT').textContent='New Template';$('tplEId').value='';['tplN','tplS','tplB'].forEach(id=>$(id).value='');$('tplTy').value='Email';$('tplSG').style.display='block';openM('mTpl');}
+function editTpl(id){const t=customTpls.find(x=>x.id===id);if(!t)return;$('tplT').textContent='Edit Template';$('tplEId').value=t.id;$('tplN').value=t.name||'';$('tplTy').value=t.type||'Email';$('tplS').value=t.subject||'';$('tplB').value=t.body||'';$('tplSG').style.display=t.type==='Email'?'block':'none';openM('mTpl');}
+function saveTpl(){const id=$('tplEId').value,name=$('tplN').value.trim(),body=$('tplB').value.trim();if(!name||!body)return notify('Name and body required','error');const tpl={id:id||'c'+Date.now(),name,type:$('tplTy').value,subject:$('tplS').value,body};if(id){const i=customTpls.findIndex(t=>t.id===id);if(i>=0)customTpls[i]=tpl;}else customTpls.push(tpl);localStorage.setItem('miboCrmTpls',JSON.stringify(customTpls));closeM('mTpl');renderTpls();notify('Template saved','success');}
+function delTpl(id){customTpls=customTpls.filter(t=>t.id!==id);localStorage.setItem('miboCrmTpls',JSON.stringify(customTpls));renderTpls();notify('Deleted','success');}
 
-// ── CRUD: LEADS ───────────────────────────────────────────────
-function openAddLead(){
-  document.getElementById('leadModalTitle').textContent='Add Lead';
-  document.getElementById('leadEditId').value='';
-  ['alName','alPhone','alEmail','alCity','alNote'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('alDeal').value='';
-  document.getElementById('alStage').value='New';document.getElementById('alScore').value='Basic';
-  openModal('modalAddLead');
-}
-function openEditLead(id){
-  const l=STATE.leads.find(x=>x.id===id);if(!l)return;
-  document.getElementById('leadModalTitle').textContent='Edit Lead';
-  document.getElementById('leadEditId').value=l.id;
-  document.getElementById('alName').value=l.full_name||'';
-  document.getElementById('alPhone').value=l.phone||'';
-  document.getElementById('alEmail').value=l.email||'';
-  document.getElementById('alCity').value=l.city||'';
-  document.getElementById('alDeal').value=l.amount_paid||'';
-  document.getElementById('alStage').value=l.status||'New';
-  document.getElementById('alScore').value=l.lead_score||'Basic';
-  document.getElementById('alNote').value=l.message||'';
-  openModal('modalAddLead');
-}
-async function saveLead(){
-  const id=document.getElementById('leadEditId').value;
-  const name=document.getElementById('alName').value.trim();
-  const phone=document.getElementById('alPhone').value.trim();
-  if(!name||!phone){showNotif('Name and phone are required','error');return;}
-  const payload={
-    full_name:name,phone,email:document.getElementById('alEmail').value.trim(),
-    city:document.getElementById('alCity').value.trim(),
-    service_type:document.getElementById('alService').value,
-    amount_paid:Number(document.getElementById('alDeal').value)||null,
-    status:document.getElementById('alStage').value,
-    lead_score:document.getElementById('alScore').value,
-    source:document.getElementById('alSource').value,
-    message:document.getElementById('alNote').value,
-  };
-  if(id){
-    const{error}=await sb.from('leads').update(payload).eq('id',id);
-    if(error)return showNotif('Update failed: '+error.message,'error');
-    showNotif('Lead updated','success');
-  } else {
-    const{error}=await sb.from('leads').insert([payload]);
-    if(error)return showNotif('Insert failed: '+error.message,'error');
-    showNotif('Lead added','success');
-  }
-  closeModal('modalAddLead');
-  // Realtime will trigger re-render; also do manual refresh for instant feedback
-  await loadLeads();renderAll();
-}
+// ── SPREADSHEET ────────────────────────────────
+function initSheet(){if(!sheetRows.length){for(let i=0;i<10;i++)sheetRows.push(new Array(sheetCols.length).fill(''));}renderSheet();}
+function renderSheet(){const t=$('shTable');t.innerHTML=`<thead><tr><th style="width:30px">#</th>${sheetCols.map((c,i)=>`<th><div style="display:flex;align-items:center;justify-content:space-between;gap:8px">${c}<span onclick="delCol(${i})" style="cursor:pointer;color:var(--dimmer);font-size:.6rem;opacity:.5" title="Delete column">✕</span></div></th>`).join('')}</tr></thead><tbody>${sheetRows.map((row,ri)=>`<tr><td class="srn" title="Click to delete row" onclick="delRow(${ri})">${ri+1}</td>${row.map((cell,ci)=>`<td><input value="${cell.replace(/"/g,'&quot;')}" oninput="sheetRows[${ri}][${ci}]=this.value;updSI()"></td>`).join('')}</tr>`).join('')}</tbody>`;updSI();}
+function addRow(){sheetRows.push(new Array(sheetCols.length).fill(''));renderSheet();}
+function addCol(){sheetCols.push(String.fromCharCode(65+(sheetCols.length%26)));sheetRows.forEach(r=>r.push(''));renderSheet();}
+function delRow(i){if(sheetRows.length<=1)return;sheetRows.splice(i,1);renderSheet();}
+function delCol(i){if(sheetCols.length<=1)return;sheetCols.splice(i,1);sheetRows.forEach(r=>r.splice(i,1));renderSheet();}
+function updSI(){const f=sheetRows.flat().filter(c=>c.trim()).length;$('shInfo').textContent=`${sheetRows.length}×${sheetCols.length} · ${f} filled`;}
+function clearSheet(){if(!confirm('Clear all data?'))return;sheetCols=['A','B','C','D','E','F'];sheetRows=[];initSheet();}
+function exportSheet(){const h=sheetCols.join(',');const r=sheetRows.map(row=>row.map(c=>`"${c.replace(/"/g,'""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(h+'\n'+r);a.download='mibo-sheet-'+Date.now()+'.csv';a.click();notify('Exported','success');}
+function importCSV(inp){const file=inp.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{const lines=e.target.result.split('\n').filter(l=>l.trim());if(!lines.length)return;sheetCols=lines[0].split(',').map(c=>c.replace(/^"|"$/g,'').trim());sheetRows=lines.slice(1).map(l=>l.split(',').map(c=>c.replace(/^"|"$/g,'').trim()));renderSheet();notify(`Imported: ${sheetRows.length} rows, ${sheetCols.length} cols`,'success');};r.readAsText(file);inp.value='';}
 
-// ── DELETE (with confirm dialog) ─────────────────────────────
-let pendingDelete={table:null,id:null};
-function confirmDelete(table,id,name='this item'){
-  pendingDelete={table,id};
-  document.getElementById('confirmTitle').textContent='Delete '+(table==='lead'?'Lead':'Record')+'?';
-  document.getElementById('confirmMsg').textContent=`"${name}" will be permanently deleted from Supabase. This cannot be undone.`;
-  document.getElementById('confirmOkBtn').onclick=executeDelete;
-  document.getElementById('confirmOverlay').classList.add('open');
-}
-function closeConfirm(){document.getElementById('confirmOverlay').classList.remove('open');}
-async function executeDelete(){
-  closeConfirm();
-  const{table,id}=pendingDelete;
-  if(!table||!id)return;
-  showNotif('Deleting…');
-  if(table==='lead'){
-    // Cascade delete related records first
-    await sb.from('interactions').delete().eq('lead_id',id);
-    await sb.from('followups').delete().eq('lead_id',id);
-    await sb.from('calls').delete().eq('lead_id',id);
-    const{error}=await sb.from('leads').delete().eq('id',id);
-    if(error)return showNotif('Delete failed: '+error.message,'error');
-  } else if(table==='interaction'){
-    const{error}=await sb.from('interactions').delete().eq('id',id);
-    if(error)return showNotif('Delete failed: '+error.message,'error');
-  } else if(table==='followup'){
-    const{error}=await sb.from('followups').delete().eq('id',id);
-    if(error)return showNotif('Delete failed: '+error.message,'error');
-  } else if(table==='document'){
-    // Delete from storage
-    const{error}=await sb.storage.from(DOC_BUCKET).remove([id]);
-    if(error)return showNotif('Delete failed: '+error.message,'error');
-    await loadDocuments();renderDocuments();
-    return showNotif('Document deleted','success');
-  }
-  showNotif('Deleted successfully','success');
-  await loadAll();renderAll();
-}
+// ── DOCUMENTS ──────────────────────────────────
+function initDz(){const z=$('dz');z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('ov');});z.addEventListener('dragleave',()=>z.classList.remove('ov'));z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('ov');uploadDocs(e.dataTransfer.files);});z.addEventListener('click',()=>$('docIn').click());}
+async function uploadDocs(files){if(!files?.length)return;const p=$('uProg'),b=$('uBar');p.style.display='block';b.style.width='0%';let done=0;for(const f of files){const path=`${Date.now()}_${f.name.replace(/[^a-z0-9._-]/gi,'_')}`;const{error}=await sb.storage.from(BUCKET).upload(path,f,{cacheControl:'3600',upsert:false});if(error){notify('Upload failed: '+error.message,'error');continue;}done++;b.style.width=Math.round(done/files.length*100)+'%';}setTimeout(()=>p.style.display='none',1500);await loadDocs();renderDocs();notify(`${done} file${done!==1?'s':''} uploaded`,'success');}
+const DEXT={pdf:'📄',doc:'📝',docx:'📝',xls:'📊',xlsx:'📊',jpg:'🖼',jpeg:'🖼',png:'🖼',gif:'🖼',mp4:'🎥',zip:'📦',ppt:'📊',pptx:'📊',csv:'📊'};
+function renderDocs(filter=''){const docs=(S.documents||[]).filter(d=>!filter||d.name.toLowerCase().includes(filter.toLowerCase()));$('docGrid').innerHTML=docs.map(d=>{const ext=(d.name.split('.').pop()||'').toLowerCase();const icon=DEXT[ext]||'📁';const sz=d.metadata?.size?fmtB(d.metadata.size):'';const upd=d.updated_at?new Date(d.updated_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'';return`<div class="dc"><div class="di">${icon}</div><div class="dn">${d.name.replace(/^\d+_/,'')}</div><div class="dm">${[sz,upd].filter(Boolean).join(' · ')}</div><div style="display:flex;gap:5px"><button class="ab" onclick="dlDoc('${d.name}')">⬇ Download</button><button class="ab danger" onclick="confDel('doc','${d.name}','${d.name.replace(/^\d+_/,'').replace(/'/g,'')}')">✕</button></div></div>`;}).join('')||'<div style="color:var(--dim);padding:18px;grid-column:1/-1;text-align:center">No documents. Upload files above.</div>';}
+async function dlDoc(path){const{data,error}=await sb.storage.from(BUCKET).createSignedUrl(path,60);if(error)return notify('Download failed','error');window.open(data.signedUrl,'_blank');}
+function filterDocs(q){renderDocs(q);}
+function fmtB(b){return b<1024?b+'B':b<1048576?(b/1024).toFixed(1)+'KB':(b/1048576).toFixed(1)+'MB';}
 
-// ── STAGE CHANGE ──────────────────────────────────────────────
-async function changeStage(id,stage){
-  const{error}=await sb.from('leads').update({status:stage}).eq('id',id);
-  if(error)return showNotif('Stage update failed','error');
-  const l=STATE.leads.find(x=>x.id===id);
-  if(l)l.status=stage;
-  renderOpportunities();renderLeadsTable();renderDashboard();
-  showNotif(`→ ${stage}`,'success');
-}
-
-// ── VIEW LEAD ─────────────────────────────────────────────────
-function viewLead(id){
-  viewingLeadId=id;
-  const l=STATE.leads.find(x=>x.id===id);if(!l)return;
-  document.getElementById('viewLeadName').textContent=l.full_name;
-  const ints=STATE.interactions.filter(i=>i.lead_id===id);
-  const fus=STATE.followups.filter(f=>f.leadId===id);
-  document.getElementById('viewLeadBody').innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
-      ${[['Phone',`<a href="tel:${l.phone}" style="color:var(--gold)">${l.phone}</a>`],['Email',l.email||'—'],['City',l.city||'—'],['State',l.state||'—'],
-        ['Service',l.service_type||'—'],['Budget',l.budget_range||'—'],['Score',`<span class="badge ${(l.lead_score||'basic').toLowerCase()}">${l.lead_score||'Basic'}</span>`],
-        ['Stage',`<span class="badge ${(l.status||'new').toLowerCase()}">${l.status||'New'}</span>`],
-        ['Paid',l.is_paid?`<span class="badge won">${fmtINR(l.amount_paid)}</span>`:'No'],
-        ['Payment ID',l.payment_id||'—'],['Created',fmtDate(l.created_at)],['Source',l.source||'—']
-      ].map(([k,v])=>`<div class="modal-row"><span>${k}</span><span>${v}</span></div>`).join('')}
-    </div>
-    ${l.message?`<div style="margin-top:12px;padding:10px 12px;background:rgba(255,255,255,.03);border-radius:8px;font-size:.82rem;color:var(--dim)">${l.message}</div>`:''}
-    <div style="margin-top:16px;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Interactions (${ints.length})</div>
-    ${ints.slice(0,3).map(i=>`<div style="font-size:.8rem;color:var(--dim);padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)">${i.type} · ${i.date} · ${i.outcome||''}</div>`).join('')||'<div style="font-size:.78rem;color:var(--dimmer)">None yet</div>'}
-    <div style="margin-top:12px;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Follow-ups (${fus.length})</div>
-    ${fus.slice(0,3).map(f=>`<div style="font-size:.8rem;color:var(--dim);padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)">${f.type||'Reminder'} · ${f.due} · ${f.status||'Pending'}</div>`).join('')||'<div style="font-size:.78rem;color:var(--dimmer)">None set</div>'}
-  `;
-  openModal('modalViewLead');
-}
-function editFromView(){closeModal('modalViewLead');if(viewingLeadId)openEditLead(viewingLeadId);}
-function deleteFromView(){closeModal('modalViewLead');const l=STATE.leads.find(x=>x.id===viewingLeadId);if(l)confirmDelete('lead',l.id,l.full_name);}
-function openInteractionFromView(){closeModal('modalViewLead');openAddInteraction();if(viewingLeadId)document.getElementById('intLead').value=viewingLeadId;}
-
-// ── INTERACTIONS ──────────────────────────────────────────────
-const INT_ICONS={Call:'📞',Email:'📧',Meeting:'🤝',WhatsApp:'💬',Note:'📝'};
-function renderInteractions(filter=null){
-  let ints=filter?STATE.interactions.filter(i=>i.type===filter):STATE.interactions;
-  document.getElementById('allIntList').innerHTML=ints.map(i=>{
-    const lead=STATE.leads.find(l=>l.id===i.lead_id);
-    return`<div class="int-item">
-      <div class="int-icon ${(i.type||'').toLowerCase()}">${INT_ICONS[i.type]||'📌'}</div>
-      <div class="int-body">
-        <div class="int-who">${lead?.full_name||'Unknown'} <span style="color:var(--dim);font-weight:300">via ${i.type}</span></div>
-        <div class="int-what">${i.notes||'No notes'}</div>
-        <div class="int-meta">${i.date||''}${i.duration?' · '+i.duration+' min':''} · ${i.outcome||''}</div>
-      </div>
-      <button class="act-btn danger" onclick="confirmDelete('interaction','${i.id}','${i.type} with ${lead?.full_name||'lead'}')">✕</button>
-    </div>`;
-  }).join('')||'<div style="color:var(--dim);padding:24px;text-align:center">No interactions yet. Click "+ Log Interaction".</div>';
-}
-function filterInteractions(t){renderInteractions(t);}
-async function saveInteraction(){
-  const leadId=document.getElementById('intLead').value;
-  const{error}=await sb.from('interactions').insert([{
-    lead_id:leadId,type:document.getElementById('intType').value,
-    date:document.getElementById('intDate').value||new Date().toISOString().split('T')[0],
-    duration:Number(document.getElementById('intDur').value)||null,
-    notes:document.getElementById('intNote').value,
-    outcome:document.getElementById('intOutcome').value,
-  }]);
-  if(error)return showNotif('Save failed: '+error.message,'error');
-  closeModal('modalAddInt');
-  await loadInteractions();renderInteractions();
-  showNotif('Interaction logged','success');
-}
-
-// ── FOLLOWUPS ─────────────────────────────────────────────────
-function renderFollowups(){
-  const today=new Date().toISOString().split('T')[0];
-  const overdue=STATE.followups.filter(f=>f.status!=='Done'&&f.due<today);
-  const todayFu=STATE.followups.filter(f=>f.status!=='Done'&&f.due===today);
-  const fuCard=(f,cls)=>{
-    const lead=STATE.leads.find(l=>l.id===f.leadId);
-    return`<div class="fu-item">
-      <div class="fu-dot ${cls}"></div>
-      <div class="fu-body">
-        <div class="fu-name">${lead?.full_name||'?'} — ${f.type||'Reminder'}</div>
-        <div class="fu-detail">${f.note||''}</div>
-        <div class="fu-date">Due: ${f.due||'—'}</div>
-      </div>
-      <button class="act-btn success" onclick="doneFu('${f.id}')">Done ✓</button>
-    </div>`;
-  };
-  document.getElementById('fuOverdue').innerHTML=overdue.map(f=>fuCard(f,'overdue')).join('')||'<div style="color:var(--dim);font-size:.8rem;padding:10px">None overdue 🎉</div>';
-  document.getElementById('fuToday').innerHTML=todayFu.map(f=>fuCard(f,'today')).join('')||'<div style="color:var(--dim);font-size:.8rem;padding:10px">None today</div>';
-  document.getElementById('fuTbl').innerHTML=STATE.followups.map(f=>{
-    const lead=STATE.leads.find(l=>l.id===f.leadId);
-    const cls=f.status==='Done'?'won':f.due<today?'hot':f.due===today?'warm':'basic';
-    return`<tr>
-      <td>${lead?.full_name||'?'}</td><td>${f.type||'—'}</td><td>${f.due||'—'}</td>
-      <td style="font-size:.78rem">${f.note||'—'}</td><td>${f.assigned||'—'}</td>
-      <td><span class="badge ${cls}">${f.status==='Done'?'Done':f.due<today?'Overdue':f.due===today?'Today':'Upcoming'}</span></td>
-      <td style="display:flex;gap:4px">
-        <button class="act-btn ${f.status==='Done'?'':'success'}" onclick="doneFu('${f.id}')">${f.status==='Done'?'Reopen':'Done ✓'}</button>
-        <button class="act-btn danger" onclick="confirmDelete('followup','${f.id}','followup')">✕</button>
-      </td>
-    </tr>`;
-  }).join('')||'<tr><td colspan="7" style="color:var(--dim);text-align:center;padding:20px">No reminders set.</td></tr>';
-}
-async function doneFu(id){
-  const f=STATE.followups.find(x=>x.id===id);if(!f)return;
-  const newStatus=f.status==='Done'?'Pending':'Done';
-  const{error}=await sb.from('followups').update({status:newStatus}).eq('id',id);
-  if(error)return showNotif('Update failed','error');
-  f.status=newStatus;
-  renderFollowups();updateSidebarCounts();
-}
-async function saveFollowup(){
-  const due=document.getElementById('fuDate').value;
-  if(!due){showNotif('Due date required','error');return;}
-  const{error}=await sb.from('followups').insert([{
-    lead_id:document.getElementById('fuLead').value,
-    type:document.getElementById('fuType').value,
-    due_date:due,
-    note:document.getElementById('fuNote').value,
-    status:'Pending',
-  }]);
-  if(error)return showNotif('Save failed: '+error.message,'error');
-  closeModal('modalAddFu');
-  await loadFollowups();renderFollowups();updateSidebarCounts();
-  showNotif('Reminder set','success');
-}
-
-// ── DOCUMENTS (Supabase Storage) ──────────────────────────────
-function initDropZone(){
-  const zone=document.getElementById('dropZone');
-  if(!zone)return;
-  zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});
-  zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
-  zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');uploadDocs(e.dataTransfer.files);});
-  zone.addEventListener('click',()=>document.getElementById('docFileInput').click());
-}
-async function uploadDocs(files){
-  if(!files||!files.length)return;
-  const prog=document.getElementById('uploadProgress');
-  const bar=document.getElementById('uploadBar');
-  prog.style.display='block';bar.style.width='0%';
-  let done=0;
-  for(const file of files){
-    const path=`${Date.now()}_${file.name.replace(/[^a-z0-9._-]/gi,'_')}`;
-    const{error}=await sb.storage.from(DOC_BUCKET).upload(path,file,{cacheControl:'3600',upsert:false});
-    if(error){showNotif('Upload failed: '+error.message,'error');continue;}
-    done++;
-    bar.style.width=Math.round(done/files.length*100)+'%';
-  }
-  setTimeout(()=>{prog.style.display='none';},1500);
-  await loadDocuments();renderDocuments();
-  showNotif(`${done} file${done!==1?'s':''} uploaded`,'success');
-}
-function renderDocuments(filter=''){
-  const docs=(STATE.documents||[]).filter(d=>!filter||d.name.toLowerCase().includes(filter.toLowerCase()));
-  document.getElementById('sbDocsCount').textContent=STATE.documents.length;
-  if(!docs.length){
-    document.getElementById('docGrid').innerHTML='<div style="color:var(--dim);padding:20px;grid-column:1/-1;text-align:center">No documents yet. Upload files above.</div>';
-    return;
-  }
-  document.getElementById('docGrid').innerHTML=docs.map(doc=>{
-    const ext=(doc.name.split('.').pop()||'').toLowerCase();
-    const icons={pdf:'📄',doc:'📝',docx:'📝',xls:'📊',xlsx:'📊',jpg:'🖼',jpeg:'🖼',png:'🖼',mp4:'🎥',zip:'📦',ppt:'📊',pptx:'📊'};
-    const icon=icons[ext]||'📁';
-    const size=doc.metadata?.size?formatBytes(doc.metadata.size):'';
-    const updated=doc.updated_at?new Date(doc.updated_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'';
-    return`<div class="doc-card">
-      <div class="doc-icon">${icon}</div>
-      <div class="doc-name">${doc.name.replace(/^\d+_/,'')}</div>
-      <div class="doc-meta">${[size,updated].filter(Boolean).join(' · ')}</div>
-      <div class="doc-actions">
-        <button class="act-btn" onclick="downloadDoc('${doc.name}')">⬇ Download</button>
-        <button class="act-btn danger" onclick="confirmDelete('document','${doc.name}','${doc.name.replace(/^\d+_/,'')}')">✕</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-async function downloadDoc(path){
-  const{data,error}=await sb.storage.from(DOC_BUCKET).createSignedUrl(path,60);
-  if(error)return showNotif('Download failed: '+error.message,'error');
-  window.open(data.signedUrl,'_blank');
-}
-function filterDocs(q){renderDocuments(q);}
-function formatBytes(bytes){if(bytes<1024)return bytes+'B';if(bytes<1048576)return(bytes/1024).toFixed(1)+'KB';return(bytes/1048576).toFixed(1)+'MB';}
-
-// ── CLOCK / ATTENDANCE ────────────────────────────────────────
-function startClock(){setInterval(()=>{const el=document.getElementById('liveClock');if(el)el.textContent=new Date().toLocaleTimeString('en-IN',{hour12:false});},1000);}
+// ── CLOCK IN/OUT (FIXED) ───────────────────────
+function startClock(){setInterval(()=>{const e=$('liveClock');if(e)e.textContent=new Date().toLocaleTimeString('en-IN',{hour12:false});if(ciTime)updHours();},1000);}
+function updHours(){const diff=Date.now()-ciTime;const h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000);$('myHours').textContent=`Today: ${h}h ${m}m`;$('atH').textContent=`${h}h${m}m`;}
+async function checkCiState(){const today=new Date().toISOString().split('T')[0];const { data } = await sb.from('attendance').select('*').eq('user_id',CU.id).eq('date',today).single();if(data?.clock_in&&!data?.clock_out){ciTime=new Date(data.clock_in);$('ciBtn').style.display='none';$('coBtn').style.display='';const b=$('clBadge');b.textContent='In '+new Date(data.clock_in).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});b.className='cl-badge cin';}}
 async function clockIn(){
-  clockInTime=new Date();const today=clockInTime.toISOString().split('T')[0];
-  const{error}=await sb.from('attendance').upsert([{user_id:currentUser.id,date:today,clock_in:clockInTime.toISOString()}],{onConflict:'user_id,date'});
-  if(error)return showNotif('Clock-in failed: '+error.message,'error');
-  document.getElementById('clockInBtn').style.display='none';
-  document.getElementById('clockOutBtn').style.display='';
-  document.getElementById('attendStatusBadge').textContent='In '+clockInTime.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-  document.getElementById('attendStatusBadge').style.cssText='background:rgba(76,175,122,.15);color:var(--green);padding:3px 10px;border-radius:100px';
-  showNotif('Clocked in','success');
+  if(ciTime)return notify('Already clocked in','error');
+  const now=new Date();const today=now.toISOString().split('T')[0];
+  const{error}=await sb.from('attendance').upsert([{user_id:CU.id,date:today,clock_in:now.toISOString()}],{onConflict:'user_id,date'});
+  if(error)return notify('Clock-in failed: '+error.message,'error');
+  ciTime=now;$('ciBtn').style.display='none';$('coBtn').style.display='';
+  const b=$('clBadge');b.textContent='In '+now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});b.className='cl-badge cin';
+  notify('Clocked in ✓','success');
 }
 async function clockOut(){
+  if(!ciTime)return notify('Not clocked in','error');
   const today=new Date().toISOString().split('T')[0];
-  const{error}=await sb.from('attendance').update({clock_out:new Date().toISOString()}).eq('user_id',currentUser.id).eq('date',today);
-  if(error)return showNotif('Clock-out failed: '+error.message,'error');
-  document.getElementById('clockOutBtn').style.display='none';
-  document.getElementById('clockInBtn').style.display='';
-  document.getElementById('attendStatusBadge').textContent='Clocked Out';
-  document.getElementById('attendStatusBadge').style.cssText='background:rgba(224,80,80,.12);color:var(--red);padding:3px 10px;border-radius:100px';
-  showNotif('Clocked out — good work!','success');
-}
-function renderAttendance(){
-  const today=new Date().toISOString().split('T')[0];
-  const todayAtt=STATE.attendance.filter(a=>a.date===today);
-  const todayCalls=STATE.calls.filter(c=>c.date===today);
-  document.getElementById('attPresent').textContent=todayAtt.length;
-  document.getElementById('attAbsent').textContent='—';
-  document.getElementById('attCalls').textContent=todayCalls.length;
-  const durs=todayCalls.filter(c=>c.dur).map(c=>Number(c.dur));
-  document.getElementById('attAvgDur').textContent=durs.length?Math.round(durs.reduce((s,d)=>s+d,0)/durs.length)+'m':'0m';
-  document.getElementById('attTbl').innerHTML=todayAtt.map(a=>{
-    const dur=a.clockIn&&a.clockOut?Math.round((new Date(a.clockOut)-new Date(a.clockIn))/60000)+'m':'—';
-    return`<tr><td>${a.userId}</td><td>—</td><td>${a.clockIn?new Date(a.clockIn).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'—'}</td><td>${a.clockOut?new Date(a.clockOut).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'Active'}</td><td>${dur}</td><td><span class="badge ${a.clockOut?'won':'pending'}">${a.clockOut?'Done':'Active'}</span></td></tr>`;
-  }).join('')||'<tr><td colspan="6" style="color:var(--dim);text-align:center;padding:20px">No attendance today.</td></tr>';
-  document.getElementById('callTbl').innerHTML=todayCalls.map(c=>{
-    const lead=STATE.leads.find(l=>l.id===c.leadId);
-    return`<tr><td>${c.by||currentUser?.name||'—'}</td><td>${lead?.full_name||'?'}</td><td>${c.dur||'—'}m</td><td><span class="badge ${(c.outcome||'').includes('Interested')?'won':'basic'}">${c.outcome||'—'}</span></td><td>${c.time||'—'}</td></tr>`;
-  }).join('')||'<tr><td colspan="5" style="color:var(--dim);text-align:center;padding:20px">No calls today.</td></tr>';
-}
-async function saveCall(){
-  const today=new Date().toISOString().split('T')[0];
-  const leadId=document.getElementById('callLead').value;
-  const dur=Number(document.getElementById('callDur').value)||null;
-  const outcome=document.getElementById('callOutcome').value;
-  const notes=document.getElementById('callNote').value;
-  const{error:ce}=await sb.from('calls').insert([{lead_id:leadId,duration:dur,outcome,notes}]);
-  if(ce)return showNotif('Save failed: '+ce.message,'error');
-  const{error:ie}=await sb.from('interactions').insert([{lead_id:leadId,type:'Call',date:today,duration:dur,notes,outcome}]);
-  closeModal('modalLogCall');
-  await loadCalls();await loadInteractions();
-  renderAttendance();renderInteractions();
-  showNotif('Call logged','success');
+  const{error}=await sb.from('attendance').update({clock_out:new Date().toISOString()}).eq('user_id',CU.id).eq('date',today);
+  if(error)return notify('Clock-out failed: '+error.message,'error');
+  $('coBtn').style.display='none';$('ciBtn').style.display='';
+  const b=$('clBadge');b.textContent='Clocked Out';b.className='cl-badge cout';
+  notify('Clocked out — good work!','success');ciTime=null;$('myHours').textContent='';
 }
 
-// ── REVENUE ───────────────────────────────────────────────────
-function renderRevenue(){
-  const probs=STATE.settings;
-  const won=STATE.leads.filter(l=>l.status==='Won'),pipeline=STATE.leads.filter(l=>!['Won','Lost'].includes(l.status));
-  const wonRev=won.reduce((s,l)=>s+Number(l.amount_paid||0),0);
-  const pipRev=pipeline.reduce((s,l)=>s+Number(l.amount_paid||0),0);
-  const weighted=STATE.leads.filter(l=>l.status!=='Lost').reduce((s,l)=>s+Number(l.amount_paid||0)*({New:probs.probNew,Contacted:probs.probContacted,Proposal:probs.probProposal,Won:probs.probWon}[l.status]||0)/100,0);
-  document.getElementById('fRevWon').textContent=fmtINR(wonRev);
-  document.getElementById('fRevPipeline').textContent=fmtINR(pipRev);
-  document.getElementById('fRevForecast').textContent=fmtINR(weighted);
-  document.getElementById('fRevTarget').textContent=fmtINR(probs.target||500000);
-  const months=[],wonM=[],pipM=[];
-  for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);months.push(d.toLocaleDateString('en-IN',{month:'short'}));wonM.push(won.filter(l=>new Date(l.created_at||0).getMonth()===d.getMonth()).reduce((s,l)=>s+Number(l.amount_paid||0),0));pipM.push(pipeline.filter(l=>new Date(l.created_at||0).getMonth()===d.getMonth()).reduce((s,l)=>s+Number(l.amount_paid||0),0));}
-  const mx=Math.max(...wonM,...pipM,1);
-  document.getElementById('forecastBars').innerHTML=months.map((m,i)=>`<div class="f-bar-wrap"><div style="font-size:.6rem;color:var(--dim);height:14px">${wonM[i]>0?'₹'+(wonM[i]/100000).toFixed(1)+'L':''}</div><div style="flex:1;display:flex;align-items:flex-end;gap:2px;width:100%"><div class="f-bar won" style="height:${Math.round(wonM[i]/mx*100)}%;flex:1"></div><div class="f-bar pipeline" style="height:${Math.round(pipM[i]/mx*100)}%;flex:1"></div></div><div class="f-bar-lbl">${m}</div></div>`).join('');
-  const stages=['New','Contacted','Proposal','Won'];const sVals=stages.map(s=>STATE.leads.filter(l=>l.status===s).reduce((sum,l)=>sum+Number(l.amount_paid||0),0));const mxSV=Math.max(...sVals,1);
-  document.getElementById('stageValues').innerHTML=stages.map((s,i)=>`<div style="display:flex;align-items:center;gap:10px;font-size:.8rem"><div style="width:80px;color:var(--dim)">${s}</div><div style="flex:1;background:rgba(255,255,255,.06);border-radius:4px;height:7px"><div style="width:${Math.round(sVals[i]/mxSV*100)}%;height:100%;border-radius:4px;background:var(--gold)"></div></div><div style="width:70px;text-align:right;color:var(--gold)">${fmtINR(sVals[i])}</div></div>`).join('');
-  document.getElementById('dealsTbl').innerHTML=STATE.leads.filter(l=>l.status!=='Lost'&&l.amount_paid).map(l=>{const p=({New:probs.probNew,Contacted:probs.probContacted,Proposal:probs.probProposal,Won:probs.probWon}[l.status]||0);return`<tr><td>${l.full_name}</td><td>${l.service_type||'—'}</td><td style="color:var(--gold)">${fmtINR(l.amount_paid||0)}</td><td><span class="badge ${(l.status||'new').toLowerCase()}">${l.status}</span></td><td>${p}%</td><td style="color:var(--green)">${fmtINR(Math.round(Number(l.amount_paid||0)*p/100))}</td><td>${l.expected_close||'—'}</td></tr>`;}).join('')||'<tr><td colspan="7" style="color:var(--dim);text-align:center;padding:20px">No deals with value set yet.</td></tr>';
-}
+// ── ATTENDANCE ─────────────────────────────────
+function renderAtt(){const today=new Date().toISOString().split('T')[0];const ta=S.attendance.filter(a=>a.date===today);const tc=S.calls.filter(c=>c.date===today);$('atP').textContent=ta.length;$('atC').textContent=tc.length;const durs=tc.filter(c=>c.dur).map(c=>N(c.dur));$('atA').textContent=durs.length?Math.round(durs.reduce((s,d)=>s+d,0)/durs.length)+'m':'0m';$('attTbl').innerHTML=ta.map(a=>{const dur=a.clockIn&&a.clockOut?Math.round((new Date(a.clockOut)-new Date(a.clockIn))/60000)+'m':'Active';return`<tr><td style="font-size:.74rem">${a.userId?.slice(0,10)||'—'}</td><td>${a.clockIn?new Date(a.clockIn).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'—'}</td><td>${a.clockOut?new Date(a.clockOut).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'Active'}</td><td>${dur}</td><td><span class="badge ${a.clockOut?'won':'pending'}">${a.clockOut?'Done':'Active'}</span></td></tr>`;}).join('')||'<tr><td colspan="5" style="color:var(--dim);text-align:center;padding:14px">No attendance today.</td></tr>';$('callTbl').innerHTML=tc.map(c=>{const l=S.leads.find(x=>x.id===c.leadId);return`<tr><td>${l?.full_name||'?'}</td><td>${c.dur||'—'}m</td><td><span class="badge ${(c.outcome||'').includes('Interested')?'won':'basic'}">${c.outcome||'—'}</span></td><td>${c.time||'—'}</td></tr>`;}).join('')||'<tr><td colspan="4" style="color:var(--dim);text-align:center;padding:14px">No calls today.</td></tr>';}
+function openLogCall(){popLeads('cL');openM('mCall');}
+async function saveCall(){const lid=$('cL').value,dur=N($('cD').value)||null,out=$('cO').value,notes=$('cN').value,today=new Date().toISOString().split('T')[0];await sb.from('calls').insert([{lead_id:lid,duration:dur,outcome:out,notes}]);await sb.from('interactions').insert([{lead_id:lid,type:'Call',date:today,duration:dur,notes,outcome:out}]);closeM('mCall');await loadCalls();await loadInts();renderAtt();renderInts();notify('Call logged','success');}
 
-// ── COMPOSE ───────────────────────────────────────────────────
-function renderComposeLead(){document.getElementById('composeLeadTbl').innerHTML=STATE.leads.map(l=>`<tr><td>${l.full_name}</td><td style="font-size:.76rem">${l.email||'—'}</td><td style="font-size:.76rem">${l.phone||'—'}</td><td><button class="act-btn" onclick="selectLeadForCompose('${l.id}')">→</button></td></tr>`).join('');}
-function selectLeadForCompose(id){const l=STATE.leads.find(x=>x.id===id);if(!l)return;document.getElementById('emailTo').value=l.email||'';document.getElementById('smsPhone').value=l.phone||'';showNotif(`Selected: ${l.full_name}`);}
-function renderTemplates(){
-  const tpls=[
-    {id:'t1',type:'Email',channel:'email',name:'Welcome',subject:'Welcome to MIBO',body:'Dear {{name}},\n\nThank you for reaching out to MIBO!'},
-    {id:'t2',type:'Email',channel:'email',name:'Follow-up',subject:'Following up — MIBO',body:'Hi {{name}},\n\nFollowing up on your enquiry.'},
-    {id:'t3',type:'SMS',channel:'whatsapp',name:'Visit Reminder',body:'Hi {{name}}, reminder: MIBO site visit on {{slot_date}}. — MIBO'},
-  ];
-  document.getElementById('templatesGrid').innerHTML=tpls.map(t=>`<div class="tpl-card" onclick="loadTplCompose('${t.id}','${t.channel}')"><div class="tpl-tag">${t.type}</div><div class="tpl-name">${t.name}</div><div class="tpl-preview">${(t.body||'').replace(/\n/g,' ')}</div></div>`).join('');
-}
-function loadTplCompose(id,ch){
-  const tpls={t1:{subj:'Welcome to MIBO',body:'Dear {{name}},\n\nThank you for reaching out!'},t2:{subj:'Following up — MIBO',body:'Hi {{name}},\n\nFollowing up on your enquiry.'},t3:{body:'Hi {{name}}, reminder: MIBO site visit on {{slot_date}}. — MIBO'}};
-  const t=tpls[id];if(!t)return;
-  if(ch==='email'){document.getElementById('emailSubject').value=t.subj||'';document.getElementById('emailBody').value=t.body||'';}
-  else{document.getElementById('smsBody').value=t.body||'';}
-  nav('compose',null);showNotif('Template loaded','success');
-}
-function sendEmail(){const to=document.getElementById('emailTo').value,subj=document.getElementById('emailSubject').value,body=document.getElementById('emailBody').value;if(!to||!subj){showNotif('To and Subject required','error');return;}window.open(`mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`,'_blank');const ts=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});sentLog.unshift(`${ts} — Email → ${to}`);document.getElementById('sentLog').innerHTML=sentLog.slice(0,10).join('<br>');showNotif('Email opened','success');}
-function saveDraft(){showNotif('Draft saved','success');}
-function sendSMS(){const phone=document.getElementById('smsPhone').value,body=document.getElementById('smsBody').value,ch=document.getElementById('smsChannel').value;if(!phone||!body){showNotif('Phone and message required','error');return;}if(ch==='whatsapp')window.open(`https://wa.me/${phone.replace(/\D/g,'')}?text=${encodeURIComponent(body)}`,'_blank');const ts=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});sentLog.unshift(`${ts} — ${ch.toUpperCase()} → ${phone}`);document.getElementById('sentLog').innerHTML=sentLog.slice(0,10).join('<br>');}
+// ── REVENUE ────────────────────────────────────
+function renderRevenue(){const cfg=S.cfg;const won=S.leads.filter(l=>l.status==='Won'),pipe=S.leads.filter(l=>!['Won','Lost'].includes(l.status));const wonR=won.reduce((s,l)=>s+N(l.amount_paid),0),pipeR=pipe.reduce((s,l)=>s+N(l.amount_paid),0);const fcst=S.leads.filter(l=>l.status!=='Lost').reduce((s,l)=>s+N(l.amount_paid)*({New:cfg.probNew,Contacted:cfg.probContacted,Proposal:cfg.probProposal,Won:cfg.probWon}[l.status]||0)/100,0);$('rW').textContent=INR(wonR);$('rP').textContent=INR(pipeR);$('rF').textContent=INR(fcst);$('rT').textContent=INR(cfg.target||500000);const months=[],wM=[],pM=[];for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);months.push(d.toLocaleDateString('en-IN',{month:'short'}));wM.push(won.filter(l=>new Date(l.created_at||0).getMonth()===d.getMonth()).reduce((s,l)=>s+N(l.amount_paid),0));pM.push(pipe.filter(l=>new Date(l.created_at||0).getMonth()===d.getMonth()).reduce((s,l)=>s+N(l.amount_paid),0));}const mx=Math.max(...wM,...pM,1);$('fBars').innerHTML=months.map((m,i)=>`<div class="fbw"><div style="font-size:.56rem;color:var(--dim);height:11px">${wM[i]>0?'₹'+(wM[i]/100000).toFixed(1)+'L':''}</div><div style="flex:1;display:flex;align-items:flex-end;gap:2px;width:100%"><div class="fbar won" style="height:${Math.round(wM[i]/mx*100)}%;flex:1"></div><div class="fbar pipe" style="height:${Math.round(pM[i]/mx*100)}%;flex:1"></div></div><div class="fbl">${m}</div></div>`).join('');const stg=['New','Contacted','Proposal','Won'];const sV=stg.map(s=>S.leads.filter(l=>l.status===s).reduce((sum,l)=>sum+N(l.amount_paid),0));const mxSV=Math.max(...sV,1);$('sVals').innerHTML=stg.map((s,i)=>`<div style="display:flex;align-items:center;gap:8px;font-size:.74rem"><div style="width:68px;color:var(--dim)">${s}</div><div style="flex:1;background:var(--bg3);border-radius:3px;height:5px"><div style="width:${Math.round(sV[i]/mxSV*100)}%;height:100%;border-radius:3px;background:var(--gold)"></div></div><div style="width:58px;text-align:right;color:var(--gold)">${INR(sV[i])}</div></div>`).join('');$('dealsTbl').innerHTML=S.leads.filter(l=>l.status!=='Lost'&&l.amount_paid).map(l=>{const p=({New:cfg.probNew,Contacted:cfg.probContacted,Proposal:cfg.probProposal,Won:cfg.probWon}[l.status]||0);return`<tr><td>${l.full_name}</td><td>${l.service_type||'—'}</td><td style="color:var(--gold)">${INR(l.amount_paid)}</td><td><span class="badge ${sc(l.status)}">${l.status}</span></td><td>${p}%</td><td style="color:var(--green)">${INR(Math.round(N(l.amount_paid)*p/100))}</td></tr>`;}).join('')||'<tr><td colspan="6" style="color:var(--dim);text-align:center;padding:14px">No deals with value set.</td></tr>';}
 
-// ── SETTINGS ──────────────────────────────────────────────────
-function renderSettings(){
-  document.getElementById('cfgTarget').value=STATE.settings.target||500000;
-  document.getElementById('teamList').innerHTML='<div style="font-size:.8rem;color:var(--dim);padding:8px 0">User management is handled in Supabase Authentication. Visit your Supabase dashboard → Auth → Users to add/remove team members.</div>';
-}
-function saveSettings(){STATE.settings.target=Number(document.getElementById('cfgTarget').value)||500000;STATE.settings.probNew=Number(document.getElementById('probNew').value)||10;STATE.settings.probContacted=Number(document.getElementById('probContacted').value)||25;STATE.settings.probProposal=Number(document.getElementById('probProposal').value)||50;STATE.settings.probWon=Number(document.getElementById('probWon').value)||100;renderRevenue();showNotif('Settings saved','success');}
-async function pingDB(){const{data,error}=await sb.from('leads').select('id').limit(1);document.getElementById('cfgSbStatus').textContent=error?'❌ Error: '+error.message:'✅ Connected — '+new Date().toLocaleTimeString('en-IN');}
-async function openAddUser(){showNotif('Use Supabase Dashboard → Auth → Invite User to add team members.');}
-function saveUser(){showNotif('Use Supabase Dashboard to manage users.');}
-function removeUser(){showNotif('Use Supabase Dashboard to manage users.');}
+// ── PRICING (from/to Supabase) ─────────────────
+async function loadPricing(){const { data } = await sb.from('settings').select('key,value').in('key',['price_local','price_remote']);if(data){data.forEach(r=>{if(r.key==='price_local'){$('pLoc').value=r.value;$('pLocD').textContent='₹'+N(r.value).toLocaleString('en-IN');}if(r.key==='price_remote'){$('pRem').value=r.value;$('pRemD').textContent='₹'+N(r.value).toLocaleString('en-IN');}});}}
+async function savePricing(){const loc=N($('pLoc').value)||7000,rem=N($('pRem').value)||12000;const { error } = await sb.from('settings').upsert([{key:'price_local',value:String(loc)},{key:'price_remote',value:String(rem)}],{onConflict:'key'});if(error){notify('Save failed: '+error.message,'error');return;}$('pLocD').textContent='₹'+loc.toLocaleString('en-IN');$('pRemD').textContent='₹'+rem.toLocaleString('en-IN');notify('Pricing saved and live ✓','success');}
 
-// ── MODAL HELPERS ─────────────────────────────────────────────
-function openModal(id){document.getElementById(id).classList.add('open');}
-function closeModal(id){document.getElementById(id).classList.remove('open');}
-document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
-function openAddInteraction(){populateLeadSelects();document.getElementById('intDate').value=new Date().toISOString().split('T')[0];openModal('modalAddInt');}
-function openInteraction(leadId){openAddInteraction();document.getElementById('intLead').value=leadId;}
-function openAddFollowup(){renderUserSelects();populateLeadSelects();document.getElementById('fuDate').value=new Date().toISOString().split('T')[0];openModal('modalAddFu');}
-function openFollowupFor(leadId){openAddFollowup();document.getElementById('fuLead').value=leadId;}
-function logCall(){populateLeadSelects();openModal('modalLogCall');}
-function renderUserSelects(){['fuAssigned'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=`<option>${currentUser?.name||'Me'}</option>`;});}
-function populateLeadSelects(){['intLead','fuLead','callLead'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=STATE.leads.map(l=>`<option value="${l.id}">${l.full_name}</option>`).join('');});}
+// ── SETTINGS ───────────────────────────────────
+function saveRevCfg(){S.cfg.target=N($('cfgT').value)||500000;S.cfg.probNew=N($('pN').value)||10;S.cfg.probContacted=N($('pCo').value)||25;S.cfg.probProposal=N($('pPr').value)||50;S.cfg.probWon=N($('pW').value)||100;renderRevenue();notify('Revenue settings saved','success');}
+async function loadTeam(){const { data } = await sb.from('profiles').select('name,email,role');$('teamList').innerHTML=data?.map(u=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border2);font-size:.8rem"><div><div style="color:var(--text)">${u.name||u.email}</div><div style="font-size:.72rem;color:var(--dim)">${u.email} · ${u.role}</div></div></div>`).join('')||'<div style="font-size:.78rem;color:var(--dimmer)">No profiles found yet. Users are created via Supabase Auth.</div>';}
+async function pingDB(){const{data,error}=await sb.from('leads').select('id').limit(1);$('dbStatus').textContent=error?'❌ Error: '+error.message:'✅ Connected — '+new Date().toLocaleTimeString('en-IN');}
 
-// ── NAVIGATION ────────────────────────────────────────────────
-function nav(id,el){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.sb-link').forEach(l=>l.classList.remove('active'));
-  document.getElementById('page-'+id)?.classList.add('active');
-  if(el)el.classList.add('active');
-  const titles={dashboard:'Dashboard',opportunities:'Opportunities',leads:'All Leads',interactions:'Interactions',followups:'Follow-ups',compose:'Email & SMS',documents:'Documents',revenue:'Revenue Forecast',attendance:'Attendance',settings:'Settings'};
-  document.getElementById('pageTitle').textContent=titles[id]||id;
-  if(id==='documents'){initDropZone();renderDocuments();}
-}
+// ── NAV ────────────────────────────────────────
+function nav(id,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.sb-link').forEach(l=>l.classList.remove('active'));$('page-'+id)?.classList.add('active');if(el)el.classList.add('active');const titles={dashboard:'Dashboard',opportunities:'Pipeline',leads:'All Leads',interactions:'Interactions',followups:'Follow-ups',compose:'Email & SMS',templates:'Templates',spreadsheet:'Spreadsheet',documents:'Documents',revenue:'Revenue',attendance:'Attendance',settings:'Settings'};$('pageTitle').textContent=titles[id]||id;if(id==='documents'){renderDocs();}if(id==='spreadsheet'){renderSheet();}}
 
-// ── UTILITIES ─────────────────────────────────────────────────
-function fmtINR(n){return new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(n||0);}
-function fmtDate(d){return d?new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'2-digit'}):'—';}
-function filterTable(q,tblId){const ql=q.toLowerCase();document.querySelectorAll(`#${tblId} tr`).forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(ql)?'':'none';});}
-function exportCSV(){const h='Name,Phone,Email,City,State,Service,Budget,Score,Stage,Paid,Amount,PaymentID,Created\n';const r=STATE.leads.map(l=>[l.full_name,l.phone,l.email,l.city,l.state,l.service_type,l.budget_range,l.lead_score,l.status,l.is_paid?'Yes':'No',l.amount_paid||0,l.payment_id||'',l.created_at?.split('T')[0]].map(v=>`"${v||''}"`).join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(h+r);a.download='mibo-leads-'+new Date().toISOString().slice(0,10)+'.csv';a.click();showNotif('CSV exported','success');}
-function showNotif(msg,type=''){const n=document.getElementById('notif');n.textContent=msg;n.className='notif show'+(type?' '+type:'');setTimeout(()=>n.classList.remove('show'),3800);}
+// ── MODAL HELPERS ──────────────────────────────
+function openM(id){$(id).classList.add('open');}
+function closeM(id){$(id).classList.remove('open');}
+document.querySelectorAll('.mb').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
 
-// ── ENTER KEY ─────────────────────────────────────────────────
-document.getElementById('loginPass').addEventListener('keypress',e=>{if(e.key==='Enter')doLogin();});
+// ── LEAD SELECTS ───────────────────────────────
+function popLeads(selId='iL'){const ids=['iL','fL','cL',selId];ids.forEach(id=>{const el=$(id);if(el)el.innerHTML=S.leads.map(l=>`<option value="${l.id}">${l.full_name}</option>`).join('');});}
+
+// ── EXPORT CSV ────────────────────────────────
+function exportCSV(){const h='Name,Phone,Email,City,State,Service,Budget,Score,Stage,Paid,Amount,PayID,Created\n';const r=S.leads.map(l=>[l.full_name,l.phone,l.email,l.city,l.state,l.service_type,l.budget_range,l.lead_score,l.status,l.is_paid?'Yes':'No',l.amount_paid||0,l.payment_id||'',l.created_at?.split('T')[0]].map(v=>`"${v||''}"`).join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(h+r);a.download='mibo-leads-'+new Date().toISOString().slice(0,10)+'.csv';a.click();notify('CSV exported','success');}
+
+// ── UTILS ──────────────────────────────────────
+const $=id=>document.getElementById(id);
+const N=v=>Number(v)||0;
+const INR=n=>new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(n||0);
+const dt=d=>d?new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'2-digit'}):'—';
+const sc=s=>(s||'basic').toLowerCase().replace(/\s+/g,'');
+const esc=s=>(s||'').replace(/'/g,"'");
+function filterTbl(q,id){const ql=q.toLowerCase();document.querySelectorAll(`#${id} tr`).forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(ql)?'':'none';});}
+function notify(msg,type=''){const n=$('notif');n.textContent=msg;n.className='notif show'+(type?' '+type:'');setTimeout(()=>n.classList.remove('show'),3800);}
+
+// ── ENTER KEY ─────────────────────────────────
+$('loginPass').addEventListener('keypress',e=>{if(e.key==='Enter')doLogin();});
 </script>
 </body>
 </html>
