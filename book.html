@@ -340,5 +340,11 @@ function updateSummary() {
   document.getElementById('payAmount').textContent = '₹' + (detectedLocation.price || 12000).toLocaleString('en-IN');
 }
 </script>
+
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+
 </body>
 </html>
